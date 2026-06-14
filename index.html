@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ISEE Maths Practice Quiz [STAGING]</title>
+<title>[STAGING] ISEE Maths Practice Quiz</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1a1a2e;min-height:100vh;}
@@ -105,6 +105,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .nav-btn:disabled{opacity:0.35;cursor:default;}
 .nav-btn.primary{background:#1a3a5c;color:white;border-color:#1a3a5c;}
 .nav-btn.primary:hover:not(:disabled){background:#0f2640;}
+/* ── TAXONOMY HEAT GRID ── */
+.heat-wrap{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-top:0;}
+.heat-head{display:grid;grid-template-columns:150px repeat(3,1fr);background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary);}
+.hh{padding:8px 6px;font-size:11px;font-weight:500;color:var(--color-text-secondary);text-align:center;}
+.hh:first-child{text-align:left;padding-left:12px;}
+.heat-row{display:grid;grid-template-columns:150px repeat(3,1fr);border-bottom:0.5px solid var(--color-border-tertiary);}
+.heat-row:last-child{border-bottom:none;}
+.hc{padding:8px 6px;font-size:12px;display:flex;align-items:center;justify-content:center;}
+.hc:first-child{justify-content:flex-start;padding-left:12px;color:var(--color-text-primary);font-size:12px;}
+.hcell{border-radius:6px;width:90%;text-align:center;padding:4px 4px;font-size:11px;font-weight:500;}
+.hc-strong{background:#EAF3DE;color:#27500A;}
+.hc-ok{background:#FAEEDA;color:#633806;}
+.hc-weak{background:#FCEBEB;color:#791F1F;}
+.hc-none{background:var(--color-background-secondary);color:var(--color-text-tertiary);font-size:11px;}
+.heat-legend{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;}
+.hl{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary);}
+.hl-dot{width:8px;height:8px;border-radius:50%;}
+@media(max-width:500px){
+  .heat-head,.heat-row{grid-template-columns:110px repeat(3,1fr);}
+  .hh,.hc{font-size:10px;padding:6px 3px;}
+  .hh:first-child,.hc:first-child{padding-left:8px;}
+}
 
 /* PARENT DASHBOARD */
 .ql-wrap{max-width:760px;margin:0 auto;padding:1.1rem 1rem 3rem;}
@@ -112,13 +134,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 </head>
 <body>
 
-<div style="background:#f59e0b;color:#1a1a2e;text-align:center;padding:8px;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;">
-  ⚠️ STAGING ENVIRONMENT — test data only — not your son's real quiz
-</div>
+<div style="background:#f59e0b;color:#1a1a2e;text-align:center;padding:8px;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;">STAGING — test data only</div>
 <!-- SCREEN 1: HOME -->
 <div id="screen-home" class="screen active">
   <div class="home-hero">
-    <h2>🎓 ISEE Maths Practice Quiz [STAGING]</h2>
+    <h2>🎓 ISEE Maths Practice Quiz</h2>
     <p>Interactive practice for Mathematics Achievement &amp; Quantitative Reasoning</p>
   </div>
   <div class="home-body">
@@ -163,6 +183,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
       </div>
     </div>
 
+
+    <div class="dash-section">
+      <div class="dash-title">📊 Performance by strand &amp; difficulty</div>
+      <div class="heat-wrap">
+        <div class="heat-head">
+          <div class="hh">Strand</div>
+          <div class="hh">DoK 1<br><span style="font-weight:400;font-size:10px;">recall</span></div>
+          <div class="hh">DoK 2<br><span style="font-weight:400;font-size:10px;">conceptual</span></div>
+          <div class="hh">DoK 3<br><span style="font-weight:400;font-size:10px;">analytical</span></div>
+        </div>
+        <div id="heat-grid-body">
+          <div class="heat-row" style="grid-column:span 4;padding:14px;text-align:center;">
+            <div class="hc" style="grid-column:span 4;color:var(--color-text-tertiary);font-size:13px;">Answer some questions to see your performance map</div>
+          </div>
+        </div>
+      </div>
+      <div class="heat-legend">
+        <div class="hl"><div class="hl-dot" style="background:#639922"></div>Strong (70%+)</div>
+        <div class="hl"><div class="hl-dot" style="background:#BA7517"></div>Developing (50–69%)</div>
+        <div class="hl"><div class="hl-dot" style="background:#E24B4A"></div>Needs work (&lt;50%)</div>
+        <div class="hl"><div class="hl-dot" style="background:var(--color-border-tertiary)"></div>Not yet answered</div>
+      </div>
+    </div>
     <div class="dash-section">
       <div class="dash-title">🚀 Choose a Pathway</div>
       <div class="pathway-grid">
@@ -291,7 +334,7 @@ const SESSION_ID = localStorage.getItem(_todayKey) ||
    Format: ,{n:"QR-21",sec:"QR",text:"...",opts:["A","B","C","D"],ans:0,exp:"..."}
 ════════════════════════════════════════ */
 const ALL_QUESTIONS = [
-{n:"MA-1",sec:"MA",text:"Which of the following shapes ALWAYS has all four sides equal in length AND all four angles equal to 90 degrees?",opts:["Rectangle","Parallelogram","Square","Trapezoid"],ans:2,exp:"A square must have all four sides equal AND all four angles of 90°. A rectangle has equal angles but not necessarily equal sides."},
+  {n:"MA-1",sec:"MA",text:"Which of the following shapes ALWAYS has all four sides equal in length AND all four angles equal to 90 degrees?",opts:["Rectangle","Parallelogram","Square","Trapezoid"],ans:2,exp:"A square must have all four sides equal AND all four angles of 90°. A rectangle has equal angles but not necessarily equal sides."},
   {n:"MA-2",sec:"MA",text:"Four students recorded the number of pages they read over five days (see table).\n\nFrom Day 1 to Day 5, how many MORE pages did Zoe read on Day 5 than on Day 1?",opts:["10","12","14","16"],ans:1,exp:"Zoe read 18 pages on Day 1 and 30 on Day 5. The increase is 30 − 18 = 12 pages.",diag:"table_zoe"},
   {n:"MA-3",sec:"MA",text:"Which fraction is equivalent to 0.6?",opts:["6/100","6/10","3/5","Both B and C"],ans:3,exp:"0.6 = 6/10 (option B) and 6/10 simplifies to 3/5 (option C). Both are equivalent to 0.6."},
   {n:"MA-4",sec:"MA",text:"Daniel buys four items costing $6.75, $11.49, $3.29, and $9.89. What is the best estimate of the total cost?",opts:["Between $25 and $30","Between $30 and $35","Between $35 and $40","Between $40 and $45"],ans:1,exp:"Rounding: $7+$11+$3+$10=$31. The exact total $31.42 falls between $30 and $35."},
@@ -302,6 +345,14 @@ const ALL_QUESTIONS = [
   {n:"MA-9",sec:"MA",text:"An L-shaped room has an outer rectangle 14 m wide and 10 m tall. A corner 6 m wide and 4 m tall is removed. What is the floor area in square metres?",opts:["116 m²","124 m²","132 m²","140 m²"],ans:0,exp:"Full rectangle = 14×10 = 140 m². Cut-out = 6×4 = 24 m². Total = 140−24 = 116 m².",diag:"lshape"},
   {n:"MA-10",sec:"MA",text:"There are 5 more cats than dogs at a shelter. If there are 8 dogs, what fraction of all animals are dogs?",opts:["8/13","8/21","5/13","8/5"],ans:1,exp:"8 dogs + 13 cats = 21 total. Fraction of dogs = 8/21."},
   {n:"MA-11",sec:"MA",text:"A school surveyed 320 students about their favourite sport. The most popular gets a trophy; 2nd and 3rd get certificates. Which sports get the certificate?",opts:["Swimming and Cricket","Basketball and Swimming","Basketball and Tennis","Tennis and Swimming"],ans:2,exp:"Ranked: Football 95, Basketball 72, Tennis 61, Swimming 48, Cricket 44. Certificate = Basketball and Tennis.",diag:"sports_table"},
+  {n:"MA-12",sec:"MA",text:"Sara had 6 pencils and 9 pens. She lost half of her pencils and a third of her pens. How many pencils and pens does she have remaining?",opts:["5","7","9","11"],ans:2,exp:"Half of 6 pencils = 3 remaining. A third of 9 pens = 3 given away, leaving 6 pens. Total = 3 + 6 = 9."},
+  {n:"MA-13",sec:"MA",text:"Jamie and 7 other students each earned an equal number of bonus points. Which number could represent the total number of bonus points the students received?",opts:["1,100","1,420","1,610","1,920"],ans:3,exp:"There are 8 students total (Jamie + 7 others). The total must be divisible by 8. 1,920 ÷ 8 = 240 exactly. The other options do not divide evenly by 8."},
+  {n:"MA-14",sec:"MA",text:"Penny has a total of 252 eggs. She will fill empty egg cartons that each hold 14 eggs. What is the greatest number of egg cartons that Penny can fill completely?",opts:["16","17","18","19"],ans:2,exp:"252 ÷ 14 = 18 exactly with no eggs left over. So Penny can fill 18 cartons completely."},
+  {n:"MA-15",sec:"MA",text:"Use the set of numbers shown to answer the question.\n\n5   7   11   13   17\n\nWhich does NOT describe this set of numbers?",opts:["composite numbers","odd numbers","prime numbers","whole numbers"],ans:0,exp:"All five numbers are odd, prime, and whole numbers. None are composite — a composite number has more than two factors, but these numbers are all prime."},
+  {n:"MA-16",sec:"MA",text:"Which number leaves a remainder of 3 when divided by both 4 and 7?",opts:["27","31","55","59"],ans:3,exp:"59 ÷ 4 = 14 remainder 3 ✓ and 59 ÷ 7 = 8 remainder 3 ✓. No other option satisfies both conditions."},
+  {n:"MA-17",sec:"MA",text:"Which number is NOT a multiple of 6?",opts:["54","78","96","100"],ans:3,exp:"54÷6=9, 78÷6=13, and 96÷6=16 are all exact. But 100÷6=16.67, which is not a whole number, so 100 is not a multiple of 6."},
+  {n:"MA-18",sec:"MA",text:"Amy ran 7/8 of a mile. Ben ran 1/2 of a mile less than Amy. What fraction of a mile did Ben run?",opts:["1/4","3/8","1/2","3/4"],ans:1,exp:"7/8 − 1/2 = 7/8 − 4/8 = 3/8 of a mile."},
+  {n:"MA-19",sec:"MA",text:"A warehouse stores 120 boxes of tiles. Each box weighs 40 pounds. How many pounds of tiles are stored in the warehouse in total?",opts:["80","480","4,800","48,000"],ans:2,exp:"120 boxes × 40 pounds each = 4,800 pounds total."},
   {n:"QR-1",sec:"QR",text:"The perimeter of this 6-sided polygon is 48 cm. Known sides: 9 cm, 4 cm, 4 cm, 7 cm, and 7 cm. Find x.",opts:["13 cm","15 cm","17 cm","19 cm"],ans:2,exp:"9+4+4+7+7 = 31 cm. x = 48−31 = 17 cm.",diag:"hexagon"},
   {n:"QR-2",sec:"QR",text:"A car covers 150 miles in 3 hours at constant speed. How long to travel 250 miles?",opts:["4 hours","4 hrs 30 min","5 hours","5 hrs 30 min"],ans:2,exp:"Speed = 150÷3 = 50 mph. Time = 250÷50 = 5 hours."},
   {n:"QR-3",sec:"QR",text:"Which is the smallest fraction?",opts:["5/9","4/7","3/8","7/12"],ans:2,exp:"As decimals: 5/9≈0.556, 4/7≈0.571, 3/8=0.375, 7/12≈0.583. Smallest is 3/8."},
@@ -321,22 +372,13 @@ const ALL_QUESTIONS = [
   {n:"QR-17",sec:"QR",text:"Five athletes ran these laps: 8, 6, 10, 6, 10. What was the mean?",opts:["6","7","8","10"],ans:2,exp:"Total = 8+6+10+6+10 = 40. Mean = 40÷5 = 8 laps.",diag:"barchart"},
   {n:"QR-18",sec:"QR",text:"Which equation means '5 less than 3 times a number equals 7 more than the number'? Let n = unknown.",opts:["3n − 5 = n + 7","3n + 5 = n − 7","5 − 3n = n + 7","3n − 5 = 7n"],ans:0,exp:"3n−5 = n+7. Solving: 2n=12, n=6."},
   {n:"QR-19",sec:"QR",text:"On a number line (each mark = 2 units): X is at the 4th mark (=8). Y is at the 9th mark (=18). Y is the average of X and Z. What is Z?",opts:["22","26","28","32"],ans:2,exp:"Y=(X+Z)÷2 → 18=(8+Z)÷2 → 36=8+Z → Z=28.",diag:"numline2"},
-  {n:"QR-20",sec:"QR",text:"Vertices of a quadrilateral: (1,2) (1,6) (5,2) (5,6).\n\nWhich term best describes the shape formed?",opts:["Trapezoid","Rhombus","Rectangle","Kite"],ans:2,exp:"Width=4, Height=4, all angles=90°. This is a square — a special rectangle.",diag:"coords"}
+  {n:"QR-20",sec:"QR",text:"Vertices of a quadrilateral: (1,2) (1,6) (5,2) (5,6).\n\nWhich term best describes the shape formed?",opts:["Trapezoid","Rhombus","Rectangle","Kite"],ans:2,exp:"Width=4, Height=4, all angles=90°. This is a square — a special rectangle.",diag:"coords"},
+  {n:"QR-21",sec:"QR",text:"A small piece of material is cut into 5 squares. A large piece of material is cut into 4 times as many squares as the small piece. How many squares is the large piece of material cut into?",opts:["9 squares","16 squares","20 squares","25 squares"],ans:2,exp:"The small piece is cut into 5 squares. The large piece is cut into 4 times as many: 4 × 5 = 20 squares."}
 
-,{n:"QR-21",sec:"QR",text:"A small piece of material is cut into 5 squares. A large piece of material is cut into 4 times as many squares as the small piece. How many squares is the large piece of material cut into?",opts:["9 squares","16 squares","20 squares","25 squares"],ans:2,exp:"The small piece is cut into 5 squares. The large piece is cut into 4 times as many: 4 × 5 = 20 squares."}
-,{n:"MA-12",sec:"MA",text:"Sara had 6 pencils and 9 pens. She lost half of her pencils and a third of her pens. How many pencils and pens does she have remaining?",opts:["5","7","9","11"],ans:2,exp:"Half of 6 pencils = 3 remaining. A third of 9 pens = 3 given away, leaving 6 pens. Total = 3 + 6 = 9."}
-,{n:"MA-13",sec:"MA",text:"Jamie and 7 other students each earned an equal number of bonus points. Which number could represent the total number of bonus points the students received?",opts:["1,100","1,420","1,610","1,920"],ans:3,exp:"There are 8 students total (Jamie + 7 others). The total must be divisible by 8. 1,920 ÷ 8 = 240 exactly. The other options do not divide evenly by 8."}
-,{n:"MA-14",sec:"MA",text:"Penny has a total of 252 eggs. She will fill empty egg cartons that each hold 14 eggs. What is the greatest number of egg cartons that Penny can fill completely?",opts:["16","17","18","19"],ans:2,exp:"252 ÷ 14 = 18 exactly with no eggs left over. So Penny can fill 18 cartons completely."}  
-,{n:"MA-15",sec:"MA",text:"Use the set of numbers shown to answer the question.\n\n5   7   11   13   17\n\nWhich does NOT describe this set of numbers?",opts:["composite numbers","odd numbers","prime numbers","whole numbers"],ans:0,exp:"All five numbers are odd, prime, and whole numbers. None are composite — a composite number has more than two factors, but these numbers are all prime."}  
-,{n:"MA-16",sec:"MA",text:"Which number leaves a remainder of 3 when divided by both 4 and 7?",opts:["27","31","55","59"],ans:3,exp:"59 ÷ 4 = 14 remainder 3 ✓ and 59 ÷ 7 = 8 remainder 3 ✓. No other option satisfies both conditions."}
-,{n:"MA-17",sec:"MA",text:"Which number is NOT a multiple of 6?",opts:["54","78","96","100"],ans:3,exp:"54÷6=9, 78÷6=13, and 96÷6=16 are all exact. But 100÷6=16.67, which is not a whole number, so 100 is not a multiple of 6."}
-,{n:"MA-18",sec:"MA",text:"Amy ran 7/8 of a mile. Ben ran 1/2 of a mile less than Amy. What fraction of a mile did Ben run?",opts:["1/4","3/8","1/2","3/4"],ans:1,exp:"7/8 − 1/2 = 7/8 − 4/8 = 3/8 of a mile."}
-,{n:"MA-19",sec:"MA",text:"A warehouse stores 120 boxes of tiles. Each box weighs 40 pounds. How many pounds of tiles are stored in the warehouse in total?",opts:["80","480","4,800","48,000"],ans:2,exp:"120 boxes × 40 pounds each = 4,800 pounds total."}
-  
-  // ╔═══════════════════════════════════════════╗
-  // ║  PASTE NEW QUESTIONS ABOVE THIS LINE       ║
-  // ║  Each new question needs a comma before { ║
-  // ╚═══════════════════════════════════════════╝
+  // ╔══════════════════════════════════════════════════════════════╗
+  // ║  PASTE NEW QUESTIONS ABOVE THIS LINE                        ║
+  // ║  Every question except the last needs a comma after }       ║
+  // ╚══════════════════════════════════════════════════════════════╝
 ];
 
 /* ════════════════════════════════════════
@@ -424,7 +466,7 @@ function pick(idx) {
   const isCorrect = idx === q.ans;
   statuses[key] = isCorrect ? 'correct' : 'wrong';
   saveProgress();
-  renderQ(); updateDash();
+  renderQ(); updateDash(); renderHeatGrid();
   supaInsert({
     session_id:  SESSION_ID,
     question_id: key,
@@ -668,11 +710,104 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-function goHome() { showScreen('screen-home'); updateDash(); }
+function goHome() { showScreen('screen-home'); updateDash(); renderHeatGrid(); }
+
+
+/* ════════════════════════════════════════════
+   TAXONOMY — strand, subtopic, DoK per question
+   Update when new questions are added
+════════════════════════════════════════════ */
+const TAXONOMY = {
+  "MA-1": {strand:"Geometry",             sub:"2D & 3D Shapes",          dok:1},
+  "MA-2": {strand:"Data Analysis & Prob.",sub:"Tables & Graphs",         dok:2},
+  "MA-3": {strand:"Numbers & Operations", sub:"Fractions & Decimals",    dok:2},
+  "MA-4": {strand:"Numbers & Operations", sub:"Whole Number Arithmetic", dok:2},
+  "MA-5": {strand:"Numbers & Operations", sub:"Fractions & Decimals",    dok:3},
+  "MA-6": {strand:"Algebraic Thinking",   sub:"Expressions & Equations", dok:2},
+  "MA-7": {strand:"Numbers & Operations", sub:"Fractions & Decimals",    dok:2},
+  "MA-8": {strand:"Numbers & Operations", sub:"Fractions & Decimals",    dok:2},
+  "MA-9": {strand:"Measurement",          sub:"Perimeter & Area",        dok:3},
+  "MA-10":{strand:"Numbers & Operations", sub:"Ratios & Percentages",    dok:3},
+  "MA-11":{strand:"Data Analysis & Prob.",sub:"Tables & Graphs",         dok:2},
+  "MA-12":{strand:"Numbers & Operations", sub:"Fractions & Decimals",    dok:2},
+  "MA-13":{strand:"Numbers & Operations", sub:"Whole Number Arithmetic", dok:2},
+  "MA-14":{strand:"Numbers & Operations", sub:"Whole Number Arithmetic", dok:1},
+  "MA-15":{strand:"Numbers & Operations", sub:"Whole Number Arithmetic", dok:2},
+  "MA-16":{strand:"Numbers & Operations", sub:"Whole Number Arithmetic", dok:3},
+  "MA-17":{strand:"Numbers & Operations", sub:"Whole Number Arithmetic", dok:1},
+  "MA-18":{strand:"Numbers & Operations", sub:"Fractions & Decimals",    dok:2},
+  "MA-19":{strand:"Numbers & Operations", sub:"Whole Number Arithmetic", dok:1},
+  "QR-1": {strand:"Measurement",          sub:"Perimeter & Area",        dok:2},
+  "QR-2": {strand:"Numbers & Operations", sub:"Ratios & Percentages",    dok:3},
+  "QR-3": {strand:"Numbers & Operations", sub:"Fractions & Decimals",    dok:2},
+  "QR-4": {strand:"Numbers & Operations", sub:"Whole Number Arithmetic", dok:3},
+  "QR-5": {strand:"Numbers & Operations", sub:"Whole Number Arithmetic", dok:2},
+  "QR-6": {strand:"Algebraic Thinking",   sub:"Patterns & Sequences",    dok:2},
+  "QR-7": {strand:"Algebraic Thinking",   sub:"Patterns & Sequences",    dok:3},
+  "QR-8": {strand:"Data Analysis & Prob.",sub:"Mean, Median, Mode",      dok:2},
+  "QR-9": {strand:"Data Analysis & Prob.",sub:"Tables & Graphs",         dok:1},
+  "QR-10":{strand:"Numbers & Operations", sub:"Fractions & Decimals",    dok:2},
+  "QR-11":{strand:"Measurement",          sub:"Visual/Spatial Scaling",  dok:2},
+  "QR-12":{strand:"Algebraic Thinking",   sub:"Expressions & Equations", dok:3},
+  "QR-13":{strand:"Measurement",          sub:"Units & Conversions",     dok:2},
+  "QR-14":{strand:"Data Analysis & Prob.",sub:"Simple Probability",      dok:3},
+  "QR-15":{strand:"Data Analysis & Prob.",sub:"Simple Probability",      dok:3},
+  "QR-16":{strand:"Algebraic Thinking",   sub:"Expressions & Equations", dok:2},
+  "QR-17":{strand:"Data Analysis & Prob.",sub:"Mean, Median, Mode",      dok:2},
+  "QR-18":{strand:"Algebraic Thinking",   sub:"Expressions & Equations", dok:3},
+  "QR-19":{strand:"Numbers & Operations", sub:"Fractions & Decimals",    dok:3},
+  "QR-20":{strand:"Geometry",             sub:"Coordinate Planes",       dok:2},
+  "QR-21":{strand:"Numbers & Operations", sub:"Whole Number Arithmetic", dok:1},
+  // ╔══════════════════════════════════════════════════╗
+  // ║  ADD NEW QUESTION TAXONOMY HERE                  ║
+  // ║  Format: "QR-22":{strand:"...",sub:"...",dok:2}  ║
+  // ╚══════════════════════════════════════════════════╝
+};
+
+const STRANDS = [
+  "Numbers & Operations",
+  "Algebraic Thinking",
+  "Geometry",
+  "Measurement",
+  "Data Analysis & Prob."
+];
+
+function computeHeatData() {
+  // For each strand x dok, compute correct% from answered questions
+  const data = {};
+  STRANDS.forEach(s => { data[s] = {1:{c:0,t:0}, 2:{c:0,t:0}, 3:{c:0,t:0}}; });
+  ALL_QUESTIONS.forEach(q => {
+    const key = String(q.n);
+    const tx = TAXONOMY[key];
+    if (!tx) return;
+    if (chosen[key] == null) return; // not answered yet
+    data[tx.strand][tx.dok].t++;
+    if (statuses[key] === 'correct') data[tx.strand][tx.dok].c++;
+  });
+  return data;
+}
+
+function renderHeatGrid() {
+  const data = computeHeatData();
+  const el = document.getElementById('heat-grid-body');
+  if (!el) return;
+  el.innerHTML = STRANDS.map(s => {
+    const cells = [1,2,3].map(d => {
+      const {c,t} = data[s][d];
+      if (t === 0) return `<div class="hc"><div class="hcell hc-none">—</div></div>`;
+      const pct = Math.round(c/t*100);
+      const cls = pct >= 70 ? 'hc-strong' : pct >= 50 ? 'hc-ok' : 'hc-weak';
+      return `<div class="hc"><div class="hcell ${cls}">${pct}%</div></div>`;
+    }).join('');
+    const shortName = s.replace('Numbers & Operations','Numbers & Ops').replace('Data Analysis & Prob.','Data & Prob.');
+    return `<div class="heat-row"><div class="hc">${shortName}</div>${cells}</div>`;
+  }).join('');
+}
 
 // Initialise on load
 loadProgress();
 updateDash();
+renderHeatGrid();
 </script>
 </body>
 </html>
