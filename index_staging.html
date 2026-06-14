@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISEE Maths Practice Quiz [STAGING]</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1a1a2e;min-height:100vh;}
+.screen{display:none;min-height:100vh;}.screen.active{display:block;}
+
+/* TOP BAR */
+.top-bar{background:#1a3a5c;color:white;padding:1rem 1.5rem;display:flex;align-items:center;gap:12px;}
+.top-bar h1{font-size:1.1rem;font-weight:600;}
+.back-btn{background:rgba(255,255,255,0.15);border:none;color:white;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;margin-left:auto;}
+.back-btn:hover{background:rgba(255,255,255,0.25);}
+
+/* HOME */
+.home-hero{background:linear-gradient(135deg,#1a3a5c 0%,#0f6e56 100%);color:white;padding:3rem 1.5rem 2.5rem;text-align:center;}
+.home-hero h2{font-size:2rem;font-weight:700;margin-bottom:8px;}
+.home-hero p{font-size:1rem;opacity:0.85;}
+.home-body{max-width:700px;margin:0 auto;padding:2rem 1rem;}
+.dash-section{background:white;border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
+.dash-title{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;margin-bottom:12px;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+@media(max-width:400px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-card{border-radius:10px;padding:12px 8px;text-align:center;}
+.stat-card .val{font-size:1.8rem;font-weight:700;line-height:1;}
+.stat-card .lbl{font-size:0.72rem;font-weight:600;margin-top:4px;opacity:0.8;}
+.stat-card.total{background:#f1f5f9;color:#334155;}
+.stat-card.answered{background:#dbeafe;color:#1e40af;}
+.stat-card.correct{background:#d1fae5;color:#065f46;}
+.stat-card.wrong{background:#fee2e2;color:#991b1b;}
+.mini-bar-wrap{margin-top:12px;}
+.mini-bar-label{display:flex;justify-content:space-between;font-size:0.8rem;color:#64748b;margin-bottom:5px;}
+.mini-bar-track{background:#e2e8f0;border-radius:99px;height:8px;margin-bottom:8px;overflow:hidden;}
+.mini-bar-fill{height:8px;border-radius:99px;transition:width 0.5s;}
+.mini-bar-fill.answered{background:#3b82f6;}
+.mini-bar-fill.correct{background:#22c55e;}
+.mini-bar-fill.wrong{background:#ef4444;}
+.pathway-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;}
+@media(max-width:540px){.pathway-grid{grid-template-columns:1fr;}}
+.pathway-card{background:white;border-radius:16px;padding:1.75rem 1.5rem;cursor:pointer;border:2px solid transparent;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.07);text-align:center;}
+.pathway-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,0.12);}
+.pathway-card.ma:hover{border-color:#1d4ed8;}
+.pathway-card.qr:hover{border-color:#0f6e56;}
+.pathway-card .icon{font-size:2.8rem;margin-bottom:12px;}
+.pathway-card h3{font-size:1.1rem;font-weight:700;margin-bottom:6px;}
+.pathway-card p{font-size:0.85rem;color:#64748b;line-height:1.5;}
+.pathway-card .pill{display:inline-block;padding:3px 12px;border-radius:99px;font-size:0.75rem;font-weight:700;margin-top:10px;}
+.pathway-card.ma .pill{background:#dbeafe;color:#1e40af;}
+.pathway-card.qr .pill{background:#d1fae5;color:#065f46;}
+.all-btn{width:100%;background:white;border:2px dashed #c4b5fd;border-radius:16px;padding:1.1rem;cursor:pointer;font-size:1rem;font-weight:600;color:#5b21b6;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:1.25rem;}
+.all-btn:hover{background:#ede9fe;border-color:#7c3aed;}
+.reset-btn{width:100%;margin-top:8px;padding:9px 14px;border-radius:10px;border:1.5px solid #fca5a5;background:#fff;color:#dc2626;font-size:0.85rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all 0.15s;}
+.reset-btn:hover{background:#fef2f2;border-color:#ef4444;}
+
+/* QUIZ */
+.quiz-wrap{max-width:760px;margin:0 auto;padding:1.1rem 1rem 3rem;}
+.progress-wrap{background:white;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
+.sync-bar{font-size:0.8rem;font-weight:600;text-align:center;padding:6px;margin-bottom:6px;border-radius:8px;background:#f0fdf4;display:none;}
+.progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:0.85rem;color:#555;}
+.score-badge{background:#1a3a5c;color:white;border-radius:99px;padding:3px 12px;font-size:0.8rem;font-weight:600;}
+.bar-track{background:#e8edf2;border-radius:99px;height:8px;}
+.bar-fill{height:8px;border-radius:99px;transition:width 0.4s;}
+.bar-fill.ma{background:linear-gradient(90deg,#3b82f6,#1a3a5c);}
+.bar-fill.qr{background:linear-gradient(90deg,#22c55e,#0f6e56);}
+.bar-fill.all{background:linear-gradient(90deg,#8b5cf6,#1a3a5c);}
+.tabs-wrap{background:white;border-radius:12px;padding:0.9rem 1rem;margin-bottom:1rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
+.tabs-label{font-size:0.72rem;color:#94a3b8;margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;}
+.tabs{display:flex;flex-wrap:wrap;gap:5px;}
+.tab{width:34px;height:34px;border-radius:8px;border:1.5px solid #dce3ea;background:white;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#555;transition:all 0.15s;}
+.tab:hover{border-color:#3b82f6;color:#1d4ed8;}
+.tab.active{background:#1a3a5c;border-color:#1a3a5c;color:white;}
+.tab.correct{background:#d1fae5;border-color:#22c55e;color:#065f46;}
+.tab.wrong{background:#fee2e2;border-color:#ef4444;color:#991b1b;}
+.tab.correct.active{background:#15803d;border-color:#15803d;color:white;}
+.tab.wrong.active{background:#dc2626;border-color:#dc2626;color:white;}
+.q-card{background:white;border-radius:14px;padding:1.5rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:1rem;}
+.q-meta{font-size:0.72rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:10px;}
+.q-meta.ma{color:#1d4ed8;}.q-meta.qr{color:#0f6e56;}
+.q-text{font-size:1rem;line-height:1.65;color:#1a1a2e;margin-bottom:14px;white-space:pre-line;}
+.q-diagram{margin:10px 0 16px;overflow-x:auto;}
+.dtable{border-collapse:collapse;font-size:0.875rem;margin:10px 0;}
+.dtable th{background:#dbeafe;color:#1e40af;padding:7px 14px;border:1px solid #bfdbfe;font-weight:600;}
+.dtable td{padding:6px 14px;border:1px solid #e2e8f0;}
+.dtable tr:nth-child(even) td{background:#f8fafc;}
+.options{display:flex;flex-direction:column;gap:9px;}
+.opt{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;border:1.5px solid #dce3ea;background:white;cursor:pointer;font-size:0.95rem;color:#1a1a2e;text-align:left;transition:all 0.15s;width:100%;}
+.opt:hover:not(:disabled){border-color:#3b82f6;background:#f0f7ff;}
+.opt:disabled{cursor:default;}
+.opt .badge{width:30px;height:30px;border-radius:50%;border:2px solid #c5cdd6;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;color:#666;transition:all 0.15s;}
+.opt.correct-ans{border-color:#22c55e;background:#f0fdf4;}
+.opt.correct-ans .badge{background:#22c55e;border-color:#22c55e;color:white;}
+.opt.wrong-sel{border-color:#ef4444;background:#fef2f2;}
+.opt.wrong-sel .badge{background:#ef4444;border-color:#ef4444;color:white;}
+.feedback{margin-top:14px;padding:12px 16px;border-radius:10px;font-size:0.9rem;line-height:1.55;display:none;}
+.feedback.show{display:block;}
+.feedback.correct{background:#f0fdf4;border:1.5px solid #22c55e;color:#14532d;}
+.feedback.incorrect{background:#fef2f2;border:1.5px solid #ef4444;color:#7f1d1d;}
+.fb-title{font-weight:700;margin-bottom:4px;}
+.q-nav{display:flex;justify-content:space-between;gap:10px;}
+.nav-btn{flex:1;padding:11px;border-radius:10px;border:1.5px solid #dce3ea;background:white;cursor:pointer;font-size:0.95rem;font-weight:600;color:#1a3a5c;transition:all 0.15s;}
+.nav-btn:hover:not(:disabled){background:#f0f7ff;border-color:#3b82f6;}
+.nav-btn:disabled{opacity:0.35;cursor:default;}
+.nav-btn.primary{background:#1a3a5c;color:white;border-color:#1a3a5c;}
+.nav-btn.primary:hover:not(:disabled){background:#0f2640;}
+
+/* PARENT DASHBOARD */
+.ql-wrap{max-width:760px;margin:0 auto;padding:1.1rem 1rem 3rem;}
+</style>
+</head>
+<body>
+
+<div style="background:#f59e0b;color:#1a1a2e;text-align:center;padding:8px;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;">
+  ⚠️ STAGING ENVIRONMENT — test data only — not your son's real quiz
+</div>
+<!-- SCREEN 1: HOME -->
+<div id="screen-home" class="screen active">
+  <div class="home-hero">
+    <h2>🎓 ISEE Maths Practice Quiz [STAGING]</h2>
+    <p>Interactive practice for Mathematics Achievement &amp; Quantitative Reasoning</p>
+  </div>
+  <div class="home-body">
+
+    <div class="dash-section">
+      <div class="dash-title">📊 Overall Dashboard</div>
+      <div class="stats-grid">
+        <div class="stat-card total"><div class="val" id="d-total">31</div><div class="lbl">Total Qs</div></div>
+        <div class="stat-card answered"><div class="val" id="d-answered">0</div><div class="lbl">Answered</div></div>
+        <div class="stat-card correct"><div class="val" id="d-correct">0</div><div class="lbl">Correct</div></div>
+        <div class="stat-card wrong"><div class="val" id="d-wrong">0</div><div class="lbl">Incorrect</div></div>
+      </div>
+      <div class="mini-bar-wrap">
+        <div class="mini-bar-label"><span>Answered</span><span id="d-ans-pct">0%</span></div>
+        <div class="mini-bar-track"><div class="mini-bar-fill answered" id="bar-answered" style="width:0%"></div></div>
+        <div class="mini-bar-label"><span>Correct</span><span id="d-cor-pct">0%</span></div>
+        <div class="mini-bar-track"><div class="mini-bar-fill correct" id="bar-correct" style="width:0%"></div></div>
+        <div class="mini-bar-label"><span>Incorrect</span><span id="d-wrg-pct">0%</span></div>
+        <div class="mini-bar-track"><div class="mini-bar-fill wrong" id="bar-wrong" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="dash-section">
+      <div class="dash-title">📘 By Section</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:#dbeafe;border-radius:10px;padding:12px;">
+          <div style="font-size:0.8rem;font-weight:700;color:#1e40af;margin-bottom:6px;">Mathematics Achievement</div>
+          <div style="font-size:0.82rem;color:#1e40af;">Questions: <b id="d-ma-range">MA-1 to MA-11</b></div>
+          <div style="font-size:0.82rem;color:#1e40af;">Answered: <b id="d-ma-ans">0</b> / <b id="d-ma-total">11</b></div>
+          <div style="font-size:0.82rem;color:#1e40af;">Correct: <b id="d-ma-cor">0</b></div>
+          <div style="font-size:0.82rem;color:#1e40af;">Wrong: <b id="d-ma-wrg">0</b></div>
+          <button class="reset-btn" onclick="resetSection('MA')">🔄 Reset MA answers</button>
+        </div>
+        <div style="background:#d1fae5;border-radius:10px;padding:12px;">
+          <div style="font-size:0.8rem;font-weight:700;color:#065f46;margin-bottom:6px;">Quantitative Reasoning</div>
+          <div style="font-size:0.82rem;color:#065f46;">Questions: <b id="d-qr-range">QR-1 to QR-20</b></div>
+          <div style="font-size:0.82rem;color:#065f46;">Answered: <b id="d-qr-ans">0</b> / <b id="d-qr-total">20</b></div>
+          <div style="font-size:0.82rem;color:#065f46;">Correct: <b id="d-qr-cor">0</b></div>
+          <div style="font-size:0.82rem;color:#065f46;">Wrong: <b id="d-qr-wrg">0</b></div>
+          <button class="reset-btn" onclick="resetSection('QR')">🔄 Reset QR answers</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-section">
+      <div class="dash-title">🚀 Choose a Pathway</div>
+      <div class="pathway-grid">
+        <div class="pathway-card ma" onclick="startQuiz('ma')">
+          <div class="icon">📐</div>
+          <h3>Mathematics Achievement</h3>
+          <p>Shapes, fractions, estimation, area, word problems</p>
+          <span class="pill" id="ma-pill">11 Questions</span>
+        </div>
+        <div class="pathway-card qr" onclick="startQuiz('qr')">
+          <div class="icon">🔢</div>
+          <h3>Quantitative Reasoning</h3>
+          <p>Algebra, proportions, functions, probability, data</p>
+          <span class="pill" id="qr-pill">20 Questions</span>
+        </div>
+      </div>
+      <button class="all-btn" onclick="startQuiz('all')">⭐ Take all questions together</button>
+      <button class="all-btn" onclick="showScreen('screen-pd');loadParentDash();" style="border-color:#f59e0b;color:#92400e;background:#fffbeb;">
+        👨&#x200D;👦 Parent Dashboard — View All Results
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- SCREEN 2: QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="top-bar">
+    <h1 id="quiz-title">Quiz</h1>
+    <button class="back-btn" onclick="goHome()">← Home</button>
+  </div>
+  <div class="quiz-wrap">
+    <div class="progress-wrap">
+      <div id="sync-indicator" class="sync-bar"></div>
+      <div class="progress-top">
+        <span id="prog-label">0 answered</span>
+        <span class="score-badge" id="score-badge">Score: 0/0</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" id="bar-fill"></div></div>
+    </div>
+    <div class="tabs-wrap">
+      <div class="tabs-label">Jump to question</div>
+      <div class="tabs" id="tabs"></div>
+    </div>
+    <div id="q-area"></div>
+    <div class="q-nav">
+      <button class="nav-btn" id="btn-prev" onclick="go(cur-1)">← Previous</button>
+      <button class="nav-btn primary" id="btn-next" onclick="go(cur+1)">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 3: PARENT DASHBOARD -->
+<div id="screen-pd" class="screen">
+  <div class="top-bar">
+    <h1>👨‍👦 Parent Dashboard</h1>
+    <button class="back-btn" onclick="goHome()">← Home</button>
+  </div>
+  <div class="ql-wrap">
+    <div style="background:#fef9c3;border:1px solid #fde047;border-radius:10px;padding:12px 16px;font-size:0.85rem;color:#713f12;margin-bottom:1rem;">
+      🔒 Results are saved automatically. Summary cards show the <b>latest attempt</b> per question. Session history shows every sitting.
+    </div>
+    <!-- Diagnostic Tool -->
+    <div id="pd-diag" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:1.1rem;margin-bottom:1rem;">
+      <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;margin-bottom:10px;">🔧 Connection Diagnostic</div>
+      <button onclick="runDiagnostic()" style="width:100%;padding:10px;border-radius:8px;background:#1a3a5c;color:white;border:none;font-size:0.9rem;font-weight:600;cursor:pointer;margin-bottom:10px;">Run Connection Test</button>
+      <div id="diag-result" style="font-size:0.82rem;line-height:1.7;display:none;"></div>
+    </div>
+    <div id="pd-status" style="font-size:0.9rem;color:#64748b;margin-bottom:1rem;"></div>
+    <div id="pd-content"></div>
+    <button onclick="loadParentDash()" style="width:100%;padding:11px;border-radius:10px;border:1.5px solid #dce3ea;background:white;cursor:pointer;font-size:0.9rem;font-weight:600;color:#1a3a5c;margin-top:0.5rem;">🔄 Refresh Results</button>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════
+   SUPABASE CONFIG
+════════════════════════════════════════ */
+const SUPA_URL = 'https://yajqvfwzhudghivzgijt.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhanF2Znd6aHVkZ2hpdnpnaWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNTA0MjUsImV4cCI6MjA5NjkyNjQyNX0.9jFDuKr-mL9gl_skZcP5THhnJNjs-8ogzG4zmV6fIyk';
+
+async function supaInsert(row) {
+  showSyncStatus('⏳ Saving…', '#92400e', '#fffbeb');
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(row)
+    });
+    if (res.status === 201 || res.status === 200) {
+      showSyncStatus('✅ Saved', '#065f46', '#f0fdf4');
+      setTimeout(() => showSyncStatus('','',''), 2500);
+    } else {
+      const err = await res.text();
+      showSyncStatus('⚠️ Save failed (' + res.status + '): ' + err.slice(0,60), '#991b1b', '#fef2f2');
+    }
+  } catch(e) {
+    showSyncStatus('⚠️ Network error: ' + e.message, '#991b1b', '#fef2f2');
+  }
+}
+
+function showSyncStatus(msg, color, bg) {
+  const el = document.getElementById('sync-indicator');
+  if (!el) return;
+  if (!msg) { el.style.display = 'none'; el.textContent = ''; return; }
+  el.textContent = msg;
+  el.style.color = color;
+  el.style.background = bg;
+  el.style.display = 'block';
+}
+
+// Persist session ID per day
+const _todayKey = 'quiz_session_' + new Date().toISOString().slice(0,10);
+const SESSION_ID = localStorage.getItem(_todayKey) ||
+  (() => { const id = new Date().toISOString().slice(0,10) + '_' + Math.random().toString(36).slice(2,8); localStorage.setItem(_todayKey, id); return id; })();
+
+/* ════════════════════════════════════════
+   QUESTION BANK
+   To add a new question, paste a new object
+   before the closing ]; below.
+   Format: ,{n:"QR-21",sec:"QR",text:"...",opts:["A","B","C","D"],ans:0,exp:"..."}
+════════════════════════════════════════ */
+const ALL_QUESTIONS = [
+{n:"MA-1",sec:"MA",text:"Which of the following shapes ALWAYS has all four sides equal in length AND all four angles equal to 90 degrees?",opts:["Rectangle","Parallelogram","Square","Trapezoid"],ans:2,exp:"A square must have all four sides equal AND all four angles of 90°. A rectangle has equal angles but not necessarily equal sides."},
+  {n:"MA-2",sec:"MA",text:"Four students recorded the number of pages they read over five days (see table).\n\nFrom Day 1 to Day 5, how many MORE pages did Zoe read on Day 5 than on Day 1?",opts:["10","12","14","16"],ans:1,exp:"Zoe read 18 pages on Day 1 and 30 on Day 5. The increase is 30 − 18 = 12 pages.",diag:"table_zoe"},
+  {n:"MA-3",sec:"MA",text:"Which fraction is equivalent to 0.6?",opts:["6/100","6/10","3/5","Both B and C"],ans:3,exp:"0.6 = 6/10 (option B) and 6/10 simplifies to 3/5 (option C). Both are equivalent to 0.6."},
+  {n:"MA-4",sec:"MA",text:"Daniel buys four items costing $6.75, $11.49, $3.29, and $9.89. What is the best estimate of the total cost?",opts:["Between $25 and $30","Between $30 and $35","Between $35 and $40","Between $40 and $45"],ans:1,exp:"Rounding: $7+$11+$3+$10=$31. The exact total $31.42 falls between $30 and $35."},
+  {n:"MA-5",sec:"MA",text:"The distance from London to Edinburgh is 414 miles. Which is closest to 1/4 of that distance?",opts:["Coventry — 94 miles","Leeds — 196 miles","York — 209 miles","Newcastle — 283 miles"],ans:0,exp:"1/4 of 414 = 103.5 miles. Coventry at 94 miles is the closest."},
+  {n:"MA-6",sec:"MA",text:"The perimeter of a square is 48 cm. Using P = 4s, which equation gives the side length s?",opts:["s = 48 ÷ 4","s = 4 × 48","s = 48 − 4","s = 48 + 4"],ans:0,exp:"From P = 4s, divide both sides by 4: s = 48 ÷ 4 = 12 cm."},
+  {n:"MA-7",sec:"MA",text:"Which fraction is between 3/4 and 9/10?",opts:["1/2","7/8","11/12","1/5"],ans:1,exp:"3/4=0.75 and 9/10=0.90. 7/8=0.875, which lies between them."},
+  {n:"MA-8",sec:"MA",text:"A recipe calls for 6¼ cups of oats. Tom already has 2⅜ cups. How many more cups does he need?",opts:["3 3/8","3 7/8","4 1/8","4 3/8"],ans:1,exp:"Convert to eighths: 6 2/8 − 2 3/8. Borrow: 5 10/8 − 2 3/8 = 3 7/8 cups."},
+  {n:"MA-9",sec:"MA",text:"An L-shaped room has an outer rectangle 14 m wide and 10 m tall. A corner 6 m wide and 4 m tall is removed. What is the floor area in square metres?",opts:["116 m²","124 m²","132 m²","140 m²"],ans:0,exp:"Full rectangle = 14×10 = 140 m². Cut-out = 6×4 = 24 m². Total = 140−24 = 116 m².",diag:"lshape"},
+  {n:"MA-10",sec:"MA",text:"There are 5 more cats than dogs at a shelter. If there are 8 dogs, what fraction of all animals are dogs?",opts:["8/13","8/21","5/13","8/5"],ans:1,exp:"8 dogs + 13 cats = 21 total. Fraction of dogs = 8/21."},
+  {n:"MA-11",sec:"MA",text:"A school surveyed 320 students about their favourite sport. The most popular gets a trophy; 2nd and 3rd get certificates. Which sports get the certificate?",opts:["Swimming and Cricket","Basketball and Swimming","Basketball and Tennis","Tennis and Swimming"],ans:2,exp:"Ranked: Football 95, Basketball 72, Tennis 61, Swimming 48, Cricket 44. Certificate = Basketball and Tennis.",diag:"sports_table"},
+  {n:"QR-1",sec:"QR",text:"The perimeter of this 6-sided polygon is 48 cm. Known sides: 9 cm, 4 cm, 4 cm, 7 cm, and 7 cm. Find x.",opts:["13 cm","15 cm","17 cm","19 cm"],ans:2,exp:"9+4+4+7+7 = 31 cm. x = 48−31 = 17 cm.",diag:"hexagon"},
+  {n:"QR-2",sec:"QR",text:"A car covers 150 miles in 3 hours at constant speed. How long to travel 250 miles?",opts:["4 hours","4 hrs 30 min","5 hours","5 hrs 30 min"],ans:2,exp:"Speed = 150÷3 = 50 mph. Time = 250÷50 = 5 hours."},
+  {n:"QR-3",sec:"QR",text:"Which is the smallest fraction?",opts:["5/9","4/7","3/8","7/12"],ans:2,exp:"As decimals: 5/9≈0.556, 4/7≈0.571, 3/8=0.375, 7/12≈0.583. Smallest is 3/8."},
+  {n:"QR-4",sec:"QR",text:"If y can be divided by both 4 and 9 without remainder, y must also be divisible by which number?",opts:["13","18","24","36"],ans:3,exp:"LCM of 4 and 9 is 36. Any number divisible by both must be divisible by 36."},
+  {n:"QR-5",sec:"QR",text:"A Venn diagram shows 'Multiples of 4' and 'Multiples of 6'. The shaded overlap = multiples of BOTH. Which number belongs in the shaded region?",opts:["8","9","14","24"],ans:3,exp:"24 is divisible by both 4 (÷6) and 6 (÷4). 8 is only ×4; 14 is neither.",diag:"venn"},
+  {n:"QR-6",sec:"QR",text:"Use the table to find the rule for the function.",opts:["□ + 10 = △","□ × 3 + 4 = △","□ × 4 + 1 = △","□ × 5 − 2 = △"],ans:2,exp:"Check: 3×4+1=13✓, 5×4+1=21✓, 7×4+1=29✓, 9×4+1=37✓. Rule: □×4+1=△.",diag:"func_table"},
+  {n:"QR-7",sec:"QR",text:"Use the pattern:\np + q = 2 + 4\np + q + r = 2 + 4 + 6\np + q + r + s = 2 + 4 + 6 + 8\n\nWhat is p + q + r + s + t + u?",opts:["20","30","42","56"],ans:2,exp:"The pattern sums even numbers. For 6 variables: 2+4+6+8+10+12 = 42."},
+  {n:"QR-8",sec:"QR",text:"A baker made 4 loaves: two used 2½ cups each, one used 4 cups, one used 3 cups. What is the mean cups of flour per loaf?",opts:["2¾","3","3¼","3½"],ans:1,exp:"Total = 2.5+2.5+4+3 = 12 cups. Mean = 12÷4 = 3 cups."},
+  {n:"QR-9",sec:"QR",text:"A survey of 80 students' favourite subject is in a circle graph with four equal sections (Maths, Science, English, History). About how many chose Maths?",opts:["10","15","20","25"],ans:2,exp:"Each section = 1/4. 1/4 × 80 = 20 students.",diag:"pie"},
+  {n:"QR-10",sec:"QR",text:"A number line from 3.0 to 5.0 is divided into 10 equal intervals. Two arrows point to the 3rd and 7th marks from the left. Which numbers are they pointing to?",opts:["3.2 and 3.6","3.3 and 3.7","3.4 and 4.2","3.5 and 3.9"],ans:2,exp:"Range 2.0 over 10 steps → each step = 0.2. 3rd mark = 3.4. 7th mark = 4.2.",diag:"numline1"},
+  {n:"QR-11",sec:"QR",text:"A small cube has volume 1 unit³. A larger cube is made from these, 3 cubes in each direction. What is the volume of the larger cube?",opts:["9 units³","18 units³","24 units³","27 units³"],ans:3,exp:"3×3×3 = 27 unit cubes. Volume = 27 units³.",diag:"cube"},
+  {n:"QR-12",sec:"QR",text:"Points P, Q, R, S are in order on a line. PS = a, PQ = b, RS = c.\n\nWhat is the length of QR?",opts:["a + b + c","a + b − c","a − b − c","b − a − c"],ans:2,exp:"QR = PS − PQ − RS = a − b − c.",diag:"segment"},
+  {n:"QR-13",sec:"QR",text:"Tank A and Tank B each hold 10 litres. Tank A is about ¼ full; Tank B about ¾ full. Combined, how much liquid is there approximately?",opts:["2.5 litres","5 litres","7.5 litres","10 litres"],ans:3,exp:"Tank A: ¼×10=2.5 L. Tank B: ¾×10=7.5 L. Total = 10 litres.",diag:"tanks"},
+  {n:"QR-14",sec:"QR",text:"A jar has red and blue sweets. P(red) = 3 out of 7. There are 16 blue sweets. How many red sweets are in the jar?",opts:["6","8","10","24"],ans:1,exp:"P(blue)=4/7. If 4 parts=16, then 1 part=4. Red = 3 parts = 3×4 = 8."},
+  {n:"QR-15",sec:"QR",text:"A box holds black, white, and grey counters. P(black) = 3 out of 8. Which combination is possible?",opts:["3 black and 5 others","6 black and 10 others","9 black and 15 others","12 black and 20 others"],ans:1,exp:"6 out of 16 total = 6/16 = 3/8 ✓"},
+  {n:"QR-16",sec:"QR",text:"Emma bought 4 ride tickets at $9 each and a meal deal. Her total was $52. Which equation finds the cost of the meal deal, m?",opts:["$52 = 9 + m","$52 = 4m","$52 = 4(9) + m","$52 = 4(9) + 4m"],ans:2,exp:"Total = (4×$9) + m = 36 + m = 52, so m = $16."},
+  {n:"QR-17",sec:"QR",text:"Five athletes ran these laps: 8, 6, 10, 6, 10. What was the mean?",opts:["6","7","8","10"],ans:2,exp:"Total = 8+6+10+6+10 = 40. Mean = 40÷5 = 8 laps.",diag:"barchart"},
+  {n:"QR-18",sec:"QR",text:"Which equation means '5 less than 3 times a number equals 7 more than the number'? Let n = unknown.",opts:["3n − 5 = n + 7","3n + 5 = n − 7","5 − 3n = n + 7","3n − 5 = 7n"],ans:0,exp:"3n−5 = n+7. Solving: 2n=12, n=6."},
+  {n:"QR-19",sec:"QR",text:"On a number line (each mark = 2 units): X is at the 4th mark (=8). Y is at the 9th mark (=18). Y is the average of X and Z. What is Z?",opts:["22","26","28","32"],ans:2,exp:"Y=(X+Z)÷2 → 18=(8+Z)÷2 → 36=8+Z → Z=28.",diag:"numline2"},
+  {n:"QR-20",sec:"QR",text:"Vertices of a quadrilateral: (1,2) (1,6) (5,2) (5,6).\n\nWhich term best describes the shape formed?",opts:["Trapezoid","Rhombus","Rectangle","Kite"],ans:2,exp:"Width=4, Height=4, all angles=90°. This is a square — a special rectangle.",diag:"coords"}
+
+,{n:"QR-21",sec:"QR",text:"A small piece of material is cut into 5 squares. A large piece of material is cut into 4 times as many squares as the small piece. How many squares is the large piece of material cut into?",opts:["9 squares","16 squares","20 squares","25 squares"],ans:2,exp:"The small piece is cut into 5 squares. The large piece is cut into 4 times as many: 4 × 5 = 20 squares."}
+
+  // ╔═══════════════════════════════════════════╗
+  // ║  PASTE NEW QUESTIONS ABOVE THIS LINE       ║
+  // ║  Each new question needs a comma before { ║
+  // ╚═══════════════════════════════════════════╝
+];
+
+/* ════════════════════════════════════════
+   DIAGRAMS
+════════════════════════════════════════ */
+function diagrams(key) {
+  const d={
+    table_zoe:`<table class="dtable"><thead><tr><th></th><th>Liam</th><th>Zoe</th><th>Marcus</th><th>Priya</th></tr></thead><tbody><tr><td><b>Day 1</b></td><td>12</td><td>18</td><td>20</td><td>15</td></tr><tr><td><b>Day 2</b></td><td>14</td><td>20</td><td>22</td><td>17</td></tr><tr><td><b>Day 3</b></td><td>16</td><td>24</td><td>24</td><td>20</td></tr><tr><td><b>Day 4</b></td><td>20</td><td>28</td><td>26</td><td>23</td></tr><tr><td><b>Day 5</b></td><td>24</td><td>30</td><td>28</td><td>26</td></tr></tbody></table>`,
+    sports_table:`<table class="dtable"><thead><tr><th>Sport</th><th>Votes</th></tr></thead><tbody><tr><td>Football</td><td>95</td></tr><tr><td>Basketball</td><td>72</td></tr><tr><td>Tennis</td><td>61</td></tr><tr><td>Swimming</td><td>48</td></tr><tr><td>Cricket</td><td>44</td></tr></tbody></table>`,
+    func_table:`<table class="dtable"><thead><tr><th>Input (□)</th><th>Output (△)</th></tr></thead><tbody><tr><td>3</td><td>13</td></tr><tr><td>5</td><td>21</td></tr><tr><td>7</td><td>29</td></tr><tr><td>9</td><td>37</td></tr></tbody></table>`,
+    lshape:`<svg width="260" height="175" viewBox="0 0 260 175" xmlns="http://www.w3.org/2000/svg"><polygon points="15,15 195,15 195,85 150,85 150,160 15,160" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2.5"/><text x="105" y="11" font-size="13" fill="#1e40af" text-anchor="middle" font-family="Arial">14 m</text><text x="200" y="53" font-size="13" fill="#1e40af" font-family="Arial">6 m</text><text x="155" y="125" font-size="13" fill="#1e40af" font-family="Arial">4 m</text><text x="2" y="92" font-size="13" fill="#1e40af" font-family="Arial">10 m</text><line x1="150" y1="90" x2="192" y2="90" stroke="#94a3b8" stroke-dasharray="4,3" stroke-width="1.5"/><line x1="150" y1="90" x2="150" y2="157" stroke="#94a3b8" stroke-dasharray="4,3" stroke-width="1.5"/><text x="85" y="128" font-size="12" fill="#94a3b8" font-style="italic" font-family="Arial">removed corner</text></svg>`,
+    hexagon:`<svg width="270" height="160" viewBox="0 0 270 160" xmlns="http://www.w3.org/2000/svg"><polygon points="15,15 165,15 165,70 220,70 220,150 15,150" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2.5"/><text x="90" y="11" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial">9 cm</text><text x="170" y="47" font-size="12" fill="#1e40af" font-family="Arial">4 cm</text><text x="193" y="65" font-size="14" fill="#dc2626" font-weight="bold" font-family="Arial">x</text><text x="225" y="114" font-size="12" fill="#1e40af" font-family="Arial">7 cm</text><text x="105" y="158" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial">7 cm</text><text x="2" y="88" font-size="12" fill="#1e40af" font-family="Arial">4 cm</text></svg>`,
+    venn:`<svg width="300" height="148" viewBox="0 0 300 148" xmlns="http://www.w3.org/2000/svg"><ellipse cx="108" cy="74" rx="88" ry="58" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" fill-opacity="0.8"/><ellipse cx="192" cy="74" rx="88" ry="58" fill="#d1fae5" stroke="#22c55e" stroke-width="2" fill-opacity="0.8"/><ellipse cx="150" cy="74" rx="38" ry="43" fill="#86efac" fill-opacity="0.85"/><text x="68" y="70" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial">Multiples</text><text x="68" y="85" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial">of 4</text><text x="232" y="70" font-size="12" fill="#065f46" text-anchor="middle" font-family="Arial">Multiples</text><text x="232" y="85" font-size="12" fill="#065f46" text-anchor="middle" font-family="Arial">of 6</text><text x="150" y="78" font-size="12" fill="#14532d" text-anchor="middle" font-weight="bold" font-family="Arial">Both</text></svg>`,
+    pie:`<svg width="220" height="195" viewBox="0 0 220 195" xmlns="http://www.w3.org/2000/svg"><path d="M110,100 L110,22 A78,78 0 0,1 188,100 Z" fill="#3b82f6"/><path d="M110,100 L188,100 A78,78 0 0,1 110,178 Z" fill="#22c55e"/><path d="M110,100 L110,178 A78,78 0 0,1 32,100 Z" fill="#f59e0b"/><path d="M110,100 L32,100 A78,78 0 0,1 110,22 Z" fill="#ef4444"/><circle cx="110" cy="100" r="78" fill="none" stroke="white" stroke-width="3"/><line x1="110" y1="22" x2="110" y2="178" stroke="white" stroke-width="2"/><line x1="32" y1="100" x2="188" y2="100" stroke="white" stroke-width="2"/><text x="148" y="68" font-size="12" fill="white" text-anchor="middle" font-family="Arial" font-weight="bold">Maths</text><text x="148" y="140" font-size="12" fill="white" text-anchor="middle" font-family="Arial" font-weight="bold">Science</text><text x="72" y="140" font-size="12" fill="white" text-anchor="middle" font-family="Arial" font-weight="bold">History</text><text x="72" y="68" font-size="12" fill="white" text-anchor="middle" font-family="Arial" font-weight="bold">English</text><text x="110" y="192" font-size="11" fill="#6b7280" text-anchor="middle" font-family="Arial">Each section = 25%</text></svg>`,
+    numline1:(()=>{const t=Array.from({length:11},(_,i)=>`<line x1="${30+i*26}" y1="46" x2="${30+i*26}" y2="58" stroke="#3b82f6" stroke-width="1.5"/>`).join('');return`<svg width="320" height="88" viewBox="0 0 320 88" xmlns="http://www.w3.org/2000/svg"><line x1="20" y1="52" x2="300" y2="52" stroke="#3b82f6" stroke-width="2"/><polygon points="300,48 310,52 300,56" fill="#3b82f6"/><polygon points="20,48 10,52 20,56" fill="#3b82f6"/>${t}<text x="30" y="72" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial">3.0</text><text x="290" y="72" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial">5.0</text><line x1="82" y1="28" x2="82" y2="46" stroke="#dc2626" stroke-width="2"/><polygon points="78,28 82,18 86,28" fill="#dc2626"/><text x="82" y="15" font-size="11" fill="#dc2626" text-anchor="middle" font-family="Arial" font-weight="bold">3.4</text><line x1="186" y1="28" x2="186" y2="46" stroke="#dc2626" stroke-width="2"/><polygon points="182,28 186,18 190,28" fill="#dc2626"/><text x="186" y="15" font-size="11" fill="#dc2626" text-anchor="middle" font-family="Arial" font-weight="bold">4.2</text><text x="155" y="85" font-size="11" fill="#6b7280" text-anchor="middle" font-family="Arial">Each interval = 0.2</text></svg>`;})(),
+    cube:`<svg width="200" height="170" viewBox="0 0 200 170" xmlns="http://www.w3.org/2000/svg"><polygon points="30,60 100,25 170,60 170,135 100,170 30,135" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/><polygon points="30,60 100,25 100,100 30,135" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2"/><polygon points="100,25 170,60 170,135 100,100" fill="#93c5fd" stroke="#3b82f6" stroke-width="2"/><polygon points="30,135 100,100 170,135 100,170" fill="#60a5fa" stroke="#3b82f6" stroke-width="2"/><rect x="30" y="60" width="32" height="28" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="1.5" opacity="0.9"/><text x="46" y="79" font-size="10" fill="white" text-anchor="middle" font-family="Arial" font-weight="bold">1u³</text><text x="100" y="168" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial">Larger = 3×3×3</text></svg>`,
+    segment:`<svg width="340" height="78" viewBox="0 0 340 78" xmlns="http://www.w3.org/2000/svg"><line x1="20" y1="38" x2="320" y2="38" stroke="#3b82f6" stroke-width="2.5"/><circle cx="20" cy="38" r="6" fill="#1d4ed8"/><circle cx="110" cy="38" r="6" fill="#15803d"/><circle cx="230" cy="38" r="6" fill="#15803d"/><circle cx="320" cy="38" r="6" fill="#1d4ed8"/><text x="20" y="62" font-size="14" fill="#1e40af" text-anchor="middle" font-family="Arial" font-weight="bold">P</text><text x="110" y="62" font-size="14" fill="#166534" text-anchor="middle" font-family="Arial" font-weight="bold">Q</text><text x="230" y="62" font-size="14" fill="#166534" text-anchor="middle" font-family="Arial" font-weight="bold">R</text><text x="320" y="62" font-size="14" fill="#1e40af" text-anchor="middle" font-family="Arial" font-weight="bold">S</text><line x1="20" y1="18" x2="320" y2="18" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3"/><text x="170" y="14" font-size="11" fill="#64748b" text-anchor="middle" font-family="Arial">a = PS</text><line x1="20" y1="74" x2="110" y2="74" stroke="#dc2626" stroke-width="1.5"/><text x="65" y="73" font-size="10" fill="#991b1b" text-anchor="middle" font-family="Arial">b=PQ</text><line x1="230" y1="74" x2="320" y2="74" stroke="#dc2626" stroke-width="1.5"/><text x="275" y="73" font-size="10" fill="#991b1b" text-anchor="middle" font-family="Arial">c=RS</text></svg>`,
+    tanks:`<svg width="260" height="152" viewBox="0 0 260 152" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="20" width="80" height="108" rx="5" fill="none" stroke="#3b82f6" stroke-width="2.5"/><rect x="20" y="101" width="80" height="27" rx="3" fill="#93c5fd"/><text x="60" y="14" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial" font-weight="bold">Tank A (¼ full)</text><text x="60" y="148" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial">= 2.5 L</text><rect x="160" y="20" width="80" height="108" rx="5" fill="none" stroke="#22c55e" stroke-width="2.5"/><rect x="160" y="47" width="80" height="81" rx="3" fill="#86efac"/><text x="200" y="14" font-size="12" fill="#166534" text-anchor="middle" font-family="Arial" font-weight="bold">Tank B (¾ full)</text><text x="200" y="148" font-size="12" fill="#166534" text-anchor="middle" font-family="Arial">= 7.5 L</text><text x="130" y="87" font-size="20" fill="#94a3b8" text-anchor="middle" font-family="Arial">+</text></svg>`,
+    barchart:(()=>{const v=[8,6,10,6,10],c=["#3b82f6","#60a5fa","#1d4ed8","#60a5fa","#1d4ed8"];const b=v.map((val,i)=>{const x=50+i*50,h=val*9,y=130-h;return`<rect x="${x}" y="${y}" width="32" height="${h}" fill="${c[i]}" rx="3"/><text x="${x+16}" y="${y-5}" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial" font-weight="bold">${val}</text><text x="${x+16}" y="148" font-size="11" fill="#6b7280" text-anchor="middle" font-family="Arial">A${i+1}</text>`;}).join('');return`<svg width="300" height="158" viewBox="0 0 300 158" xmlns="http://www.w3.org/2000/svg"><line x1="35" y1="15" x2="35" y2="132" stroke="#94a3b8" stroke-width="1.5"/><line x1="35" y1="132" x2="295" y2="132" stroke="#94a3b8" stroke-width="1.5"/><text x="28" y="135" font-size="10" fill="#94a3b8" text-anchor="end" font-family="Arial">0</text><text x="28" y="87" font-size="10" fill="#94a3b8" text-anchor="end" font-family="Arial">5</text><text x="28" y="42" font-size="10" fill="#94a3b8" text-anchor="end" font-family="Arial">10</text>${b}</svg>`;})(),
+    numline2:(()=>{const m=Array.from({length:13},(_,i)=>`<line x1="${20+i*22}" y1="47" x2="${20+i*22}" y2="58" stroke="#3b82f6" stroke-width="1.5"/>`).join('');return`<svg width="320" height="100" viewBox="0 0 320 100" xmlns="http://www.w3.org/2000/svg"><line x1="10" y1="52" x2="305" y2="52" stroke="#3b82f6" stroke-width="2"/><polygon points="305,48 315,52 305,56" fill="#3b82f6"/>${m}<text x="20" y="72" font-size="11" fill="#1e40af" text-anchor="middle" font-family="Arial">0</text><circle cx="108" cy="52" r="5" fill="#3b82f6"/><text x="108" y="39" font-size="11" fill="#1e40af" text-anchor="middle" font-family="Arial" font-weight="bold">X=8</text><circle cx="218" cy="52" r="5" fill="#22c55e"/><text x="218" y="39" font-size="11" fill="#166534" text-anchor="middle" font-family="Arial" font-weight="bold">Y=18</text><text x="160" y="94" font-size="11" fill="#6b7280" text-anchor="middle" font-family="Arial">Each mark = 2 units</text></svg>`;})(),
+    coords:(()=>{const gx=x=>20+x*30,gy=y=>190-y*25;const dots=[[1,2],[1,6],[5,2],[5,6]].map(([x,y])=>`<circle cx="${gx(x)}" cy="${gy(y)}" r="5" fill="#1d4ed8"/><text x="${gx(x)+(x>3?6:-28)}" y="${gy(y)+(y<4?14:-8)}" font-size="10" fill="#1e40af" font-family="Arial">(${x},${y})</text>`).join('');const tx=Array.from({length:7},(_,i)=>`<line x1="${gx(i)}" y1="188" x2="${gx(i)}" y2="192" stroke="#94a3b8" stroke-width="1"/><text x="${gx(i)}" y="204" font-size="10" fill="#94a3b8" text-anchor="middle" font-family="Arial">${i}</text>`).join('');const ty=Array.from({length:9},(_,i)=>`<line x1="18" y1="${gy(i)}" x2="22" y2="${gy(i)}" stroke="#94a3b8" stroke-width="1"/><text x="14" y="${gy(i)+4}" font-size="10" fill="#94a3b8" text-anchor="end" font-family="Arial">${i}</text>`).join('');return`<svg width="220" height="212" viewBox="0 0 220 212" xmlns="http://www.w3.org/2000/svg"><line x1="20" y1="190" x2="200" y2="190" stroke="#94a3b8" stroke-width="1.5"/><line x1="20" y1="190" x2="20" y2="10" stroke="#94a3b8" stroke-width="1.5"/>${tx}${ty}<rect x="${gx(1)}" y="${gy(6)}" width="${gx(5)-gx(1)}" height="${gy(2)-gy(6)}" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2.5"/>${dots}</svg>`;})()
+    // PASTE NEW DIAGRAMS HERE — key must match "diag" field in question above
+    // Example:  ,q32_shape: `<svg width="200" height="150">...</svg>`
+    // PASTE NEW DIAGRAMS HERE
+    // ,your_diag_key: `<svg ...>...</svg>`
+  };
+  return d[key] || '';
+}
+
+/* ════════════════════════════════════════
+   LOCAL STORAGE
+════════════════════════════════════════ */
+const LS_KEY = 'quiz_progress_v1';
+const chosen = {}, statuses = {}, attempts = {};
+
+function saveProgress() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify({chosen, statuses, attempts})); } catch(e) {}
+}
+function loadProgress() {
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    if (!saved) return;
+    const data = JSON.parse(saved);
+    if (data.chosen)   Object.assign(chosen,   data.chosen);
+    if (data.statuses) Object.assign(statuses, data.statuses);
+    if (data.attempts) Object.assign(attempts, data.attempts);
+  } catch(e) {}
+}
+
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+let mode = 'all', curQs = [], cur = 0;
+
+/* ════════════════════════════════════════
+   QUIZ LOGIC
+════════════════════════════════════════ */
+function startQuiz(m) {
+  mode = m;
+  curQs = m === 'ma' ? ALL_QUESTIONS.filter(q => q.sec === 'MA')
+        : m === 'qr' ? ALL_QUESTIONS.filter(q => q.sec === 'QR')
+        : [...ALL_QUESTIONS];
+  cur = 0;
+  document.getElementById('quiz-title').textContent =
+    m === 'ma' ? 'Mathematics Achievement' :
+    m === 'qr' ? 'Quantitative Reasoning' : 'All Questions';
+  document.getElementById('bar-fill').className = 'bar-fill ' + m;
+  showScreen('screen-quiz');
+  renderQ();
+}
+
+function go(i) {
+  if (i < 0 || i >= curQs.length) return;
+  cur = i;
+  renderQ();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function pick(idx) {
+  const q = curQs[cur];
+  const key = String(q.n);
+  if (chosen[key] != null) return;
+  attempts[key] = (attempts[key] || 0) + 1;
+  chosen[key] = idx;
+  const isCorrect = idx === q.ans;
+  statuses[key] = isCorrect ? 'correct' : 'wrong';
+  saveProgress();
+  renderQ(); updateDash();
+  supaInsert({
+    session_id:  SESSION_ID,
+    question_id: key,
+    section:     q.sec,
+    correct:     isCorrect,
+    attempts:    attempts[key],
+    answered_at: new Date().toISOString()
+  });
+}
+
+function renderTabs() {
+  document.getElementById('tabs').innerHTML = curQs.map((q, i) => {
+    const key = String(q.n);
+    let c = 'tab';
+    if (statuses[key] === 'correct') c += ' correct';
+    if (statuses[key] === 'wrong')   c += ' wrong';
+    if (i === cur) c += ' active';
+    const label = q.n.replace('MA-','M').replace('QR-','Q');
+    return `<button class="${c}" onclick="go(${i})" title="${q.n}">${label}</button>`;
+  }).join('');
+}
+
+function renderQ() {
+  const q = curQs[cur];
+  const key = String(q.n);
+  const answered = chosen[key] != null;
+  const diag = q.diag ? `<div class="q-diagram">${diagrams(q.diag)}</div>` : '';
+  const opts = q.opts.map((o, i) => {
+    let c = 'opt';
+    if (answered) {
+      if (i === q.ans) c += ' correct-ans';
+      else if (i === chosen[key]) c += ' wrong-sel';
+    }
+    return `<button class="${c}" ${answered ? 'disabled' : ''} onclick="pick(${i})">
+      <span class="badge">${['A','B','C','D'][i]}</span><span>${o}</span>
+    </button>`;
+  }).join('');
+  const fb = answered ? `<div class="feedback ${chosen[key] === q.ans ? 'correct' : 'incorrect'} show">
+    <div class="fb-title">${chosen[key] === q.ans ? '✓ Correct!' : '✗ Not quite.'}</div>${q.exp}
+  </div>` : '';
+  const done = curQs.filter(q2 => chosen[String(q2.n)] != null).length;
+  const corr = curQs.filter(q2 => statuses[String(q2.n)] === 'correct').length;
+  document.getElementById('q-area').innerHTML = `
+    <div class="q-card">
+      <div class="q-meta ${q.sec.toLowerCase()}">${q.n} — ${q.sec === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning'}</div>
+      <div class="q-text">${q.text}</div>${diag}
+      <div class="options">${opts}</div>${fb}
+    </div>`;
+  document.getElementById('prog-label').textContent = `${done} of ${curQs.length} answered`;
+  document.getElementById('score-badge').textContent = `Score: ${corr}/${done}`;
+  document.getElementById('bar-fill').style.width = (done / curQs.length * 100) + '%';
+  document.getElementById('btn-prev').disabled = cur === 0;
+  document.getElementById('btn-next').disabled = cur === curQs.length - 1;
+  renderTabs();
+}
+
+/* ════════════════════════════════════════
+   RESET SECTION
+════════════════════════════════════════ */
+function resetSection(sec) {
+  const label = sec === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning';
+  if (!confirm(`Reset all ${label} answers?\n\nAttempt counts will be kept.`)) return;
+  ALL_QUESTIONS.filter(q => q.sec === sec).forEach(q => {
+    const key = String(q.n);
+    delete chosen[key];
+    delete statuses[key];
+  });
+  saveProgress();
+  updateDash();
+}
+
+/* ════════════════════════════════════════
+   DASHBOARD
+════════════════════════════════════════ */
+function updateDash() {
+  const maQs = ALL_QUESTIONS.filter(q => q.sec === 'MA');
+  const qrQs = ALL_QUESTIONS.filter(q => q.sec === 'QR');
+  const total = ALL_QUESTIONS.length;
+  const ans   = ALL_QUESTIONS.filter(q => chosen[String(q.n)] != null).length;
+  const corr  = ALL_QUESTIONS.filter(q => statuses[String(q.n)] === 'correct').length;
+  const wrg   = ans - corr;
+  const maAns = maQs.filter(q => chosen[String(q.n)] != null).length;
+  const maCor = maQs.filter(q => statuses[String(q.n)] === 'correct').length;
+  const qrAns = qrQs.filter(q => chosen[String(q.n)] != null).length;
+  const qrCor = qrQs.filter(q => statuses[String(q.n)] === 'correct').length;
+
+  document.getElementById('d-total').textContent    = total;
+  document.getElementById('d-answered').textContent = ans;
+  document.getElementById('d-correct').textContent  = corr;
+  document.getElementById('d-wrong').textContent    = wrg;
+  document.getElementById('d-ans-pct').textContent  = Math.round(ans / total * 100) + '%';
+  document.getElementById('d-cor-pct').textContent  = ans ? Math.round(corr / ans * 100) + '%' : '0%';
+  document.getElementById('d-wrg-pct').textContent  = ans ? Math.round(wrg / ans * 100) + '%' : '0%';
+  document.getElementById('bar-answered').style.width = (ans / total * 100) + '%';
+  document.getElementById('bar-correct').style.width  = (ans ? corr / ans * 100 : 0) + '%';
+  document.getElementById('bar-wrong').style.width    = (ans ? wrg / ans * 100 : 0) + '%';
+  document.getElementById('d-ma-ans').textContent  = maAns;
+  document.getElementById('d-ma-cor').textContent  = maCor;
+  document.getElementById('d-ma-wrg').textContent  = maAns - maCor;
+  document.getElementById('d-ma-total').textContent = maQs.length;
+  document.getElementById('d-qr-ans').textContent  = qrAns;
+  document.getElementById('d-qr-cor').textContent  = qrCor;
+  document.getElementById('d-qr-wrg').textContent  = qrAns - qrCor;
+  document.getElementById('d-qr-total').textContent = qrQs.length;
+  document.getElementById('ma-pill').textContent = maQs.length + ' Questions';
+  document.getElementById('qr-pill').textContent = qrQs.length + ' Questions';
+  document.getElementById('d-ma-range').textContent = 'MA-1 to MA-' + maQs.length;
+  document.getElementById('d-qr-range').textContent = 'QR-1 to QR-' + qrQs.length;
+}
+
+/* ════════════════════════════════════════
+   PARENT DASHBOARD
+════════════════════════════════════════ */
+async function loadParentDash() {
+  document.getElementById('pd-status').textContent = 'Loading results…';
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=*&order=answered_at.desc&limit=500',
+      { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = await res.json();
+    renderParentDash(rows);
+  } catch(e) {
+    document.getElementById('pd-status').textContent = '❌ Could not load: ' + e.message;
+  }
+}
+
+function renderParentDash(rows) {
+  if (rows.length === 0) {
+    document.getElementById('pd-status').textContent = 'No results yet.';
+    document.getElementById('pd-content').innerHTML = '';
+    return;
+  }
+  document.getElementById('pd-status').textContent = '';
+  const sessions = {};
+  rows.forEach(r => { if (!sessions[r.session_id]) sessions[r.session_id] = []; sessions[r.session_id].push(r); });
+  // latest = most recent attempt per question (rows are ordered desc so first occurrence = latest)
+  const latest = {};
+  rows.forEach(r => { if (!latest[r.question_id]) latest[r.question_id] = r; });
+  // Summary counts based on LATEST attempt per question — not raw row count
+  const latestVals = Object.values(latest);
+  const totalAns = latestVals.length;
+  const totalCor = latestVals.filter(r => r.correct).length;
+  const maRows = Object.values(latest).filter(r => r.section === 'MA').sort((a,b) => a.question_id.localeCompare(b.question_id, undefined, {numeric:true}));
+  const qrRows = Object.values(latest).filter(r => r.section === 'QR').sort((a,b) => a.question_id.localeCompare(b.question_id, undefined, {numeric:true}));
+  const sessionRows = Object.keys(sessions).sort().reverse().slice(0,10).map(sid => {
+    const sr = sessions[sid];
+    const date = sid.slice(0,10);
+    const c = sr.filter(r => r.correct).length;
+    const t = sr.length;
+    const mac = sr.filter(r => r.section==='MA' && r.correct).length;
+    const mat = sr.filter(r => r.section==='MA').length;
+    const qrc = sr.filter(r => r.section==='QR' && r.correct).length;
+    const qrt = sr.filter(r => r.section==='QR').length;
+    return `<tr>
+      <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:0.85rem;">${date}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;font-weight:700;color:#1a3a5c;">${c}/${t}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;color:#1d4ed8;">${mat>0?mac+'/'+mat:'—'}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;color:#0f6e56;">${qrt>0?qrc+'/'+qrt:'—'}</td>
+    </tr>`;
+  }).join('');
+  function qRow(r) {
+    const ok = r.correct;
+    const q = ALL_QUESTIONS.find(q => String(q.n) === r.question_id);
+    const preview = q ? q.text.split('\n')[0].slice(0,55)+(q.text.length>55?'…':'') : r.question_id;
+    return `<tr>
+      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;font-size:0.8rem;font-weight:700;color:#64748b;white-space:nowrap;">${r.question_id}</td>
+      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;font-size:0.82rem;color:#334155;">${preview}</td>
+      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;text-align:center;">
+        <span style="background:${ok?'#d1fae5':'#fee2e2'};color:${ok?'#065f46':'#991b1b'};padding:3px 10px;border-radius:99px;font-size:0.75rem;font-weight:700;">${ok?'✓ Correct':'✗ Wrong'}</span>
+      </td>
+      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:0.82rem;color:#64748b;">${r.attempts}</td>
+    </tr>`;
+  }
+  document.getElementById('pd-content').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem;">
+      <div style="background:#f1f5f9;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.6rem;font-weight:700;color:#334155;">${totalAns}</div><div style="font-size:0.72rem;font-weight:600;color:#94a3b8;margin-top:3px;">Questions tried</div></div>
+      <div style="background:#d1fae5;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.6rem;font-weight:700;color:#065f46;">${totalCor}</div><div style="font-size:0.72rem;font-weight:600;color:#065f46;margin-top:3px;opacity:0.8;">Correct</div></div>
+      <div style="background:#fee2e2;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.6rem;font-weight:700;color:#991b1b;">${totalAns-totalCor}</div><div style="font-size:0.72rem;font-weight:600;color:#991b1b;margin-top:3px;opacity:0.8;">Incorrect</div></div>
+    </div>
+    <div style="background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:1.25rem;overflow:hidden;">
+      <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;">Recent Sessions</div>
+      <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;">
+        <th style="padding:10px 14px;text-align:left;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#94a3b8;">Date</th>
+        <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#94a3b8;">Total</th>
+        <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#1d4ed8;">MA</th>
+        <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#0f6e56;">QR</th>
+      </tr></thead><tbody>${sessionRows}</tbody></table>
+    </div>
+    ${maRows.length > 0 ? `<div style="background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:1.25rem;overflow:hidden;">
+      <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#1d4ed8;">📐 Mathematics Achievement</div>
+      <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;">
+        <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Q</th>
+        <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Question</th>
+        <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Result</th>
+        <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Attempts</th>
+      </tr></thead><tbody>${maRows.map(qRow).join('')}</tbody></table>
+    </div>` : ''}
+    ${qrRows.length > 0 ? `<div style="background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:1.25rem;overflow:hidden;">
+      <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#0f6e56;">🔢 Quantitative Reasoning</div>
+      <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;">
+        <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Q</th>
+        <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Question</th>
+        <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Result</th>
+        <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Attempts</th>
+      </tr></thead><tbody>${qrRows.map(qRow).join('')}</tbody></table>
+    </div>` : ''}`;
+}
+
+/* ════════════════════════════════════════
+   DIAGNOSTIC
+════════════════════════════════════════ */
+async function runDiagnostic() {
+  const el = document.getElementById('diag-result');
+  el.style.display = 'block';
+  el.innerHTML = '⏳ Testing…';
+  const steps = [];
+  try {
+    const r1 = await fetch(SUPA_URL + '/rest/v1/', { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    steps.push('✅ Step 1 — Reached Supabase (HTTP ' + r1.status + ')');
+  } catch(e) { steps.push('❌ Step 1 — Cannot reach Supabase: ' + e.message); el.innerHTML = steps.join('<br>'); return; }
+  try {
+    const r2 = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?limit=1', { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    steps.push(r2.ok ? '✅ Step 2 — Can READ table' : '❌ Step 2 — READ failed: ' + await r2.text());
+  } catch(e) { steps.push('❌ Step 2: ' + e.message); }
+  try {
+    const r3 = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=minimal'},
+      body: JSON.stringify({session_id:'diag_test',question_id:'MA-1',section:'MA',correct:true,attempts:1,answered_at:new Date().toISOString()})
+    });
+    steps.push((r3.status===201||r3.status===200) ? '✅ Step 3 — INSERT succeeded!' : '❌ Step 3 — INSERT failed: ' + await r3.text());
+  } catch(e) { steps.push('❌ Step 3: ' + e.message); }
+  steps.push('<br><b>🎉 Connection working!</b> Answer a question and click Refresh Results.');
+  el.innerHTML = steps.join('<br>');
+}
+
+/* ════════════════════════════════════════
+   SCREEN NAVIGATION
+════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goHome() { showScreen('screen-home'); updateDash(); }
+
+// Initialise on load
+loadProgress();
+updateDash();
+</script>
+</body>
+</html>
