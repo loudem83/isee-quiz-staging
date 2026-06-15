@@ -366,7 +366,7 @@ const ALL_QUESTIONS = [
   {n:"QR-11",sec:"QR",text:"A small cube has volume 1 unit³. A larger cube is made from these, 3 cubes in each direction. What is the volume of the larger cube?",opts:["9 units³","18 units³","24 units³","27 units³"],ans:3,exp:"3×3×3 = 27 unit cubes. Volume = 27 units³.",diag:"cube"},
   {n:"QR-12",sec:"QR",text:"Points P, Q, R, S are in order on a line. PS = a, PQ = b, RS = c.\n\nWhat is the length of QR?",opts:["a + b + c","a + b − c","a − b − c","b − a − c"],ans:2,exp:"QR = PS − PQ − RS = a − b − c.",diag:"segment"},
   {n:"QR-13",sec:"QR",text:"Tank A and Tank B each hold 10 litres. Tank A is about ¼ full; Tank B about ¾ full. Combined, how much liquid is there approximately?",opts:["2.5 litres","5 litres","7.5 litres","10 litres"],ans:3,exp:"Tank A: ¼×10=2.5 L. Tank B: ¾×10=7.5 L. Total = 10 litres.",diag:"tanks"},
-  {n:"QR-14",sec:"QR",text:"A jar has red and blue sweets. P(red) = 3 out of 7. There are 16 blue sweets. How many red sweets are in the jar?",opts:["6","8","10","24"],ans:1,exp:"P(blue)=4/7. If 4 parts=16, then 1 part=4. Red = 3 parts = 3×4 = 8."},
+  {n:"QR-14",sec:"QR",text:"A jar has red and blue sweets. P(red) = 3 out of 7. There are 16 blue sweets. How many red sweets are in the jar?",opts:["6","8","12","24"],ans:2,exp:"P(blue) = 4/7. If 4 parts = 16 blue sweets, then 1 part = 4. Red = 3 parts = 3 × 4 = 12. Check: 12 red + 16 blue = 28 total, and 12/28 = 3/7 ✓"},
   {n:"QR-15",sec:"QR",text:"A box holds black, white, and grey counters. P(black) = 3 out of 8. Which combination is possible?",opts:["3 black and 5 others","6 black and 10 others","9 black and 15 others","12 black and 20 others"],ans:1,exp:"6 out of 16 total = 6/16 = 3/8 ✓"},
   {n:"QR-16",sec:"QR",text:"Emma bought 4 ride tickets at $9 each and a meal deal. Her total was $52. Which equation finds the cost of the meal deal, m?",opts:["$52 = 9 + m","$52 = 4m","$52 = 4(9) + m","$52 = 4(9) + 4m"],ans:2,exp:"Total = (4×$9) + m = 36 + m = 52, so m = $16."},
   {n:"QR-17",sec:"QR",text:"Five athletes ran these laps: 8, 6, 10, 6, 10. What was the mean?",opts:["6","7","8","10"],ans:2,exp:"Total = 8+6+10+6+10 = 40. Mean = 40÷5 = 8 laps.",diag:"barchart"},
@@ -466,7 +466,7 @@ function pick(idx) {
   const isCorrect = idx === q.ans;
   statuses[key] = isCorrect ? 'correct' : 'wrong';
   saveProgress();
-  renderQ(); updateDash(); renderHeatGrid();
+  renderQ(); updateDash();
   supaInsert({
     session_id:  SESSION_ID,
     question_id: key,
@@ -772,23 +772,23 @@ const STRANDS = [
   "Data Analysis & Prob."
 ];
 
-function computeHeatData() {
-  // For each strand x dok, compute correct% from answered questions
+function computeHeatDataFromRows(rows) {
+  // Build heat data from Supabase rows — latest attempt per question
   const data = {};
   STRANDS.forEach(s => { data[s] = {1:{c:0,t:0}, 2:{c:0,t:0}, 3:{c:0,t:0}}; });
-  ALL_QUESTIONS.forEach(q => {
-    const key = String(q.n);
-    const tx = TAXONOMY[key];
+  // Get latest result per question_id
+  const latest = {};
+  rows.forEach(r => { if (!latest[r.question_id]) latest[r.question_id] = r; });
+  Object.values(latest).forEach(r => {
+    const tx = TAXONOMY[r.question_id];
     if (!tx) return;
-    if (chosen[key] == null) return; // not answered yet
     data[tx.strand][tx.dok].t++;
-    if (statuses[key] === 'correct') data[tx.strand][tx.dok].c++;
+    if (r.correct) data[tx.strand][tx.dok].c++;
   });
   return data;
 }
 
-function renderHeatGrid() {
-  const data = computeHeatData();
+function applyHeatData(data) {
   const el = document.getElementById('heat-grid-body');
   if (!el) return;
   el.innerHTML = STRANDS.map(s => {
@@ -797,11 +797,32 @@ function renderHeatGrid() {
       if (t === 0) return `<div class="hc"><div class="hcell hc-none">—</div></div>`;
       const pct = Math.round(c/t*100);
       const cls = pct >= 70 ? 'hc-strong' : pct >= 50 ? 'hc-ok' : 'hc-weak';
-      return `<div class="hc"><div class="hcell ${cls}">${pct}%</div></div>`;
+      return `<div class="hc"><div class="hcell ${cls}">${pct}%<br><span style="font-size:10px;opacity:0.7;">${c}/${t}</span></div></div>`;
     }).join('');
     const shortName = s.replace('Numbers & Operations','Numbers & Ops').replace('Data Analysis & Prob.','Data & Prob.');
     return `<div class="heat-row"><div class="hc">${shortName}</div>${cells}</div>`;
   }).join('');
+}
+
+async function renderHeatGrid() {
+  const el = document.getElementById('heat-grid-body');
+  if (!el) return;
+  // Show loading state
+  el.innerHTML = `<div class="heat-row"><div class="hc" style="grid-column:span 4;color:var(--color-text-tertiary);font-size:12px;padding:14px;">Loading performance data…</div></div>`;
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=question_id,correct&order=answered_at.desc&limit=500', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = await res.json();
+    if (rows.length === 0) {
+      el.innerHTML = `<div class="heat-row"><div class="hc" style="grid-column:span 4;color:var(--color-text-tertiary);font-size:12px;padding:14px;">Answer some questions to see your performance map</div></div>`;
+      return;
+    }
+    applyHeatData(computeHeatDataFromRows(rows));
+  } catch(e) {
+    el.innerHTML = `<div class="heat-row"><div class="hc" style="grid-column:span 4;color:var(--color-text-tertiary);font-size:12px;padding:14px;">Could not load data — check connection</div></div>`;
+  }
 }
 
 // Initialise on load
