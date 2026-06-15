@@ -142,9 +142,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
     <p>Interactive practice for Mathematics Achievement &amp; Quantitative Reasoning</p>
   </div>
   <div class="home-body">
+    <div class="dash-section">
+      <div class="dash-title">🚀 Choose a Pathway</div>
+      <div class="pathway-grid">
+        <div class="pathway-card ma" onclick="startQuiz('ma')">
+          <div class="icon">📐</div>
+          <h3>Mathematics Achievement</h3>
+          <p>Shapes, fractions, estimation, area, word problems</p>
+          <span class="pill" id="ma-pill">11 Questions</span>
+        </div>
+        <div class="pathway-card qr" onclick="startQuiz('qr')">
+          <div class="icon">🔢</div>
+          <h3>Quantitative Reasoning</h3>
+          <p>Algebra, proportions, functions, probability, data</p>
+          <span class="pill" id="qr-pill">20 Questions</span>
+        </div>
+      </div>
+      <button class="all-btn" onclick="startQuiz('all')">⭐ Take all questions together</button>
+      <button class="all-btn" onclick="showScreen('screen-pd');loadParentDash();" style="border-color:#f59e0b;color:#92400e;background:#fffbeb;">
+        👨&#x200D;👦 Parent Dashboard — View All Results
+      </button>
+    </div>
+
 
     <div class="dash-section">
-      <div class="dash-title">📊 Overall Dashboard</div>
+      <div class="dash-title">📊 Dashboard</div>
       <div class="stats-grid">
         <div class="stat-card total"><div class="val" id="d-total">31</div><div class="lbl">Total Qs</div></div>
         <div class="stat-card answered"><div class="val" id="d-answered">0</div><div class="lbl">Answered</div></div>
@@ -206,27 +228,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
         <div class="hl"><div class="hl-dot" style="background:var(--color-border-tertiary)"></div>Not yet answered</div>
       </div>
     </div>
-    <div class="dash-section">
-      <div class="dash-title">🚀 Choose a Pathway</div>
-      <div class="pathway-grid">
-        <div class="pathway-card ma" onclick="startQuiz('ma')">
-          <div class="icon">📐</div>
-          <h3>Mathematics Achievement</h3>
-          <p>Shapes, fractions, estimation, area, word problems</p>
-          <span class="pill" id="ma-pill">11 Questions</span>
-        </div>
-        <div class="pathway-card qr" onclick="startQuiz('qr')">
-          <div class="icon">🔢</div>
-          <h3>Quantitative Reasoning</h3>
-          <p>Algebra, proportions, functions, probability, data</p>
-          <span class="pill" id="qr-pill">20 Questions</span>
-        </div>
-      </div>
-      <button class="all-btn" onclick="startQuiz('all')">⭐ Take all questions together</button>
-      <button class="all-btn" onclick="showScreen('screen-pd');loadParentDash();" style="border-color:#f59e0b;color:#92400e;background:#fffbeb;">
-        👨&#x200D;👦 Parent Dashboard — View All Results
-      </button>
-    </div>
+
 
   </div>
 </div>
@@ -374,6 +376,24 @@ const ALL_QUESTIONS = [
   {n:"QR-19",sec:"QR",text:"On a number line (each mark = 2 units): X is at the 4th mark (=8). Y is at the 9th mark (=18). Y is the average of X and Z. What is Z?",opts:["22","26","28","32"],ans:2,exp:"Y=(X+Z)÷2 → 18=(8+Z)÷2 → 36=8+Z → Z=28.",diag:"numline2"},
   {n:"QR-20",sec:"QR",text:"Vertices of a quadrilateral: (1,2) (1,6) (5,2) (5,6).\n\nWhich term best describes the shape formed?",opts:["Trapezoid","Rhombus","Rectangle","Kite"],ans:2,exp:"Width=4, Height=4, all angles=90°. This is a square — a special rectangle.",diag:"coords"},
   {n:"QR-21",sec:"QR",text:"A small piece of material is cut into 5 squares. A large piece of material is cut into 4 times as many squares as the small piece. How many squares is the large piece of material cut into?",opts:["9 squares","16 squares","20 squares","25 squares"],ans:2,exp:"The small piece is cut into 5 squares. The large piece is cut into 4 times as many: 4 × 5 = 20 squares."}
+
+
+  ,{n:"QR-22",sec:"QR",text:"Simon put 301 song files in 7 different folders in his computer. Each folder had the same number of song files. How many song files did Simon put in each folder?",opts:["40","41","42","43"],ans:3,exp:"Divide 301 by 7: 7 × 43 = 301 exactly with no remainder. So each folder contains 43 song files."}
+  ,{n:"QR-23",sec:"QR",text:"Mr. Richards is sorting numbers. He puts the numbers 5, 11, and 18 in a group together. Which is another number that belongs in Mr. Richards' group?",opts:["25","26","30","34"],ans:1,exp:"Look at the differences between consecutive terms: 11 − 5 = 6, 18 − 11 = 7. The differences increase by 1 each time, so the next difference must be 8. The next number is 18 + 8 = 26."}
+  ,{n:"QR-24",sec:"QR",text:"Nev will change the shape of his garden from a square to a rectangle. The width of the square is doubled, and the length is halved. The square has sides of 10 m. By what amount will Nev increase the width of his garden?",opts:["5 m","10 m","15 m","25 m"],ans:1,exp:"The original square has sides of 10 m. Doubling the width: 10 × 2 = 20 m. The increase in width = 20 − 10 = 10 m. Note: the length becomes 10 ÷ 2 = 5 m, so the new rectangle is 20 m × 5 m — same area as the original 10 m × 10 m square."}
+  ,{n:"QR-25",sec:"QR",text:"Two baskets of the same size hold apples. The first basket is n/8 full. The second basket is 3/8 full. The apples from both baskets are combined into the second basket. Which statement best describes the amount of apples once combined?",opts:["If n = 1, the amount is less than 1/3 of a basket","If n = 2, the amount is greater than 1/3 of a basket","If n = 3, the amount is less than 1/2 of a basket","If n = 4, the amount is equal to 1/2 of a basket"],ans:1,exp:"Combined = n/8 + 3/8 = (n+3)/8. Test each option: n=1 → 4/8 = 1/2, which is NOT less than 1/3 (A false). n=2 → 5/8 = 0.625, and 1/3 ≈ 0.333, so 5/8 > 1/3 ✓ (B true). n=3 → 6/8 = 3/4, which is NOT less than 1/2 (C false). n=4 → 7/8 ≠ 1/2 (D false)."}
+  ,{n:"QR-26",sec:"QR",text:"A right triangle has two legs each of length 2 units and a base of length 2 units. A rectangle has width 2 units and length 8 units. How many of the triangles can fit in the rectangle?",opts:["3","4","6","8"],ans:3,exp:"Area of the right triangle = 1/2 × base × height = 1/2 × 2 × 2 = 2 square units. Area of the rectangle = 2 × 8 = 16 square units. Number of triangles that fit = 16 ÷ 2 = 8."}
+  ,{n:"QR-27",sec:"QR",text:"Jeremiah had [square] pencils and then he gave [circle] pencils to Nathaniel. Now, Nathaniel has [triangle] times as many pencils as Jeremiah had originally. Which expression represents the number of pencils Nathaniel had to begin with?",opts:["[triangle] x [circle] + [square]","[triangle] x [circle] - [square]","[triangle] x [square] + [circle]","[triangle] x [square] - [circle]"],ans:3,exp:"Nathaniel now has [triangle] × [square] pencils (triangle times what Jeremiah originally had). He received [circle] pencils from Jeremiah to reach this total. So before receiving them, Nathaniel had: [triangle] × [square] − [circle]."}
+  ,{n:"QR-28",sec:"QR",text:"Two cubes are shown. Cube A has sides with length 2 millimetres. Cube B is 5 times as wide as Cube A. How many Cube A's can fit inside Cube B?",opts:["15","25","125","150"],ans:2,exp:"Cube B side length = 5 × 2 = 10 mm. Volume of Cube A = 2 × 2 × 2 = 8 mm³. Volume of Cube B = 10 × 10 × 10 = 1,000 mm³. Number of Cube A's that fit = 1,000 ÷ 8 = 125. The key insight: when a cube's side is multiplied by 5, its volume is multiplied by 5³ = 125."}
+  ,{n:"MA-20",sec:"MA",text:"Shari wrote two equations.\n\np x q = 80\n2 x 5 = q\n\nWhat is the value of p?",opts:["2","5","8","10"],ans:2,exp:"Step 1: Find q using the second equation: q = 2 × 5 = 10. Step 2: Substitute q into the first equation: p × 10 = 80. Step 3: Divide both sides by 10: p = 80 ÷ 10 = 8."}
+  ,{n:"MA-21",sec:"MA",text:"Mr. Roberts has 19 students in his class. About 3/5 of the students have brown eyes. Approximately how many students in Mr. Roberts' class have brown eyes?",opts:["2","6","8","12"],ans:3,exp:"Round 19 to the nearest multiple of 5 to make the calculation easier: 19 ≈ 20. Then find 3/5 of 20: 3/5 × 20 = 12. The exact answer is 3/5 × 19 = 11.4, but 12 is the closest option and the best approximation."}
+  ,{n:"MA-22",sec:"MA",text:"Which equation can be used to find the width, w, of a rectangle that has a perimeter of 94 centimetres and a length of 28 centimetres?",opts:["w = 2 x 28 + 2 x 94","94 = 2 x 28 + 2 x w","w = 28 x 94","94 = 28 x w"],ans:1,exp:"The perimeter formula is P = 2l + 2w. Substituting the known values: 94 = 2 × 28 + 2 × w, which simplifies to 94 = 56 + 2w. Solving: 2w = 38, so w = 19 cm."}
+  ,{n:"MA-23",sec:"MA",text:"Which number is NOT a multiple of 4?",opts:["92","124","144","162"],ans:3,exp:"Divide each by 4: 92 ÷ 4 = 23 (exact ✓), 124 ÷ 4 = 31 (exact ✓), 144 ÷ 4 = 36 (exact ✓). But 162 ÷ 4 = 40.5 — not a whole number. So 162 is NOT a multiple of 4."}
+  ,{n:"MA-24",sec:"MA",text:"Sal has a pitcher and a jug he can use to measure water. The pitcher holds 2 quarts of water, and the jug holds 3 quarts of water. Which combination of pitchers and jugs can be used to hold exactly 14 quarts of water?",opts:["3 pitchers and 3 jugs","3 pitchers and 5 jugs","4 pitchers and 2 jugs","4 pitchers and 5 jugs"],ans:2,exp:"Check each option by calculating total quarts: 3 pitchers + 3 jugs = (3×2) + (3×3) = 6 + 9 = 15 ✗. 3 pitchers + 5 jugs = 6 + 15 = 21 ✗. 4 pitchers + 2 jugs = (4×2) + (2×3) = 8 + 6 = 14 ✓. 4 pitchers + 5 jugs = 8 + 15 = 23 ✗."}
+  ,{n:"MA-25",sec:"MA",text:"What is 19/3 expressed as a mixed number?",opts:["3 1/6","5 2/3","6 1/9","6 1/3"],ans:3,exp:"Divide 19 by 3: 19 ÷ 3 = 6 with remainder 1 (since 3 × 6 = 18, and 19 − 18 = 1). So 19/3 = 6 whole groups of 3, with 1 left over. Written as a mixed number: 6 and 1/3."}
+  ,{n:"MA-26",sec:"MA",text:"What is the sum of 3.2 and 1.3?",opts:["3 1/3","4 1/4","4 1/3","4 1/2"],ans:3,exp:"Add the decimals: 3.2 + 1.3 = 4.5. Convert to a mixed number: 4.5 = 4 and 5/10 = 4 and 1/2. So the answer is 4 1/2."}
+  ,{n:"MA-27",sec:"MA",text:"Alex has 7 packs of baseball cards, each containing 14 cards, and 7 packs of basketball cards, each containing 15 cards. Which expression could be used to find the total number of cards Alex has?",opts:["7 x (14 + 15)","(7 + 7) + 29","(7 x 7) + 29","7 x (14 x 15)"],ans:0,exp:"Alex has 7 × 14 baseball cards and 7 × 15 basketball cards. Total = 7 × 14 + 7 × 15. By the distributive property, this equals 7 × (14 + 15) = 7 × 29 = 203. The other options give wrong totals: B gives 43, C gives 78, D gives 1,470."}
+  ,{n:"MA-28",sec:"MA",text:"When it is 9:00 a.m. in Anchorage, it is 1:00 p.m. in Philadelphia. When it is 6:00 p.m. in Philadelphia, what time is it in Anchorage?",opts:["1:00 p.m.","2:00 p.m.","3:00 p.m.","10:00 p.m."],ans:1,exp:"First find the time difference: 1:00 p.m. − 9:00 a.m. = 4 hours. Philadelphia is 4 hours ahead of Anchorage. So when it is 6:00 p.m. in Philadelphia, subtract 4 hours: 6:00 p.m. − 4 hours = 2:00 p.m. in Anchorage."}
 
   // ╔══════════════════════════════════════════════════════════════╗
   // ║  PASTE NEW QUESTIONS ABOVE THIS LINE                        ║
@@ -541,40 +561,59 @@ function resetSection(sec) {
 /* ════════════════════════════════════════
    DASHBOARD
 ════════════════════════════════════════ */
-function updateDash() {
-  const maQs = ALL_QUESTIONS.filter(q => q.sec === 'MA');
-  const qrQs = ALL_QUESTIONS.filter(q => q.sec === 'QR');
+async function updateDash() {
+  // Total = always the full question bank size (not from Supabase)
   const total = ALL_QUESTIONS.length;
-  const ans   = ALL_QUESTIONS.filter(q => chosen[String(q.n)] != null).length;
-  const corr  = ALL_QUESTIONS.filter(q => statuses[String(q.n)] === 'correct').length;
-  const wrg   = ans - corr;
-  const maAns = maQs.filter(q => chosen[String(q.n)] != null).length;
-  const maCor = maQs.filter(q => statuses[String(q.n)] === 'correct').length;
-  const qrAns = qrQs.filter(q => chosen[String(q.n)] != null).length;
-  const qrCor = qrQs.filter(q => statuses[String(q.n)] === 'correct').length;
+  document.getElementById('d-total').textContent = total;
+  document.getElementById('ma-pill').textContent = ALL_QUESTIONS.filter(q=>q.sec==='MA').length + ' Questions';
+  document.getElementById('qr-pill').textContent = ALL_QUESTIONS.filter(q=>q.sec==='QR').length + ' Questions';
+  document.getElementById('d-ma-total').textContent = ALL_QUESTIONS.filter(q=>q.sec==='MA').length;
+  document.getElementById('d-qr-total').textContent = ALL_QUESTIONS.filter(q=>q.sec==='QR').length;
 
-  document.getElementById('d-total').textContent    = total;
-  document.getElementById('d-answered').textContent = ans;
-  document.getElementById('d-correct').textContent  = corr;
-  document.getElementById('d-wrong').textContent    = wrg;
-  document.getElementById('d-ans-pct').textContent  = Math.round(ans / total * 100) + '%';
-  document.getElementById('d-cor-pct').textContent  = ans ? Math.round(corr / ans * 100) + '%' : '0%';
-  document.getElementById('d-wrg-pct').textContent  = ans ? Math.round(wrg / ans * 100) + '%' : '0%';
-  document.getElementById('bar-answered').style.width = (ans / total * 100) + '%';
-  document.getElementById('bar-correct').style.width  = (ans ? corr / ans * 100 : 0) + '%';
-  document.getElementById('bar-wrong').style.width    = (ans ? wrg / ans * 100 : 0) + '%';
-  document.getElementById('d-ma-ans').textContent  = maAns;
-  document.getElementById('d-ma-cor').textContent  = maCor;
-  document.getElementById('d-ma-wrg').textContent  = maAns - maCor;
-  document.getElementById('d-ma-total').textContent = maQs.length;
-  document.getElementById('d-qr-ans').textContent  = qrAns;
-  document.getElementById('d-qr-cor').textContent  = qrCor;
-  document.getElementById('d-qr-wrg').textContent  = qrAns - qrCor;
-  document.getElementById('d-qr-total').textContent = qrQs.length;
-  document.getElementById('ma-pill').textContent = maQs.length + ' Questions';
-  document.getElementById('qr-pill').textContent = qrQs.length + ' Questions';
-  document.getElementById('d-ma-range').textContent = 'MA-1 to MA-' + maQs.length;
-  document.getElementById('d-qr-range').textContent = 'QR-1 to QR-' + qrQs.length;
+  // Fetch latest results from Supabase
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=question_id,section,correct&order=answered_at.desc&limit=500', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    if (!res.ok) return;
+    const rows = await res.json();
+
+    // Latest result per question
+    const latest = {};
+    rows.forEach(r => { if (!latest[r.question_id]) latest[r.question_id] = r; });
+    const latestVals = Object.values(latest);
+
+    const ans  = latestVals.length;
+    const corr = latestVals.filter(r => r.correct).length;
+    const wrg  = ans - corr;
+
+    const maRows = latestVals.filter(r => r.section === 'MA');
+    const qrRows = latestVals.filter(r => r.section === 'QR');
+    const maAns  = maRows.length;
+    const maCor  = maRows.filter(r => r.correct).length;
+    const qrAns  = qrRows.length;
+    const qrCor  = qrRows.filter(r => r.correct).length;
+
+    document.getElementById('d-answered').textContent = ans;
+    document.getElementById('d-correct').textContent  = corr;
+    document.getElementById('d-wrong').textContent    = wrg;
+    document.getElementById('d-ans-pct').textContent  = total ? Math.round(ans/total*100)+'%' : '0%';
+    document.getElementById('d-cor-pct').textContent  = ans ? Math.round(corr/ans*100)+'%' : '0%';
+    document.getElementById('d-wrg-pct').textContent  = ans ? Math.round(wrg/ans*100)+'%' : '0%';
+    document.getElementById('bar-answered').style.width = (total ? ans/total*100 : 0)+'%';
+    document.getElementById('bar-correct').style.width  = (ans ? corr/ans*100 : 0)+'%';
+    document.getElementById('bar-wrong').style.width    = (ans ? wrg/ans*100 : 0)+'%';
+    document.getElementById('d-ma-ans').textContent  = maAns;
+    document.getElementById('d-ma-cor').textContent  = maCor;
+    document.getElementById('d-ma-wrg').textContent  = maAns - maCor;
+    document.getElementById('d-ma-range').textContent = 'MA-1 to MA-' + ALL_QUESTIONS.filter(q=>q.sec==='MA').length;
+    document.getElementById('d-qr-ans').textContent  = qrAns;
+    document.getElementById('d-qr-cor').textContent  = qrCor;
+    document.getElementById('d-qr-wrg').textContent  = qrAns - qrCor;
+    document.getElementById('d-qr-range').textContent = 'QR-1 to QR-' + ALL_QUESTIONS.filter(q=>q.sec==='QR').length;
+  } catch(e) {
+    // Silently fail — stats will just show 0
+  }
 }
 
 /* ════════════════════════════════════════
@@ -737,6 +776,15 @@ const TAXONOMY = {
   "MA-17":{strand:"Numbers & Operations", sub:"Whole Number Arithmetic", dok:1},
   "MA-18":{strand:"Numbers & Operations", sub:"Fractions & Decimals",    dok:2},
   "MA-19":{strand:"Numbers & Operations", sub:"Whole Number Arithmetic", dok:1},
+  "MA-20":{strand:"Algebraic Thinking",   sub:"Expressions & Equations", dok:2},
+  "MA-21":{strand:"Numbers & Operations", sub:"Fractions & Decimals",    dok:2},
+  "MA-22":{strand:"Algebraic Thinking",   sub:"Expressions & Equations", dok:2},
+  "MA-23":{strand:"Numbers & Operations", sub:"Whole Number Arithmetic", dok:1},
+  "MA-24":{strand:"Measurement",          sub:"Units & Conversions",     dok:2},
+  "MA-25":{strand:"Numbers & Operations", sub:"Fractions & Decimals",    dok:1},
+  "MA-26":{strand:"Numbers & Operations", sub:"Fractions & Decimals",    dok:1},
+  "MA-27":{strand:"Algebraic Thinking",   sub:"Expressions & Equations", dok:2},
+  "MA-28":{strand:"Measurement",          sub:"Units & Conversions",     dok:2},
   "QR-1": {strand:"Measurement",          sub:"Perimeter & Area",        dok:2},
   "QR-2": {strand:"Numbers & Operations", sub:"Ratios & Percentages",    dok:3},
   "QR-3": {strand:"Numbers & Operations", sub:"Fractions & Decimals",    dok:2},
@@ -758,11 +806,16 @@ const TAXONOMY = {
   "QR-19":{strand:"Numbers & Operations", sub:"Fractions & Decimals",    dok:3},
   "QR-20":{strand:"Geometry",             sub:"Coordinate Planes",       dok:2},
   "QR-21":{strand:"Numbers & Operations", sub:"Whole Number Arithmetic", dok:1},
-  // ╔══════════════════════════════════════════════════╗
-  // ║  ADD NEW QUESTION TAXONOMY HERE                  ║
-  // ║  Format: "QR-22":{strand:"...",sub:"...",dok:2}  ║
-  // ╚══════════════════════════════════════════════════╝
-};
+  "QR-22":{strand:"Numbers & Operations", sub:"Whole Number Arithmetic", dok:1},
+  "QR-23":{strand:"Algebraic Thinking",   sub:"Patterns & Sequences",    dok:2},
+  "QR-24":{strand:"Measurement",          sub:"Perimeter & Area",        dok:2},
+  "QR-25":{strand:"Numbers & Operations", sub:"Fractions & Decimals",    dok:3},
+  "QR-26":{strand:"Measurement",          sub:"Perimeter & Area",        dok:3},
+  "QR-27":{strand:"Algebraic Thinking",   sub:"Expressions & Equations", dok:3},
+  "QR-28":{strand:"Measurement",          sub:"Visual/Spatial Scaling",  dok:3}
+  // ADD NEW TAXONOMY ENTRIES ABOVE THIS LINE
+  // Format: ,"QR-29":{strand:"...",sub:"...",dok:2}
+}
 
 const STRANDS = [
   "Numbers & Operations",
