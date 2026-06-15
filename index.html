@@ -162,6 +162,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
       <button class="all-btn" onclick="showScreen('screen-pd');loadParentDash();" style="border-color:#f59e0b;color:#92400e;background:#fffbeb;">
         👨&#x200D;👦 Parent Dashboard — View All Results
       </button>
+      <button class="all-btn" onclick="showScreen('screen-qa');loadQAReview();" style="border-color:#c4b5fd;color:#4c1d95;background:#f5f3ff;">
+        🔬 QA Review — Generated Questions
+      </button>
     </div>
 
 
@@ -279,6 +282,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
     <div id="pd-status" style="font-size:0.9rem;color:#64748b;margin-bottom:1rem;"></div>
     <div id="pd-content"></div>
     <button onclick="loadParentDash()" style="width:100%;padding:11px;border-radius:10px;border:1.5px solid #dce3ea;background:white;cursor:pointer;font-size:0.9rem;font-weight:600;color:#1a3a5c;margin-top:0.5rem;">🔄 Refresh Results</button>
+  </div>
+</div>
+
+<!-- SCREEN 4: QA REVIEW -->
+<div id="screen-qa" class="screen">
+  <div class="top-bar" style="background:#4c1d95;">
+    <h1>🔬 QA Review — Generated Questions</h1>
+    <button class="back-btn" onclick="goHome()">← Home</button>
+  </div>
+  <div class="quiz-wrap">
+    <div id="qa-status" style="text-align:center;padding:2rem;color:#64748b;font-size:0.95rem;"></div>
+    <div id="qa-counter" style="display:none;background:white;border-radius:12px;padding:0.9rem 1.25rem;margin-bottom:1rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;color:#64748b;">
+      <span id="qa-counter-text"></span>
+      <span id="qa-section-badge" style="padding:3px 12px;border-radius:99px;font-size:0.78rem;font-weight:700;"></span>
+    </div>
+    <div id="qa-taxonomy" style="display:none;background:#f5f3ff;border:1.5px solid #c4b5fd;border-radius:12px;padding:0.85rem 1.1rem;margin-bottom:1rem;font-size:0.82rem;color:#4c1d95;line-height:1.7;">
+    </div>
+    <div id="qa-area"></div>
+    <div id="qa-actions" style="display:none;gap:12px;margin-top:1rem;">
+      <button onclick="qaDecide('rejected')" style="flex:1;padding:13px;border-radius:10px;border:2px solid #ef4444;background:white;color:#dc2626;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='white'">✗ Reject</button>
+      <button onclick="qaDecide('approved')" style="flex:1;padding:13px;border-radius:10px;border:2px solid #22c55e;background:white;color:#15803d;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='white'">✓ Approve</button>
+    </div>
+    <div id="qa-nav" style="display:none;justify-content:space-between;gap:10px;margin-top:0.75rem;">
+      <button class="nav-btn" id="qa-btn-prev" onclick="qaGo(qaIdx-1)">← Previous</button>
+      <button class="nav-btn" id="qa-btn-next" onclick="qaGo(qaIdx+1)">Next →</button>
+    </div>
+    <div id="qa-done-msg" style="display:none;text-align:center;padding:2.5rem 1rem;">
+      <div style="font-size:2.5rem;margin-bottom:12px;">🎉</div>
+      <div style="font-size:1.1rem;font-weight:700;color:#1a1a2e;margin-bottom:6px;">All questions reviewed!</div>
+      <div style="font-size:0.9rem;color:#64748b;">No pending questions remain. Generate more or go back home.</div>
+    </div>
   </div>
 </div>
 
@@ -458,9 +492,11 @@ let mode = 'all', curQs = [], cur = 0;
 ════════════════════════════════════════ */
 function startQuiz(m) {
   mode = m;
-  curQs = m === 'ma' ? ALL_QUESTIONS.filter(q => q.sec === 'MA')
-        : m === 'qr' ? ALL_QUESTIONS.filter(q => q.sec === 'QR')
-        : [...ALL_QUESTIONS];
+  // Merge approved generated questions into the pool
+  const pool = [...ALL_QUESTIONS, ...APPROVED_GENERATED];
+  curQs = m === 'ma' ? pool.filter(q => q.sec === 'MA')
+        : m === 'qr' ? pool.filter(q => q.sec === 'QR')
+        : [...pool];
   cur = 0;
   document.getElementById('quiz-title').textContent =
     m === 'ma' ? 'Mathematics Achievement' :
@@ -752,6 +788,200 @@ function showScreen(id) {
 function goHome() { showScreen('screen-home'); updateDash(); renderHeatGrid(); }
 
 
+/* ════════════════════════════════════════
+   APPROVED GENERATED QUESTIONS
+   Fetched from Supabase at page load and merged into the quiz pool
+════════════════════════════════════════ */
+let APPROVED_GENERATED = [];
+
+// Map target_topic string → {strand, sub, dok} for generated questions
+function topicToTaxonomy(target_topic, section) {
+  if (!target_topic) return null;
+  const dokMatch = target_topic.match(/DoK\s*(\d)/i);
+  const dok = dokMatch ? parseInt(dokMatch[1]) : 2;
+  const topic = target_topic.replace(/\s*\(DoK\s*\d\)/i, '').trim();
+  const strandMap = {
+    'Fractions & Decimals':    'Numbers & Operations',
+    'Whole Number Arithmetic': 'Numbers & Operations',
+    'Ratios & Percentages':    'Numbers & Operations',
+    'Expressions & Equations': 'Algebraic Thinking',
+    'Patterns & Sequences':    'Algebraic Thinking',
+    '2D & 3D Shapes':          'Geometry',
+    'Coordinate Planes':       'Geometry',
+    'Perimeter & Area':        'Measurement',
+    'Units & Conversions':     'Measurement',
+    'Visual/Spatial Scaling':  'Measurement',
+    'Tables & Graphs':         'Data Analysis & Prob.',
+    'Mean, Median, Mode':      'Data Analysis & Prob.',
+    'Simple Probability':      'Data Analysis & Prob.',
+  };
+  const strand = strandMap[topic] || (section === 'MA' ? 'Numbers & Operations' : 'Algebraic Thinking');
+  return { strand, sub: topic || 'General', dok };
+}
+
+function genRowToQuestion(row) {
+  const tax = topicToTaxonomy(row.target_topic, row.section);
+  if (tax) TAXONOMY[row.question_id] = tax;
+  return {
+    n:   row.question_id,
+    sec: row.section,
+    text: row.text,
+    opts: [row.opt_a, row.opt_b, row.opt_c, row.opt_d],
+    ans:  row.correct_index,
+    exp:  row.explanation || '',
+    _generated: true
+  };
+}
+
+async function fetchApprovedGenerated() {
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/generated_questions?status=eq.approved&select=*', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    if (!res.ok) return;
+    const rows = await res.json();
+    APPROVED_GENERATED = rows.map(genRowToQuestion);
+  } catch(e) { /* silently fail */ }
+}
+
+/* ════════════════════════════════════════
+   QA REVIEW
+════════════════════════════════════════ */
+let qaQuestions = [], qaIdx = 0;
+
+async function loadQAReview() {
+  const statusEl = document.getElementById('qa-status');
+  const counterEl = document.getElementById('qa-counter');
+  const taxEl = document.getElementById('qa-taxonomy');
+  const areaEl = document.getElementById('qa-area');
+  const actionsEl = document.getElementById('qa-actions');
+  const navEl = document.getElementById('qa-nav');
+  const doneEl = document.getElementById('qa-done-msg');
+
+  statusEl.textContent = '⏳ Loading pending questions…';
+  statusEl.style.display = 'block';
+  counterEl.style.display = 'none';
+  taxEl.style.display = 'none';
+  areaEl.innerHTML = '';
+  actionsEl.style.display = 'none';
+  navEl.style.display = 'none';
+  doneEl.style.display = 'none';
+
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/generated_questions?status=eq.pending&select=*&order=generated_at.asc', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = await res.json();
+    if (rows.length === 0) {
+      statusEl.style.display = 'none';
+      doneEl.style.display = 'block';
+      return;
+    }
+    qaQuestions = rows;
+    qaIdx = 0;
+    statusEl.style.display = 'none';
+    qaRender();
+  } catch(e) {
+    statusEl.textContent = '❌ Could not load: ' + e.message;
+  }
+}
+
+function qaGo(i) {
+  if (i < 0 || i >= qaQuestions.length) return;
+  qaIdx = i;
+  qaRender();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function qaRender() {
+  const row = qaQuestions[qaIdx];
+  if (!row) return;
+  const tax = topicToTaxonomy(row.target_topic, row.section);
+  const dokLabel = ['', 'DoK 1 — Recall', 'DoK 2 — Conceptual', 'DoK 3 — Analytical'][tax?.dok] || '';
+
+  const counterEl = document.getElementById('qa-counter');
+  counterEl.style.display = 'flex';
+  document.getElementById('qa-counter-text').textContent = `Question ${qaIdx + 1} of ${qaQuestions.length} pending`;
+  const badge = document.getElementById('qa-section-badge');
+  badge.textContent = row.section === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning';
+  badge.style.background = row.section === 'MA' ? '#dbeafe' : '#d1fae5';
+  badge.style.color = row.section === 'MA' ? '#1e40af' : '#065f46';
+
+  const taxEl = document.getElementById('qa-taxonomy');
+  taxEl.style.display = 'block';
+  taxEl.innerHTML = tax
+    ? `<b>🏷 Taxonomy</b> &nbsp;|&nbsp; <b>ID:</b> ${row.question_id} &nbsp;|&nbsp; <b>Strand:</b> ${tax.strand} &nbsp;|&nbsp; <b>Subtopic:</b> ${tax.sub} &nbsp;|&nbsp; <b>${dokLabel}</b>`
+    : `<b>🏷 ID:</b> ${row.question_id} &nbsp;|&nbsp; <b>Topic:</b> ${row.target_topic || 'Unknown'}`;
+
+  const opts = [row.opt_a, row.opt_b, row.opt_c, row.opt_d].map((o, i) => {
+    const isCorrect = i === row.correct_index;
+    return `<button class="opt${isCorrect ? ' correct-ans' : ''}" disabled style="cursor:default;">
+      <span class="badge">${['A','B','C','D'][i]}</span><span>${o}</span>
+    </button>`;
+  }).join('');
+
+  const expHtml = row.explanation
+    ? `<div class="feedback correct show"><div class="fb-title">📖 Explanation</div>${row.explanation}</div>`
+    : `<div class="feedback incorrect show"><div class="fb-title">⚠ No explanation provided</div></div>`;
+
+  document.getElementById('qa-area').innerHTML = `
+    <div class="q-card">
+      <div class="q-meta ${row.section.toLowerCase()}">${row.question_id}</div>
+      <div class="q-text">${row.text}</div>
+      <div class="options">${opts}</div>
+      ${expHtml}
+    </div>`;
+
+  document.getElementById('qa-actions').style.display = 'flex';
+  const navEl = document.getElementById('qa-nav');
+  navEl.style.display = 'flex';
+  document.getElementById('qa-btn-prev').disabled = qaIdx === 0;
+  document.getElementById('qa-btn-next').disabled = qaIdx === qaQuestions.length - 1;
+}
+
+async function qaDecide(decision) {
+  const row = qaQuestions[qaIdx];
+  if (!row) return;
+  const actionsEl = document.getElementById('qa-actions');
+  actionsEl.style.display = 'none';
+
+  try {
+    const res = await fetch(SUPA_URL + `/rest/v1/generated_questions?id=eq.${row.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ status: decision })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+    if (decision === 'approved') {
+      APPROVED_GENERATED.push(genRowToQuestion(row));
+    }
+
+    qaQuestions.splice(qaIdx, 1);
+    if (qaQuestions.length === 0) {
+      document.getElementById('qa-counter').style.display = 'none';
+      document.getElementById('qa-taxonomy').style.display = 'none';
+      document.getElementById('qa-area').innerHTML = '';
+      document.getElementById('qa-nav').style.display = 'none';
+      actionsEl.style.display = 'none';
+      document.getElementById('qa-done-msg').style.display = 'block';
+      return;
+    }
+    if (qaIdx >= qaQuestions.length) qaIdx = qaQuestions.length - 1;
+    actionsEl.style.display = 'flex';
+    qaRender();
+  } catch(e) {
+    actionsEl.style.display = 'flex';
+    alert('❌ Could not save: ' + e.message);
+  }
+}
+
 /* ════════════════════════════════════════════
    TAXONOMY — strand, subtopic, DoK per question
    Update when new questions are added
@@ -882,6 +1112,7 @@ async function renderHeatGrid() {
 loadProgress();
 updateDash();
 renderHeatGrid();
+fetchApprovedGenerated();
 </script>
 </body>
 </html>
