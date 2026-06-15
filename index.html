@@ -796,13 +796,14 @@ function resetSection(sec) {
    DASHBOARD
 ════════════════════════════════════════ */
 async function updateDash() {
-  // Total = always the full question bank size (not from Supabase)
-  const total = ALL_QUESTIONS.length;
+  // Total = hardcoded questions + approved generated questions
+  const allPool = [...ALL_QUESTIONS, ...APPROVED_GENERATED];
+  const total = allPool.length;
   document.getElementById('d-total').textContent = total;
-  document.getElementById('ma-pill').textContent = ALL_QUESTIONS.filter(q=>q.sec==='MA').length + ' Questions';
-  document.getElementById('qr-pill').textContent = ALL_QUESTIONS.filter(q=>q.sec==='QR').length + ' Questions';
-  document.getElementById('d-ma-total').textContent = ALL_QUESTIONS.filter(q=>q.sec==='MA').length;
-  document.getElementById('d-qr-total').textContent = ALL_QUESTIONS.filter(q=>q.sec==='QR').length;
+  document.getElementById('ma-pill').textContent = allPool.filter(q=>q.sec==='MA').length + ' Questions';
+  document.getElementById('qr-pill').textContent = allPool.filter(q=>q.sec==='QR').length + ' Questions';
+  document.getElementById('d-ma-total').textContent = allPool.filter(q=>q.sec==='MA').length;
+  document.getElementById('d-qr-total').textContent = allPool.filter(q=>q.sec==='QR').length;
 
   // Fetch latest results from Supabase
   try {
@@ -840,11 +841,11 @@ async function updateDash() {
     document.getElementById('d-ma-ans').textContent  = maAns;
     document.getElementById('d-ma-cor').textContent  = maCor;
     document.getElementById('d-ma-wrg').textContent  = maAns - maCor;
-    document.getElementById('d-ma-range').textContent = 'MA-1 to MA-' + ALL_QUESTIONS.filter(q=>q.sec==='MA').length;
+    document.getElementById('d-ma-range').textContent = 'MA-1 to MA-' + allPool.filter(q=>q.sec==='MA' && /^MA-\d+$/.test(String(q.n))).length;
     document.getElementById('d-qr-ans').textContent  = qrAns;
     document.getElementById('d-qr-cor').textContent  = qrCor;
     document.getElementById('d-qr-wrg').textContent  = qrAns - qrCor;
-    document.getElementById('d-qr-range').textContent = 'QR-1 to QR-' + ALL_QUESTIONS.filter(q=>q.sec==='QR').length;
+    document.getElementById('d-qr-range').textContent = 'QR-1 to QR-' + allPool.filter(q=>q.sec==='QR' && /^QR-\d+$/.test(String(q.n))).length;
   } catch(e) {
     // Silently fail — stats will just show 0
   }
@@ -902,7 +903,7 @@ function renderParentDash(rows) {
   }).join('');
   function qRow(r) {
     const ok = r.correct;
-    const q = ALL_QUESTIONS.find(q => String(q.n) === r.question_id);
+    const q = [...ALL_QUESTIONS, ...APPROVED_GENERATED].find(q => String(q.n) === r.question_id);
     const preview = q ? q.text.split('\n')[0].slice(0,55)+(q.text.length>55?'…':'') : r.question_id;
     return `<tr>
       <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;font-size:0.8rem;font-weight:700;color:#64748b;white-space:nowrap;">${r.question_id}</td>
@@ -1039,6 +1040,7 @@ async function fetchApprovedGenerated() {
     if (!res.ok) return;
     const rows = await res.json();
     APPROVED_GENERATED = rows.map(genRowToQuestion);
+    if (APPROVED_GENERATED.length > 0) updateDash(); // refresh counts now we know approved total
   } catch(e) { /* silently fail */ }
 }
 
@@ -1145,6 +1147,29 @@ async function qaDecide(decision) {
   actionsEl.style.display = 'none';
 
   try {
+    // On approval, assign a clean sequential question ID (MA-39, QR-37, etc.)
+    let newQuestionId = row.question_id; // default: keep MAGEN/QRGEN id
+    if (decision === 'approved') {
+      const allPool = [...ALL_QUESTIONS, ...APPROVED_GENERATED];
+      if (row.section === 'MA') {
+        const maxMA = allPool
+          .filter(q => q.sec === 'MA' && /^MA-\d+$/.test(String(q.n)))
+          .map(q => parseInt(String(q.n).replace('MA-', '')))
+          .reduce((a, b) => Math.max(a, b), 0);
+        newQuestionId = `MA-${maxMA + 1}`;
+      } else {
+        const maxQR = allPool
+          .filter(q => q.sec === 'QR' && /^QR-\d+$/.test(String(q.n)))
+          .map(q => parseInt(String(q.n).replace('QR-', '')))
+          .reduce((a, b) => Math.max(a, b), 0);
+        newQuestionId = `QR-${maxQR + 1}`;
+      }
+    }
+
+    // PATCH status (and new question_id if approving) to Supabase
+    const patchBody = { status: decision };
+    if (decision === 'approved') patchBody.question_id = newQuestionId;
+
     const res = await fetch(SUPA_URL + `/rest/v1/generated_questions?id=eq.${row.id}`, {
       method: 'PATCH',
       headers: {
@@ -1153,12 +1178,15 @@ async function qaDecide(decision) {
         'Authorization': 'Bearer ' + SUPA_KEY,
         'Prefer': 'return=minimal'
       },
-      body: JSON.stringify({ status: decision })
+      body: JSON.stringify(patchBody)
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
 
     if (decision === 'approved') {
-      APPROVED_GENERATED.push(genRowToQuestion(row));
+      // Use the renamed row for the local question object
+      const renamedRow = { ...row, question_id: newQuestionId };
+      APPROVED_GENERATED.push(genRowToQuestion(renamedRow));
+      updateDash(); // refresh counts to include newly approved question
     }
 
     qaQuestions.splice(qaIdx, 1);
