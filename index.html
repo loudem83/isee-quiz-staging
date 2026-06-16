@@ -79,7 +79,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .q-card{background:white;border-radius:14px;padding:1.5rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:1rem;}
 .q-meta{font-size:0.72rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:10px;}
 .q-meta.ma{color:#1d4ed8;}.q-meta.qr{color:#0f6e56;}
-.q-text{font-size:1rem;line-height:1.65;color:#1a1a2e;margin-bottom:14px;white-space:pre-line;}
+.q-text{font-size:1rem;line-height:1.65;color:#1a1a2e;margin-bottom:14px;}
 .q-diagram{margin:10px 0 16px;overflow-x:auto;}
 .dtable{border-collapse:collapse;font-size:0.875rem;margin:10px 0;}
 .dtable th{background:#dbeafe;color:#1e40af;padding:7px 14px;border:1px solid #bfdbfe;font-weight:600;}
@@ -795,6 +795,54 @@ function renderTabs() {
   }).join('');
 }
 
+function formatText(text) {
+  if (!text) return '';
+  const lines = text.split('\n');
+  let html = '';
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i].trim();
+    // Detect pipe-table: line contains | and has at least 2 cells
+    if (line.includes('|') && line.split('|').filter(c => c.trim()).length >= 2) {
+      // Collect all consecutive pipe lines
+      const tableLines = [];
+      while (i < lines.length && lines[i].includes('|')) {
+        tableLines.push(lines[i]);
+        i++;
+      }
+      // Filter out separator rows (---|---|--- style)
+      const dataRows = tableLines.filter(l => !/^\s*[\|\-\s]+$/.test(l) || l.includes('|'));
+      const separatorRe = /^\s*\|?[\s\-\|]+\|?\s*$/;
+      const rows = dataRows.filter(l => !separatorRe.test(l));
+      if (rows.length === 0) continue;
+      // Build HTML table
+      let tbl = '<table class="dtable" style="margin:10px 0;">';
+      rows.forEach((row, ri) => {
+        const cells = row.split('|').map(c => c.trim()).filter((c, ci, arr) => {
+          // Remove empty first/last cells from leading/trailing pipes
+          if (ci === 0 && c === '') return false;
+          if (ci === arr.length - 1 && c === '') return false;
+          return true;
+        });
+        const tag = ri === 0 ? 'th' : 'td';
+        tbl += '<tr>' + cells.map(c => `<${tag}>${c}</${tag}>`).join('') + '</tr>';
+      });
+      tbl += '</table>';
+      html += tbl;
+    } else {
+      // Regular text line — convert newlines to <br> but skip blank lines between sections
+      if (line === '') {
+        html += '<br>';
+      } else {
+        html += `<span>${line}</span><br>`;
+      }
+      i++;
+    }
+  }
+  // Clean up trailing <br>
+  return html.replace(/(<br>)+$/, '');
+}
+
 function renderQ() {
   const q = curQs[cur];
   const key = String(q.n);
@@ -818,7 +866,7 @@ function renderQ() {
   document.getElementById('q-area').innerHTML = `
     <div class="q-card">
       <div class="q-meta ${q.sec.toLowerCase()}">${q.n} — ${q.sec === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning'}</div>
-      <div class="q-text">${q.text}</div>${diag}
+      <div class="q-text">${formatText(q.text)}</div>${diag}
       <div class="options">${opts}</div>${fb}
     </div>`;
   document.getElementById('prog-label').textContent = `${done} of ${curQs.length} answered`;
@@ -1152,7 +1200,7 @@ function qaRender() {
   document.getElementById('qa-area').innerHTML = `
     <div class="q-card">
       <div class="q-meta ${row.section.toLowerCase()}">${row.question_id}</div>
-      <div class="q-text">${row.text}</div>
+      <div class="q-text">${formatText(row.text)}</div>
       <div class="options">${opts}</div>
       ${expHtml}
     </div>`;
