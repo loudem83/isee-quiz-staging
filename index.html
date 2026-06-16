@@ -1362,7 +1362,7 @@ async function fetchQuestionBank() {
 
     // Fetch all active questions from Supabase
     const res = await fetch(
-      SUPA_URL + '/rest/v1/questions?active=eq.true&select=*&order=question_id',
+      SUPA_URL + '/rest/v1/questions?active=eq.true&select=*',
       { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } }
     );
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -1382,6 +1382,14 @@ async function fetchQuestionBank() {
       };
       if (r.diag) q.diag = r.diag;
       return q;
+    });
+
+    // Sort numerically by question number (MA-1, MA-2... not MA-1, MA-10, MA-11)
+    ALL_QUESTIONS.sort((a, b) => {
+      const [aSec, aNum] = [a.n.split('-')[0], parseInt(a.n.split('-')[1]) || 0];
+      const [bSec, bNum] = [b.n.split('-')[0], parseInt(b.n.split('-')[1]) || 0];
+      if (aSec !== bSec) return aSec.localeCompare(bSec);
+      return aNum - bNum;
     });
 
     // Populate TAXONOMY from Supabase rows
