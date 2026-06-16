@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[STAGING] ISEE Maths Practice Quiz</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1a1a2e;min-height:100vh;}
+.screen{display:none;min-height:100vh;}.screen.active{display:block;}
+
+/* TOP BAR */
+.top-bar{background:#1a3a5c;color:white;padding:1rem 1.5rem;display:flex;align-items:center;gap:12px;}
+.top-bar h1{font-size:1.1rem;font-weight:600;}
+.back-btn{background:rgba(255,255,255,0.15);border:none;color:white;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;margin-left:auto;}
+.back-btn:hover{background:rgba(255,255,255,0.25);}
+
+/* HOME */
+.home-hero{background:linear-gradient(135deg,#1a3a5c 0%,#0f6e56 100%);color:white;padding:3rem 1.5rem 2.5rem;text-align:center;}
+.home-hero h2{font-size:2rem;font-weight:700;margin-bottom:8px;}
+.home-hero p{font-size:1rem;opacity:0.85;}
+.home-body{max-width:700px;margin:0 auto;padding:2rem 1rem;}
+.dash-section{background:white;border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
+.dash-title{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;margin-bottom:12px;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+@media(max-width:400px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-card{border-radius:10px;padding:12px 8px;text-align:center;}
+.stat-card .val{font-size:1.8rem;font-weight:700;line-height:1;}
+.stat-card .lbl{font-size:0.72rem;font-weight:600;margin-top:4px;opacity:0.8;}
+.stat-card.total{background:#f1f5f9;color:#334155;}
+.stat-card.answered{background:#dbeafe;color:#1e40af;}
+.stat-card.correct{background:#d1fae5;color:#065f46;}
+.stat-card.wrong{background:#fee2e2;color:#991b1b;}
+.mini-bar-wrap{margin-top:12px;}
+.mini-bar-label{display:flex;justify-content:space-between;font-size:0.8rem;color:#64748b;margin-bottom:5px;}
+.mini-bar-track{background:#e2e8f0;border-radius:99px;height:8px;margin-bottom:8px;overflow:hidden;}
+.mini-bar-fill{height:8px;border-radius:99px;transition:width 0.5s;}
+.mini-bar-fill.answered{background:#3b82f6;}
+.mini-bar-fill.correct{background:#22c55e;}
+.mini-bar-fill.wrong{background:#ef4444;}
+.pathway-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;}
+@media(max-width:540px){.pathway-grid{grid-template-columns:1fr;}}
+.pathway-card{background:white;border-radius:16px;padding:1.75rem 1.5rem;cursor:pointer;border:2px solid transparent;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.07);text-align:center;}
+.pathway-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,0.12);}
+.pathway-card.ma:hover{border-color:#1d4ed8;}
+.pathway-card.qr:hover{border-color:#0f6e56;}
+.pathway-card .icon{font-size:2.8rem;margin-bottom:12px;}
+.pathway-card h3{font-size:1.1rem;font-weight:700;margin-bottom:6px;}
+.pathway-card p{font-size:0.85rem;color:#64748b;line-height:1.5;}
+.pathway-card .pill{display:inline-block;padding:3px 12px;border-radius:99px;font-size:0.75rem;font-weight:700;margin-top:10px;}
+.pathway-card.ma .pill{background:#dbeafe;color:#1e40af;}
+.pathway-card.qr .pill{background:#d1fae5;color:#065f46;}
+.all-btn{width:100%;background:white;border:2px dashed #c4b5fd;border-radius:16px;padding:1.1rem;cursor:pointer;font-size:1rem;font-weight:600;color:#5b21b6;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:1.25rem;}
+.all-btn:hover{background:#ede9fe;border-color:#7c3aed;}
+.reset-btn{width:100%;margin-top:8px;padding:9px 14px;border-radius:10px;border:1.5px solid #fca5a5;background:#fff;color:#dc2626;font-size:0.85rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all 0.15s;}
+.reset-btn:hover{background:#fef2f2;border-color:#ef4444;}
+
+/* QUIZ */
+.quiz-wrap{max-width:760px;margin:0 auto;padding:1.1rem 1rem 3rem;}
+.progress-wrap{background:white;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
+.sync-bar{font-size:0.8rem;font-weight:600;text-align:center;padding:6px;margin-bottom:6px;border-radius:8px;background:#f0fdf4;display:none;}
+.progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:0.85rem;color:#555;}
+.score-badge{background:#1a3a5c;color:white;border-radius:99px;padding:3px 12px;font-size:0.8rem;font-weight:600;}
+.bar-track{background:#e8edf2;border-radius:99px;height:8px;}
+.bar-fill{height:8px;border-radius:99px;transition:width 0.4s;}
+.bar-fill.ma{background:linear-gradient(90deg,#3b82f6,#1a3a5c);}
+.bar-fill.qr{background:linear-gradient(90deg,#22c55e,#0f6e56);}
+.bar-fill.all{background:linear-gradient(90deg,#8b5cf6,#1a3a5c);}
+.tabs-wrap{background:white;border-radius:12px;padding:0.9rem 1rem;margin-bottom:1rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
+.tabs-label{font-size:0.72rem;color:#94a3b8;margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;}
+.tabs{display:flex;flex-wrap:wrap;gap:5px;}
+.tab{width:34px;height:34px;border-radius:8px;border:1.5px solid #dce3ea;background:white;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#555;transition:all 0.15s;}
+.tab:hover{border-color:#3b82f6;color:#1d4ed8;}
+.tab.active{background:#1a3a5c;border-color:#1a3a5c;color:white;}
+.tab.correct{background:#d1fae5;border-color:#22c55e;color:#065f46;}
+.tab.wrong{background:#fee2e2;border-color:#ef4444;color:#991b1b;}
+.tab.correct.active{background:#15803d;border-color:#15803d;color:white;}
+.tab.wrong.active{background:#dc2626;border-color:#dc2626;color:white;}
+.q-card{background:white;border-radius:14px;padding:1.5rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:1rem;}
+.q-meta{font-size:0.72rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:10px;}
+.q-meta.ma{color:#1d4ed8;}.q-meta.qr{color:#0f6e56;}
+.q-text{font-size:1rem;line-height:1.65;color:#1a1a2e;margin-bottom:14px;white-space:pre-line;}
+.q-diagram{margin:10px 0 16px;overflow-x:auto;}
+.dtable{border-collapse:collapse;font-size:0.875rem;margin:10px 0;}
+.dtable th{background:#dbeafe;color:#1e40af;padding:7px 14px;border:1px solid #bfdbfe;font-weight:600;}
+.dtable td{padding:6px 14px;border:1px solid #e2e8f0;}
+.dtable tr:nth-child(even) td{background:#f8fafc;}
+.options{display:flex;flex-direction:column;gap:9px;}
+.opt{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;border:1.5px solid #dce3ea;background:white;cursor:pointer;font-size:0.95rem;color:#1a1a2e;text-align:left;transition:all 0.15s;width:100%;}
+.opt:hover:not(:disabled){border-color:#3b82f6;background:#f0f7ff;}
+.opt:disabled{cursor:default;}
+.opt .badge{width:30px;height:30px;border-radius:50%;border:2px solid #c5cdd6;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;color:#666;transition:all 0.15s;}
+.opt.correct-ans{border-color:#22c55e;background:#f0fdf4;}
+.opt.correct-ans .badge{background:#22c55e;border-color:#22c55e;color:white;}
+.opt.wrong-sel{border-color:#ef4444;background:#fef2f2;}
+.opt.wrong-sel .badge{background:#ef4444;border-color:#ef4444;color:white;}
+.feedback{margin-top:14px;padding:12px 16px;border-radius:10px;font-size:0.9rem;line-height:1.55;display:none;}
+.feedback.show{display:block;}
+.feedback.correct{background:#f0fdf4;border:1.5px solid #22c55e;color:#14532d;}
+.feedback.incorrect{background:#fef2f2;border:1.5px solid #ef4444;color:#7f1d1d;}
+.fb-title{font-weight:700;margin-bottom:4px;}
+.q-nav{display:flex;justify-content:space-between;gap:10px;}
+.nav-btn{flex:1;padding:11px;border-radius:10px;border:1.5px solid #dce3ea;background:white;cursor:pointer;font-size:0.95rem;font-weight:600;color:#1a3a5c;transition:all 0.15s;}
+.nav-btn:hover:not(:disabled){background:#f0f7ff;border-color:#3b82f6;}
+.nav-btn:disabled{opacity:0.35;cursor:default;}
+.nav-btn.primary{background:#1a3a5c;color:white;border-color:#1a3a5c;}
+.nav-btn.primary:hover:not(:disabled){background:#0f2640;}
+/* ── TAXONOMY HEAT GRID ── */
+.heat-wrap{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-top:0;}
+.heat-head{display:grid;grid-template-columns:150px repeat(3,1fr);background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary);}
+.hh{padding:8px 6px;font-size:11px;font-weight:500;color:var(--color-text-secondary);text-align:center;}
+.hh:first-child{text-align:left;padding-left:12px;}
+.heat-row{display:grid;grid-template-columns:150px repeat(3,1fr);border-bottom:0.5px solid var(--color-border-tertiary);}
+.heat-row:last-child{border-bottom:none;}
+.hc{padding:8px 6px;font-size:12px;display:flex;align-items:center;justify-content:center;}
+.hc:first-child{justify-content:flex-start;padding-left:12px;color:var(--color-text-primary);font-size:12px;}
+.hcell{border-radius:6px;width:90%;text-align:center;padding:4px 4px;font-size:11px;font-weight:500;}
+.hc-strong{background:#EAF3DE;color:#27500A;}
+.hc-ok{background:#FAEEDA;color:#633806;}
+.hc-weak{background:#FCEBEB;color:#791F1F;}
+.hc-none{background:var(--color-background-secondary);color:var(--color-text-tertiary);font-size:11px;}
+.heat-legend{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;}
+.hl{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary);}
+.hl-dot{width:8px;height:8px;border-radius:50%;}
+@media(max-width:500px){
+  .heat-head,.heat-row{grid-template-columns:110px repeat(3,1fr);}
+  .hh,.hc{font-size:10px;padding:6px 3px;}
+  .hh:first-child,.hc:first-child{padding-left:8px;}
+}
+
+/* PARENT DASHBOARD */
+.ql-wrap{max-width:760px;margin:0 auto;padding:1.1rem 1rem 3rem;}
+</style>
+</head>
+<body>
+
+<div style="background:#f59e0b;color:#1a1a2e;text-align:center;padding:8px;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;">STAGING — test data only</div>
+
+<!-- LOADING SCREEN -->
+<div id="screen-loading" class="screen active" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:1.5rem;">
+  <div style="font-size:2.5rem;">📚</div>
+  <div style="font-size:1.1rem;font-weight:700;color:#1a1a2e;">Loading question bank…</div>
+  <div style="width:220px;height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+    <div id="load-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:99px;transition:width 0.4s ease;"></div>
+  </div>
+  <div id="load-msg" style="font-size:0.85rem;color:#64748b;">Connecting to Supabase…</div>
+</div>
+
+<!-- SCREEN 1: HOME -->
+<div id="screen-home" class="screen">
+  <div class="home-hero">
+    <h2>🎓 ISEE Maths Practice Quiz</h2>
+    <p>Interactive practice for Mathematics Achievement &amp; Quantitative Reasoning</p>
+  </div>
+  <div class="home-body">
+    <div class="dash-section">
+      <div class="dash-title">🚀 Choose a Pathway</div>
+      <div class="pathway-grid">
+        <div class="pathway-card ma" onclick="startQuiz('ma')">
+          <div class="icon">📐</div>
+          <h3>Mathematics Achievement</h3>
+          <p>Shapes, fractions, estimation, area, word problems</p>
+          <span class="pill" id="ma-pill">11 Questions</span>
+        </div>
+        <div class="pathway-card qr" onclick="startQuiz('qr')">
+          <div class="icon">🔢</div>
+          <h3>Quantitative Reasoning</h3>
+          <p>Algebra, proportions, functions, probability, data</p>
+          <span class="pill" id="qr-pill">20 Questions</span>
+        </div>
+      </div>
+      <button class="all-btn" onclick="startQuiz('all')">⭐ Take all questions together</button>
+      <button class="all-btn" onclick="showScreen('screen-pd');loadParentDash();" style="border-color:#f59e0b;color:#92400e;background:#fffbeb;">
+        👨&#x200D;👦 Parent Dashboard — View All Results
+      </button>
+      <button class="all-btn" onclick="showScreen('screen-qa');loadQAReview();" style="border-color:#c4b5fd;color:#4c1d95;background:#f5f3ff;">
+        🔬 QA Review — Generated Questions
+      </button>
+    </div>
+
+
+    <div class="dash-section">
+      <div class="dash-title">📊 Dashboard</div>
+      <div class="stats-grid">
+        <div class="stat-card total"><div class="val" id="d-total">31</div><div class="lbl">Total Qs</div></div>
+        <div class="stat-card answered"><div class="val" id="d-answered">0</div><div class="lbl">Answered</div></div>
+        <div class="stat-card correct"><div class="val" id="d-correct">0</div><div class="lbl">Correct</div></div>
+        <div class="stat-card wrong"><div class="val" id="d-wrong">0</div><div class="lbl">Incorrect</div></div>
+      </div>
+      <div class="mini-bar-wrap">
+        <div class="mini-bar-label"><span>Answered</span><span id="d-ans-pct">0%</span></div>
+        <div class="mini-bar-track"><div class="mini-bar-fill answered" id="bar-answered" style="width:0%"></div></div>
+        <div class="mini-bar-label"><span>Correct</span><span id="d-cor-pct">0%</span></div>
+        <div class="mini-bar-track"><div class="mini-bar-fill correct" id="bar-correct" style="width:0%"></div></div>
+        <div class="mini-bar-label"><span>Incorrect</span><span id="d-wrg-pct">0%</span></div>
+        <div class="mini-bar-track"><div class="mini-bar-fill wrong" id="bar-wrong" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="dash-section">
+      <div class="dash-title">📘 By Section</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:#dbeafe;border-radius:10px;padding:12px;">
+          <div style="font-size:0.8rem;font-weight:700;color:#1e40af;margin-bottom:6px;">Mathematics Achievement</div>
+          <div style="font-size:0.82rem;color:#1e40af;">Questions: <b id="d-ma-range">MA-1 to MA-11</b></div>
+          <div style="font-size:0.82rem;color:#1e40af;">Answered: <b id="d-ma-ans">0</b> / <b id="d-ma-total">11</b></div>
+          <div style="font-size:0.82rem;color:#1e40af;">Correct: <b id="d-ma-cor">0</b></div>
+          <div style="font-size:0.82rem;color:#1e40af;">Wrong: <b id="d-ma-wrg">0</b></div>
+          <button class="reset-btn" onclick="resetSection('MA')">🔄 Reset MA answers</button>
+        </div>
+        <div style="background:#d1fae5;border-radius:10px;padding:12px;">
+          <div style="font-size:0.8rem;font-weight:700;color:#065f46;margin-bottom:6px;">Quantitative Reasoning</div>
+          <div style="font-size:0.82rem;color:#065f46;">Questions: <b id="d-qr-range">QR-1 to QR-20</b></div>
+          <div style="font-size:0.82rem;color:#065f46;">Answered: <b id="d-qr-ans">0</b> / <b id="d-qr-total">20</b></div>
+          <div style="font-size:0.82rem;color:#065f46;">Correct: <b id="d-qr-cor">0</b></div>
+          <div style="font-size:0.82rem;color:#065f46;">Wrong: <b id="d-qr-wrg">0</b></div>
+          <button class="reset-btn" onclick="resetSection('QR')">🔄 Reset QR answers</button>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="dash-section">
+      <div class="dash-title">📊 Performance by strand &amp; difficulty</div>
+      <div class="heat-wrap">
+        <div class="heat-head">
+          <div class="hh">Strand</div>
+          <div class="hh">DoK 1<br><span style="font-weight:400;font-size:10px;">recall</span></div>
+          <div class="hh">DoK 2<br><span style="font-weight:400;font-size:10px;">conceptual</span></div>
+          <div class="hh">DoK 3<br><span style="font-weight:400;font-size:10px;">analytical</span></div>
+        </div>
+        <div id="heat-grid-body">
+          <div class="heat-row" style="grid-column:span 4;padding:14px;text-align:center;">
+            <div class="hc" style="grid-column:span 4;color:var(--color-text-tertiary);font-size:13px;">Answer some questions to see your performance map</div>
+          </div>
+        </div>
+      </div>
+      <div class="heat-legend">
+        <div class="hl"><div class="hl-dot" style="background:#639922"></div>Strong (70%+)</div>
+        <div class="hl"><div class="hl-dot" style="background:#BA7517"></div>Developing (50–69%)</div>
+        <div class="hl"><div class="hl-dot" style="background:#E24B4A"></div>Needs work (&lt;50%)</div>
+        <div class="hl"><div class="hl-dot" style="background:var(--color-border-tertiary)"></div>Not yet answered</div>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+<!-- SCREEN 2: QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="top-bar">
+    <h1 id="quiz-title">Quiz</h1>
+    <button class="back-btn" onclick="goHome()">← Home</button>
+  </div>
+  <div class="quiz-wrap">
+    <div class="progress-wrap">
+      <div id="sync-indicator" class="sync-bar"></div>
+      <div class="progress-top">
+        <span id="prog-label">0 answered</span>
+        <span class="score-badge" id="score-badge">Score: 0/0</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" id="bar-fill"></div></div>
+    </div>
+    <div class="tabs-wrap">
+      <div class="tabs-label">Jump to question</div>
+      <div class="tabs" id="tabs"></div>
+    </div>
+    <div id="q-area"></div>
+    <div class="q-nav">
+      <button class="nav-btn" id="btn-prev" onclick="go(cur-1)">← Previous</button>
+      <button class="nav-btn primary" id="btn-next" onclick="go(cur+1)">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 3: PARENT DASHBOARD -->
+<div id="screen-pd" class="screen">
+  <div class="top-bar">
+    <h1>👨‍👦 Parent Dashboard</h1>
+    <button class="back-btn" onclick="goHome()">← Home</button>
+  </div>
+  <div class="ql-wrap">
+    <div style="background:#fef9c3;border:1px solid #fde047;border-radius:10px;padding:12px 16px;font-size:0.85rem;color:#713f12;margin-bottom:1rem;">
+      🔒 Results are saved automatically. Summary cards show the <b>latest attempt</b> per question. Session history shows every sitting.
+    </div>
+    <!-- Diagnostic Tool -->
+    <div id="pd-diag" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:1.1rem;margin-bottom:1rem;">
+      <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;margin-bottom:10px;">🔧 Connection Diagnostic</div>
+      <button onclick="runDiagnostic()" style="width:100%;padding:10px;border-radius:8px;background:#1a3a5c;color:white;border:none;font-size:0.9rem;font-weight:600;cursor:pointer;margin-bottom:10px;">Run Connection Test</button>
+      <div id="diag-result" style="font-size:0.82rem;line-height:1.7;display:none;"></div>
+    </div>
+    <div id="pd-status" style="font-size:0.9rem;color:#64748b;margin-bottom:1rem;"></div>
+    <div id="pd-content"></div>
+    <button onclick="loadParentDash()" style="width:100%;padding:11px;border-radius:10px;border:1.5px solid #dce3ea;background:white;cursor:pointer;font-size:0.9rem;font-weight:600;color:#1a3a5c;margin-top:0.5rem;">🔄 Refresh Results</button>
+  </div>
+</div>
+
+<!-- SCREEN 4: QA REVIEW -->
+<div id="screen-qa" class="screen">
+  <div class="top-bar" style="background:#4c1d95;">
+    <h1>🔬 QA Review — Generated Questions</h1>
+    <button class="back-btn" onclick="goHome()">← Home</button>
+  </div>
+  <div class="quiz-wrap">
+    <div id="qa-status" style="text-align:center;padding:2rem;color:#64748b;font-size:0.95rem;"></div>
+    <div id="qa-counter" style="display:none;background:white;border-radius:12px;padding:0.9rem 1.25rem;margin-bottom:1rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;color:#64748b;">
+      <span id="qa-counter-text"></span>
+      <span id="qa-section-badge" style="padding:3px 12px;border-radius:99px;font-size:0.78rem;font-weight:700;"></span>
+    </div>
+    <div id="qa-taxonomy" style="display:none;background:#f5f3ff;border:1.5px solid #c4b5fd;border-radius:12px;padding:0.85rem 1.1rem;margin-bottom:1rem;font-size:0.82rem;color:#4c1d95;line-height:1.7;">
+    </div>
+    <div id="qa-area"></div>
+    <div id="qa-actions" style="display:none;gap:12px;margin-top:1rem;">
+      <button onclick="qaDecide('rejected')" style="flex:1;padding:13px;border-radius:10px;border:2px solid #ef4444;background:white;color:#dc2626;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='white'">✗ Reject</button>
+      <button onclick="qaDecide('approved')" style="flex:1;padding:13px;border-radius:10px;border:2px solid #22c55e;background:white;color:#15803d;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='white'">✓ Approve</button>
+    </div>
+    <div id="qa-nav" style="display:none;justify-content:space-between;gap:10px;margin-top:0.75rem;">
+      <button class="nav-btn" id="qa-btn-prev" onclick="qaGo(qaIdx-1)">← Previous</button>
+      <button class="nav-btn" id="qa-btn-next" onclick="qaGo(qaIdx+1)">Next →</button>
+    </div>
+    <div id="qa-done-msg" style="display:none;text-align:center;padding:2.5rem 1rem;">
+      <div style="font-size:2.5rem;margin-bottom:12px;">🎉</div>
+      <div style="font-size:1.1rem;font-weight:700;color:#1a1a2e;margin-bottom:6px;">All questions reviewed!</div>
+      <div style="font-size:0.9rem;color:#64748b;">No pending questions remain. Generate more or go back home.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════
+   SUPABASE CONFIG
+════════════════════════════════════════ */
+const SUPA_URL = 'https://yajqvfwzhudghivzgijt.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhanF2Znd6aHVkZ2hpdnpnaWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNTA0MjUsImV4cCI6MjA5NjkyNjQyNX0.9jFDuKr-mL9gl_skZcP5THhnJNjs-8ogzG4zmV6fIyk';
+
+async function supaInsert(row) {
+  showSyncStatus('⏳ Saving…', '#92400e', '#fffbeb');
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(row)
+    });
+    if (res.status === 201 || res.status === 200) {
+      showSyncStatus('✅ Saved', '#065f46', '#f0fdf4');
+      setTimeout(() => showSyncStatus('','',''), 2500);
+    } else {
+      const err = await res.text();
+      showSyncStatus('⚠️ Save failed (' + res.status + '): ' + err.slice(0,60), '#991b1b', '#fef2f2');
+    }
+  } catch(e) {
+    showSyncStatus('⚠️ Network error: ' + e.message, '#991b1b', '#fef2f2');
+  }
+}
+
+function showSyncStatus(msg, color, bg) {
+  const el = document.getElementById('sync-indicator');
+  if (!el) return;
+  if (!msg) { el.style.display = 'none'; el.textContent = ''; return; }
+  el.textContent = msg;
+  el.style.color = color;
+  el.style.background = bg;
+  el.style.display = 'block';
+}
+
+// Persist session ID per day
+const _todayKey = 'quiz_session_' + new Date().toISOString().slice(0,10);
+const SESSION_ID = localStorage.getItem(_todayKey) ||
+  (() => { const id = new Date().toISOString().slice(0,10) + '_' + Math.random().toString(36).slice(2,8); localStorage.setItem(_todayKey, id); return id; })();
+
+/* ════════════════════════════════════════
+   QUESTION BANK
+   To add a new question, paste a new object
+   before the closing ]; below.
+   Format: ,{n:"QR-21",sec:"QR",text:"...",opts:["A","B","C","D"],ans:0,exp:"..."}
+════════════════════════════════════════ */
+// Question bank — populated from Supabase by fetchQuestionBank() on load
+let ALL_QUESTIONS = [];
+
+/* ════════════════════════════════════════
+   DIAGRAMS
+════════════════════════════════════════ */
+function diagrams(key) {
+  const d={
+    table_zoe:`<table class="dtable"><thead><tr><th></th><th>Liam</th><th>Zoe</th><th>Marcus</th><th>Priya</th></tr></thead><tbody><tr><td><b>Day 1</b></td><td>12</td><td>18</td><td>20</td><td>15</td></tr><tr><td><b>Day 2</b></td><td>14</td><td>20</td><td>22</td><td>17</td></tr><tr><td><b>Day 3</b></td><td>16</td><td>24</td><td>24</td><td>20</td></tr><tr><td><b>Day 4</b></td><td>20</td><td>28</td><td>26</td><td>23</td></tr><tr><td><b>Day 5</b></td><td>24</td><td>30</td><td>28</td><td>26</td></tr></tbody></table>`,
+    sports_table:`<table class="dtable"><thead><tr><th>Sport</th><th>Votes</th></tr></thead><tbody><tr><td>Football</td><td>95</td></tr><tr><td>Basketball</td><td>72</td></tr><tr><td>Tennis</td><td>61</td></tr><tr><td>Swimming</td><td>48</td></tr><tr><td>Cricket</td><td>44</td></tr></tbody></table>`,
+    func_table:`<table class="dtable"><thead><tr><th>Input (□)</th><th>Output (△)</th></tr></thead><tbody><tr><td>3</td><td>13</td></tr><tr><td>5</td><td>21</td></tr><tr><td>7</td><td>29</td></tr><tr><td>9</td><td>37</td></tr></tbody></table>`,
+    lshape:`<svg width="260" height="175" viewBox="0 0 260 175" xmlns="http://www.w3.org/2000/svg"><polygon points="15,15 195,15 195,85 150,85 150,160 15,160" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2.5"/><text x="105" y="11" font-size="13" fill="#1e40af" text-anchor="middle" font-family="Arial">14 m</text><text x="200" y="53" font-size="13" fill="#1e40af" font-family="Arial">6 m</text><text x="155" y="125" font-size="13" fill="#1e40af" font-family="Arial">4 m</text><text x="2" y="92" font-size="13" fill="#1e40af" font-family="Arial">10 m</text><line x1="150" y1="90" x2="192" y2="90" stroke="#94a3b8" stroke-dasharray="4,3" stroke-width="1.5"/><line x1="150" y1="90" x2="150" y2="157" stroke="#94a3b8" stroke-dasharray="4,3" stroke-width="1.5"/><text x="85" y="128" font-size="12" fill="#94a3b8" font-style="italic" font-family="Arial">removed corner</text></svg>`,
+    hexagon:`<svg width="270" height="160" viewBox="0 0 270 160" xmlns="http://www.w3.org/2000/svg"><polygon points="15,15 165,15 165,70 220,70 220,150 15,150" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2.5"/><text x="90" y="11" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial">9 cm</text><text x="170" y="47" font-size="12" fill="#1e40af" font-family="Arial">4 cm</text><text x="193" y="65" font-size="14" fill="#dc2626" font-weight="bold" font-family="Arial">x</text><text x="225" y="114" font-size="12" fill="#1e40af" font-family="Arial">7 cm</text><text x="105" y="158" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial">7 cm</text><text x="2" y="88" font-size="12" fill="#1e40af" font-family="Arial">4 cm</text></svg>`,
+    venn:`<svg width="300" height="148" viewBox="0 0 300 148" xmlns="http://www.w3.org/2000/svg"><ellipse cx="108" cy="74" rx="88" ry="58" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" fill-opacity="0.8"/><ellipse cx="192" cy="74" rx="88" ry="58" fill="#d1fae5" stroke="#22c55e" stroke-width="2" fill-opacity="0.8"/><ellipse cx="150" cy="74" rx="38" ry="43" fill="#86efac" fill-opacity="0.85"/><text x="68" y="70" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial">Multiples</text><text x="68" y="85" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial">of 4</text><text x="232" y="70" font-size="12" fill="#065f46" text-anchor="middle" font-family="Arial">Multiples</text><text x="232" y="85" font-size="12" fill="#065f46" text-anchor="middle" font-family="Arial">of 6</text><text x="150" y="78" font-size="12" fill="#14532d" text-anchor="middle" font-weight="bold" font-family="Arial">Both</text></svg>`,
+    pie:`<svg width="220" height="195" viewBox="0 0 220 195" xmlns="http://www.w3.org/2000/svg"><path d="M110,100 L110,22 A78,78 0 0,1 188,100 Z" fill="#3b82f6"/><path d="M110,100 L188,100 A78,78 0 0,1 110,178 Z" fill="#22c55e"/><path d="M110,100 L110,178 A78,78 0 0,1 32,100 Z" fill="#f59e0b"/><path d="M110,100 L32,100 A78,78 0 0,1 110,22 Z" fill="#ef4444"/><circle cx="110" cy="100" r="78" fill="none" stroke="white" stroke-width="3"/><line x1="110" y1="22" x2="110" y2="178" stroke="white" stroke-width="2"/><line x1="32" y1="100" x2="188" y2="100" stroke="white" stroke-width="2"/><text x="148" y="68" font-size="12" fill="white" text-anchor="middle" font-family="Arial" font-weight="bold">Maths</text><text x="148" y="140" font-size="12" fill="white" text-anchor="middle" font-family="Arial" font-weight="bold">Science</text><text x="72" y="140" font-size="12" fill="white" text-anchor="middle" font-family="Arial" font-weight="bold">History</text><text x="72" y="68" font-size="12" fill="white" text-anchor="middle" font-family="Arial" font-weight="bold">English</text><text x="110" y="192" font-size="11" fill="#6b7280" text-anchor="middle" font-family="Arial">Each section = 25%</text></svg>`,
+    numline1:(()=>{const t=Array.from({length:11},(_,i)=>`<line x1="${30+i*26}" y1="46" x2="${30+i*26}" y2="58" stroke="#3b82f6" stroke-width="1.5"/>`).join('');return`<svg width="320" height="88" viewBox="0 0 320 88" xmlns="http://www.w3.org/2000/svg"><line x1="20" y1="52" x2="300" y2="52" stroke="#3b82f6" stroke-width="2"/><polygon points="300,48 310,52 300,56" fill="#3b82f6"/><polygon points="20,48 10,52 20,56" fill="#3b82f6"/>${t}<text x="30" y="72" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial">3.0</text><text x="290" y="72" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial">5.0</text><line x1="82" y1="28" x2="82" y2="46" stroke="#dc2626" stroke-width="2"/><polygon points="78,28 82,18 86,28" fill="#dc2626"/><text x="82" y="15" font-size="11" fill="#dc2626" text-anchor="middle" font-family="Arial" font-weight="bold">3.4</text><line x1="186" y1="28" x2="186" y2="46" stroke="#dc2626" stroke-width="2"/><polygon points="182,28 186,18 190,28" fill="#dc2626"/><text x="186" y="15" font-size="11" fill="#dc2626" text-anchor="middle" font-family="Arial" font-weight="bold">4.2</text><text x="155" y="85" font-size="11" fill="#6b7280" text-anchor="middle" font-family="Arial">Each interval = 0.2</text></svg>`;})(),
+    cube: `<svg width="280" height="190" viewBox="0 0 280 190" xmlns="http://www.w3.org/2000/svg">
+  <!-- Small cube (blue), size=40 -->
+  <polygon points="20,90 60,70 100,90 60,110" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <polygon points="20,90 60,110 60,150 20,130" fill="#93c5fd" stroke="#1d4ed8" stroke-width="1.5"/>
+  <polygon points="60,110 100,90 100,130 60,150" fill="#60a5fa" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="60" y="60" font-size="11" fill="#1e40af" font-family="Arial" font-weight="bold" text-anchor="middle">1 unit³</text>
+  <text x="60" y="168" font-size="10" fill="#1e40af" font-family="Arial" text-anchor="middle">small cube</text>
+
+  <!-- Large cube (green), size=120 — positioned right, 3× the small -->
+  <polygon points="130,90 190,60 250,90 190,120" fill="#a7f3d0" stroke="#059669" stroke-width="2"/>
+  <polygon points="130,90 190,120 190,180 130,150" fill="#6ee7b7" stroke="#059669" stroke-width="2"/>
+  <polygon points="190,120 250,90 250,150 190,180" fill="#34d399" stroke="#059669" stroke-width="2"/>
+  <text x="190" y="50" font-size="11" fill="#065f46" font-family="Arial" font-weight="bold" text-anchor="middle">3 × 3 × 3</text>
+  <text x="190" y="168" font-size="11" fill="#065f46" font-family="Arial" font-weight="bold" text-anchor="middle">= 27 unit³</text>
+</svg>`,
+    segment:`<svg width="340" height="78" viewBox="0 0 340 78" xmlns="http://www.w3.org/2000/svg"><line x1="20" y1="38" x2="320" y2="38" stroke="#3b82f6" stroke-width="2.5"/><circle cx="20" cy="38" r="6" fill="#1d4ed8"/><circle cx="110" cy="38" r="6" fill="#15803d"/><circle cx="230" cy="38" r="6" fill="#15803d"/><circle cx="320" cy="38" r="6" fill="#1d4ed8"/><text x="20" y="62" font-size="14" fill="#1e40af" text-anchor="middle" font-family="Arial" font-weight="bold">P</text><text x="110" y="62" font-size="14" fill="#166534" text-anchor="middle" font-family="Arial" font-weight="bold">Q</text><text x="230" y="62" font-size="14" fill="#166534" text-anchor="middle" font-family="Arial" font-weight="bold">R</text><text x="320" y="62" font-size="14" fill="#1e40af" text-anchor="middle" font-family="Arial" font-weight="bold">S</text><line x1="20" y1="18" x2="320" y2="18" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3"/><text x="170" y="14" font-size="11" fill="#64748b" text-anchor="middle" font-family="Arial">a = PS</text><line x1="20" y1="74" x2="110" y2="74" stroke="#dc2626" stroke-width="1.5"/><text x="65" y="73" font-size="10" fill="#991b1b" text-anchor="middle" font-family="Arial">b=PQ</text><line x1="230" y1="74" x2="320" y2="74" stroke="#dc2626" stroke-width="1.5"/><text x="275" y="73" font-size="10" fill="#991b1b" text-anchor="middle" font-family="Arial">c=RS</text></svg>`,
+    tanks:`<svg width="260" height="152" viewBox="0 0 260 152" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="20" width="80" height="108" rx="5" fill="none" stroke="#3b82f6" stroke-width="2.5"/><rect x="20" y="101" width="80" height="27" rx="3" fill="#93c5fd"/><text x="60" y="14" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial" font-weight="bold">Tank A (¼ full)</text><text x="60" y="148" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial">= 2.5 L</text><rect x="160" y="20" width="80" height="108" rx="5" fill="none" stroke="#22c55e" stroke-width="2.5"/><rect x="160" y="47" width="80" height="81" rx="3" fill="#86efac"/><text x="200" y="14" font-size="12" fill="#166534" text-anchor="middle" font-family="Arial" font-weight="bold">Tank B (¾ full)</text><text x="200" y="148" font-size="12" fill="#166534" text-anchor="middle" font-family="Arial">= 7.5 L</text><text x="130" y="87" font-size="20" fill="#94a3b8" text-anchor="middle" font-family="Arial">+</text></svg>`,
+    barchart:(()=>{const v=[8,6,10,6,10],c=["#3b82f6","#60a5fa","#1d4ed8","#60a5fa","#1d4ed8"];const b=v.map((val,i)=>{const x=50+i*50,h=val*9,y=130-h;return`<rect x="${x}" y="${y}" width="32" height="${h}" fill="${c[i]}" rx="3"/><text x="${x+16}" y="${y-5}" font-size="12" fill="#1e40af" text-anchor="middle" font-family="Arial" font-weight="bold">${val}</text><text x="${x+16}" y="148" font-size="11" fill="#6b7280" text-anchor="middle" font-family="Arial">A${i+1}</text>`;}).join('');return`<svg width="300" height="158" viewBox="0 0 300 158" xmlns="http://www.w3.org/2000/svg"><line x1="35" y1="15" x2="35" y2="132" stroke="#94a3b8" stroke-width="1.5"/><line x1="35" y1="132" x2="295" y2="132" stroke="#94a3b8" stroke-width="1.5"/><text x="28" y="135" font-size="10" fill="#94a3b8" text-anchor="end" font-family="Arial">0</text><text x="28" y="87" font-size="10" fill="#94a3b8" text-anchor="end" font-family="Arial">5</text><text x="28" y="42" font-size="10" fill="#94a3b8" text-anchor="end" font-family="Arial">10</text>${b}</svg>`;})(),
+    numline2:(()=>{const m=Array.from({length:13},(_,i)=>`<line x1="${20+i*22}" y1="47" x2="${20+i*22}" y2="58" stroke="#3b82f6" stroke-width="1.5"/>`).join('');return`<svg width="320" height="100" viewBox="0 0 320 100" xmlns="http://www.w3.org/2000/svg"><line x1="10" y1="52" x2="305" y2="52" stroke="#3b82f6" stroke-width="2"/><polygon points="305,48 315,52 305,56" fill="#3b82f6"/>${m}<text x="20" y="72" font-size="11" fill="#1e40af" text-anchor="middle" font-family="Arial">0</text><circle cx="108" cy="52" r="5" fill="#3b82f6"/><text x="108" y="39" font-size="11" fill="#1e40af" text-anchor="middle" font-family="Arial" font-weight="bold">X=8</text><circle cx="218" cy="52" r="5" fill="#22c55e"/><text x="218" y="39" font-size="11" fill="#166534" text-anchor="middle" font-family="Arial" font-weight="bold">Y=18</text><text x="160" y="94" font-size="11" fill="#6b7280" text-anchor="middle" font-family="Arial">Each mark = 2 units</text></svg>`;})(),
+    coords:(()=>{const gx=x=>20+x*30,gy=y=>190-y*25;const dots=[[1,2],[1,6],[5,2],[5,6]].map(([x,y])=>`<circle cx="${gx(x)}" cy="${gy(y)}" r="5" fill="#1d4ed8"/><text x="${gx(x)+(x>3?6:-28)}" y="${gy(y)+(y<4?14:-8)}" font-size="10" fill="#1e40af" font-family="Arial">(${x},${y})</text>`).join('');const tx=Array.from({length:7},(_,i)=>`<line x1="${gx(i)}" y1="188" x2="${gx(i)}" y2="192" stroke="#94a3b8" stroke-width="1"/><text x="${gx(i)}" y="204" font-size="10" fill="#94a3b8" text-anchor="middle" font-family="Arial">${i}</text>`).join('');const ty=Array.from({length:9},(_,i)=>`<line x1="18" y1="${gy(i)}" x2="22" y2="${gy(i)}" stroke="#94a3b8" stroke-width="1"/><text x="14" y="${gy(i)+4}" font-size="10" fill="#94a3b8" text-anchor="end" font-family="Arial">${i}</text>`).join('');return`<svg width="220" height="212" viewBox="0 0 220 212" xmlns="http://www.w3.org/2000/svg"><line x1="20" y1="190" x2="200" y2="190" stroke="#94a3b8" stroke-width="1.5"/><line x1="20" y1="190" x2="20" y2="10" stroke="#94a3b8" stroke-width="1.5"/>${tx}${ty}<rect x="${gx(1)}" y="${gy(6)}" width="${gx(5)-gx(1)}" height="${gy(2)-gy(6)}" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2.5"/>${dots}</svg>`;})()
+,ma35_house: `<svg width="160" height="160" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+  <!-- square base -->
+  <rect x="30" y="75" width="100" height="70" fill="none" stroke="#1a3a5c" stroke-width="2.5"/>
+  <!-- roof triangle -->
+  <polyline points="30,75 80,20 130,75" fill="none" stroke="#1a3a5c" stroke-width="2.5"/>
+  <!-- labels -->
+  <text x="52" y="16" font-size="13" fill="#1e40af" font-family="Arial" font-weight="bold">3</text>
+  <text x="100" y="16" font-size="13" fill="#1e40af" font-family="Arial" font-weight="bold">3</text>
+  <text x="14" y="116" font-size="13" fill="#1e40af" font-family="Arial" font-weight="bold">4</text>
+  <text x="136" y="116" font-size="13" fill="#1e40af" font-family="Arial" font-weight="bold">4</text>
+  <text x="74" y="158" font-size="13" fill="#1e40af" font-family="Arial" font-weight="bold">4</text>
+</svg>`
+
+,ma36_rhombus: `<svg width="180" height="130" viewBox="0 0 180 130" xmlns="http://www.w3.org/2000/svg">
+  <!-- rhombus: top, right, bottom, left -->
+  <polygon points="90,10 160,65 90,120 20,65" fill="none" stroke="#1a3a5c" stroke-width="2.5"/>
+  <!-- side labels -->
+  <text x="118" y="30" font-size="13" fill="#1e40af" font-family="Arial" font-weight="bold">10 ft</text>
+  <text x="118" y="110" font-size="13" fill="#1e40af" font-family="Arial" font-weight="bold">10 ft</text>
+  <text x="22" y="30" font-size="13" fill="#1e40af" font-family="Arial" font-weight="bold">10 ft</text>
+  <text x="22" y="110" font-size="13" fill="#1e40af" font-family="Arial" font-weight="bold">10 ft</text>
+</svg>`
+
+,ma37_rect: `<svg width="180" height="120" viewBox="0 0 180 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- original rectangle -->
+  <rect x="20" y="15" width="100" height="70" fill="#dbeafe" stroke="#1a3a5c" stroke-width="2" stroke-dasharray="5,3"/>
+  <!-- stretched rectangle -->
+  <rect x="20" y="15" width="140" height="70" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <!-- labels -->
+  <text x="72" y="108" font-size="12" fill="#1e40af" font-family="Arial" font-weight="bold">7 in</text>
+  <text x="4" y="55" font-size="12" fill="#1e40af" font-family="Arial" font-weight="bold">3 in</text>
+  <text x="148" y="55" font-size="11" fill="#dc2626" font-family="Arial" font-weight="bold">+3 in</text>
+</svg>`
+
+,ma38_triangle: `<svg width="220" height="140" viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">
+  <!-- triangle -->
+  <polygon points="10,125 110,10 210,125" fill="#dbeafe" stroke="#1a3a5c" stroke-width="2.5"/>
+  <!-- height dashed line -->
+  <line x1="110" y1="10" x2="110" y2="125" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <!-- right angle box -->
+  <rect x="110" y="113" width="10" height="10" fill="none" stroke="#64748b" stroke-width="1.5"/>
+  <!-- base label -->
+  <text x="85" y="140" font-size="13" fill="#1e40af" font-family="Arial" font-weight="bold">24 cm</text>
+  <!-- height label -->
+  <text x="115" y="75" font-size="13" fill="#1e40af" font-family="Arial" font-weight="bold">10 cm</text>
+</svg>`
+    ,qr29_grid: `<svg width="200" height="130" viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="10" width="180" height="110" fill="none" stroke="#1a3a5c" stroke-width="2"/>
+  <line x1="100" y1="10" x2="100" y2="120" stroke="#1a3a5c" stroke-width="1.5"/>
+  <line x1="10" y1="65" x2="190" y2="65" stroke="#1a3a5c" stroke-width="1.5"/>
+  <rect x="10" y="10" width="90" height="55" fill="#dbeafe"/>
+  <text x="55" y="44" font-size="12" fill="#1e40af" font-family="Arial" font-weight="bold" text-anchor="middle">Reading</text>
+  <text x="55" y="58" font-size="12" fill="#1e40af" font-family="Arial" font-weight="bold" text-anchor="middle">Corner</text>
+  <text x="145" y="44" font-size="12" fill="#334155" font-family="Arial" font-weight="bold" text-anchor="middle">Art</text>
+  <text x="55" y="98" font-size="12" fill="#334155" font-family="Arial" font-weight="bold" text-anchor="middle">Science</text>
+  <text x="145" y="98" font-size="12" fill="#334155" font-family="Arial" font-weight="bold" text-anchor="middle">Maths</text>
+</svg>`
+
+,qr30_garden: `<svg width="260" height="120" viewBox="0 0 260 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Original patch -->
+  <rect x="20" y="15" width="150" height="70" fill="#d1fae5" stroke="#1a3a5c" stroke-width="2"/>
+  <text x="95" y="55" font-size="12" fill="#065f46" font-family="Arial" font-weight="bold" text-anchor="middle">Original patch</text>
+  <!-- New section (dashed) -->
+  <rect x="170" y="15" width="50" height="70" fill="#fef9c3" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="195" y="52" font-size="11" fill="#92400e" font-family="Arial" font-weight="bold" text-anchor="middle">+3 ft</text>
+  <!-- Bottom label: 12 ft -->
+  <text x="95" y="105" font-size="12" fill="#1e40af" font-family="Arial" font-weight="bold" text-anchor="middle">12 ft</text>
+  <!-- Left label: 4 ft -->
+  <text x="10" y="55" font-size="12" fill="#1e40af" font-family="Arial" font-weight="bold" text-anchor="middle">4 ft</text>
+  <!-- Dimension lines -->
+  <line x1="20" y1="110" x2="170" y2="110" stroke="#1e40af" stroke-width="1"/>
+  <line x1="20" y1="106" x2="20" y2="114" stroke="#1e40af" stroke-width="1"/>
+  <line x1="170" y1="106" x2="170" y2="114" stroke="#1e40af" stroke-width="1"/>
+</svg>`
+
+,qr31_trifit: `<svg width="280" height="110" viewBox="0 0 280 110" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="10,90 10,30 46,90" fill="#dbeafe" stroke="#1a3a5c" stroke-width="2"/>
+  <text x="8" y="64" font-size="11" fill="#1e40af" font-family="Arial" font-weight="bold">4</text>
+  <text x="26" y="104" font-size="11" fill="#1e40af" font-family="Arial" font-weight="bold">3</text>
+  <rect x="70" y="30" width="200" height="60" fill="#f0fdf4" stroke="#1a3a5c" stroke-width="2"/>
+  <text x="170" y="64" font-size="11" fill="#065f46" font-family="Arial" font-weight="bold" text-anchor="middle">12</text>
+  <text x="276" y="64" font-size="11" fill="#065f46" font-family="Arial" font-weight="bold">4</text>
+</svg>`
+
+,qr32_pattern: `<svg width="300" height="130" viewBox="0 0 300 130" xmlns="http://www.w3.org/2000/svg">
+  <text x="4" y="14" font-size="10" fill="#065f46" font-family="Arial" font-weight="700">Pattern B (dots = sides):</text>
+  <rect x="10" y="22" width="36" height="36" fill="none" stroke="#1a3a5c" stroke-width="2"/>
+  <circle cx="21" cy="33" r="3" fill="#1a3a5c"/><circle cx="29" cy="33" r="3" fill="#1a3a5c"/>
+  <circle cx="21" cy="47" r="3" fill="#1a3a5c"/><circle cx="29" cy="47" r="3" fill="#1a3a5c"/>
+  <text x="22" y="70" font-size="9" fill="#334155" font-family="Arial" text-anchor="middle">4 sides, 4 dots</text>
+  <polygon points="110,22 130,58 90,58" fill="none" stroke="#1a3a5c" stroke-width="2"/>
+  <circle cx="104" cy="46" r="3" fill="#1a3a5c"/><circle cx="116" cy="46" r="3" fill="#1a3a5c"/><circle cx="110" cy="37" r="3" fill="#1a3a5c"/>
+  <text x="110" y="70" font-size="9" fill="#334155" font-family="Arial" text-anchor="middle">3 sides, 3 dots</text>
+  <polygon points="200,22 218,30 224,50 210,62 190,62 176,50 182,30" fill="none" stroke="#1a3a5c" stroke-width="2"/>
+  <circle cx="193" cy="46" r="2.5" fill="#1a3a5c"/><circle cx="200" cy="40" r="2.5" fill="#1a3a5c"/><circle cx="207" cy="46" r="2.5" fill="#1a3a5c"/>
+  <circle cx="197" cy="54" r="2.5" fill="#1a3a5c"/><circle cx="205" cy="54" r="2.5" fill="#1a3a5c"/>
+  <text x="200" y="78" font-size="9" fill="#334155" font-family="Arial" text-anchor="middle">5 sides, 5 dots</text>
+  <text x="4" y="98" font-size="10" fill="#991b1b" font-family="Arial" font-weight="700">Which could be in Pattern B?  → heptagon with 7 dots (7 sides)</text>
+</svg>`
+
+,qr33_cubes: `<svg width="220" height="120" viewBox="0 0 220 120" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="50" width="35" height="35" fill="#e0e7ff" stroke="#1a3a5c" stroke-width="1.5"/>
+  <polygon points="10,50 20,40 55,40 45,50" fill="#c7d2fe" stroke="#1a3a5c" stroke-width="1.5"/>
+  <polygon points="45,50 55,40 55,75 45,85" fill="#a5b4fc" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="22" y="72" font-size="11" fill="#1e40af" font-family="Arial" font-weight="bold">A</text>
+  <text x="18" y="100" font-size="11" fill="#1e40af" font-family="Arial" font-weight="bold">3 cm</text>
+  <rect x="100" y="20" width="80" height="80" fill="#d1fae5" stroke="#1a3a5c" stroke-width="2"/>
+  <polygon points="100,20 122,5 202,5 180,20" fill="#a7f3d0" stroke="#1a3a5c" stroke-width="2"/>
+  <polygon points="180,20 202,5 202,85 180,100" fill="#6ee7b7" stroke="#1a3a5c" stroke-width="2"/>
+  <text x="130" y="65" font-size="13" fill="#065f46" font-family="Arial" font-weight="bold">B</text>
+  <text x="108" y="115" font-size="11" fill="#065f46" font-family="Arial" font-weight="bold">12 cm</text>
+</svg>`
+
+,qr34_pie: `<svg width="180" height="180" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+  <!-- Swim -->
+  <path d="M90,90 L90.0,15.0 A75,75 0 0,1 143.0,37.0 Z" fill="#bfdbfe" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="108.7" y="45.0" font-size="9" fill="#1a1a2e" font-family="Arial" font-weight="bold" text-anchor="middle" dominant-baseline="middle">Swim</text>
+  <!-- Tennis -->
+  <path d="M90,90 L143.0,37.0 A75,75 0 0,1 165.0,90.0 Z" fill="#fef08a" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="135.0" y="71.3" font-size="9" fill="#1a1a2e" font-family="Arial" font-weight="bold" text-anchor="middle" dominant-baseline="middle">Tennis</text>
+  <!-- Rugby -->
+  <path d="M90,90 L165.0,90.0 A75,75 0 0,1 143.0,143.0 Z" fill="#bbf7d0" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="135.0" y="108.7" font-size="9" fill="#1a1a2e" font-family="Arial" font-weight="bold" text-anchor="middle" dominant-baseline="middle">Rugby</text>
+  <!-- Dance -->
+  <path d="M90,90 L143.0,143.0 A75,75 0 0,1 90.0,165.0 Z" fill="#fecaca" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="108.7" y="135.0" font-size="9" fill="#1a1a2e" font-family="Arial" font-weight="bold" text-anchor="middle" dominant-baseline="middle">Dance</text>
+  <!-- Gym -->
+  <path d="M90,90 L90.0,165.0 A75,75 0 0,1 37.0,143.0 Z" fill="#e9d5ff" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="71.3" y="135.0" font-size="9" fill="#1a1a2e" font-family="Arial" font-weight="bold" text-anchor="middle" dominant-baseline="middle">Gym</text>
+  <!-- Art -->
+  <path d="M90,90 L37.0,143.0 A75,75 0 0,1 15.0,90.0 Z" fill="#fbcfe8" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="45.0" y="108.7" font-size="9" fill="#1a1a2e" font-family="Arial" font-weight="bold" text-anchor="middle" dominant-baseline="middle">Art</text>
+  <!-- Chess -->
+  <path d="M90,90 L15.0,90.0 A75,75 0 0,1 37.0,37.0 Z" fill="#d1fae5" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="45.0" y="71.3" font-size="9" fill="#1a1a2e" font-family="Arial" font-weight="bold" text-anchor="middle" dominant-baseline="middle">Chess</text>
+  <!-- Run -->
+  <path d="M90,90 L37.0,37.0 A75,75 0 0,1 90.0,15.0 Z" fill="#cffafe" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="71.3" y="45.0" font-size="9" fill="#1a1a2e" font-family="Arial" font-weight="bold" text-anchor="middle" dominant-baseline="middle">Run</text>
+  <!-- Outer ring -->
+  <circle cx="90" cy="90" r="75" fill="none" stroke="#1a3a5c" stroke-width="2"/>
+</svg>`
+
+,qr35_frame: `<svg width="180" height="140" viewBox="0 0 180 140" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="15" width="130" height="90" fill="none" stroke="#1a3a5c" stroke-width="2.5"/>
+  <text x="85" y="125" font-size="13" fill="#1e40af" font-family="Arial" font-weight="bold" text-anchor="middle">8 cm</text>
+  <text x="162" y="65" font-size="13" fill="#dc2626" font-family="Arial" font-weight="bold">?</text>
+  <line x1="155" y1="15" x2="165" y2="15" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="155" y1="105" x2="165" y2="105" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="160" y1="15" x2="160" y2="105" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,2"/>
+</svg>`
+
+,qr36_scales: `<svg width="300" height="110" viewBox="0 0 300 110" xmlns="http://www.w3.org/2000/svg">
+  <line x1="20" y1="85" x2="140" y2="85" stroke="#1a3a5c" stroke-width="2.5"/>
+  <polygon points="80,85 74,95 86,95" fill="#1a3a5c"/>
+  <line x1="80" y1="10" x2="80" y2="85" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="22" y="58" width="22" height="22" fill="#dbeafe" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="33" y="74" font-size="11" fill="#1e40af" font-family="Arial" font-weight="bold" text-anchor="middle">P</text>
+  <rect x="46" y="58" width="22" height="22" fill="#fef9c3" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="57" y="74" font-size="11" fill="#92400e" font-family="Arial" font-weight="bold" text-anchor="middle">Q</text>
+  <rect x="70" y="58" width="22" height="22" fill="#fef9c3" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="81" y="74" font-size="11" fill="#92400e" font-family="Arial" font-weight="bold" text-anchor="middle">Q</text>
+  <text x="100" y="72" font-size="14" fill="#334155" font-family="Arial" font-weight="bold">=</text>
+  <rect x="112" y="58" width="22" height="22" fill="#dbeafe" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="123" y="74" font-size="11" fill="#1e40af" font-family="Arial" font-weight="bold" text-anchor="middle">P</text>
+  <polygon points="132,58 142,44 152,58" fill="#d1fae5" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="142" y="55" font-size="10" fill="#065f46" font-family="Arial" font-weight="bold" text-anchor="middle">R</text>
+  <line x1="170" y1="85" x2="290" y2="85" stroke="#1a3a5c" stroke-width="2.5"/>
+  <polygon points="230,85 224,95 236,95" fill="#1a3a5c"/>
+  <line x1="230" y1="10" x2="230" y2="85" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="172" y="58" width="22" height="22" fill="#fef9c3" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="183" y="74" font-size="11" fill="#92400e" font-family="Arial" font-weight="bold" text-anchor="middle">Q</text>
+  <rect x="196" y="58" width="22" height="22" fill="#fef9c3" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="207" y="74" font-size="11" fill="#92400e" font-family="Arial" font-weight="bold" text-anchor="middle">Q</text>
+  <polygon points="218,58 228,44 238,58" fill="#d1fae5" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="228" y="55" font-size="10" fill="#065f46" font-family="Arial" font-weight="bold" text-anchor="middle">R</text>
+  <text x="248" y="72" font-size="14" fill="#334155" font-family="Arial" font-weight="bold">=</text>
+  <rect x="260" y="58" width="22" height="22" fill="#dbeafe" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="271" y="74" font-size="11" fill="#1e40af" font-family="Arial" font-weight="bold" text-anchor="middle">P</text>
+  <rect x="264" y="32" width="22" height="22" fill="#dbeafe" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="275" y="48" font-size="11" fill="#1e40af" font-family="Arial" font-weight="bold" text-anchor="middle">P</text>
+</svg>`
+,qr40_bar: `<svg width="260" height="140" viewBox="0 0 260 140" xmlns="http://www.w3.org/2000/svg">
+  <line x1="60" y1="10" x2="60" y2="110" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="60" y1="110" x2="255" y2="110" stroke="#94a3b8" stroke-width="1.5"/>
+  ${[['Sun',16,'#60a5fa'],['Mon',4,'#3b82f6'],['Tue',25,'#1d4ed8'],['Wed',35,'#1e40af'],['Thu',20,'#2563eb']].map(([d,v,c],i)=>{
+    const w=Math.round(v*3.5); return `<rect x="62" y="${108-Math.round(v*2.5)}" width="${w}" height="${Math.round(v*2.5)}" fill="${c}"/>
+    <text x="56" y="${111-Math.round(v*2.5/2)}" font-size="9" fill="#334155" font-family="Arial" text-anchor="end">${d}</text>
+    <text x="${64+w}" y="${108-Math.round(v*2.5)+8}" font-size="9" fill="#1e40af" font-family="Arial">${v}</text>`;}).join('')}
+  <text x="155" y="130" font-size="10" fill="#64748b" font-family="Arial" text-anchor="middle">Pages Read</text>
+</svg>`
+
+,qr46_numline: `<svg width="280" height="70" viewBox="0 0 280 70" xmlns="http://www.w3.org/2000/svg">
+  <line x1="20" y1="35" x2="260" y2="35" stroke="#3b82f6" stroke-width="2"/>
+  <polygon points="260,31 270,35 260,39" fill="#3b82f6"/>
+  ${Array.from({length:9},(_,i)=>`<line x1="${20+i*27}" y1="30" x2="${20+i*27}" y2="40" stroke="#3b82f6" stroke-width="1.5"/>`).join('')}
+  <text x="20" y="55" font-size="10" fill="#1e40af" font-family="Arial" text-anchor="middle">584</text>
+  <text x="74" y="55" font-size="10" fill="#1e40af" font-family="Arial" text-anchor="middle">592</text>
+  <text x="263" y="55" font-size="10" fill="#1e40af" font-family="Arial" text-anchor="middle">616</text>
+  <circle cx="155" cy="35" r="5" fill="#dc2626"/>
+  <text x="155" y="20" font-size="11" fill="#dc2626" font-family="Arial" font-weight="bold" text-anchor="middle">Q</text>
+</svg>`
+
+,qr52_addition: `<svg width="160" height="120" viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+  <text x="80" y="25" font-size="20" fill="#1e40af" font-family="Arial" text-anchor="middle">○□</text>
+  <text x="80" y="52" font-size="20" fill="#1e40af" font-family="Arial" text-anchor="middle">△□</text>
+  <text x="80" y="79" font-size="20" fill="#1e40af" font-family="Arial" text-anchor="middle">+ △□</text>
+  <line x1="30" y1="88" x2="130" y2="88" stroke="#1a3a5c" stroke-width="2"/>
+  <text x="80" y="110" font-size="20" fill="#1e40af" font-family="Arial" font-weight="bold" text-anchor="middle">2 0 1</text>
+</svg>`
+
+,qr56_triangle: `<svg width="180" height="160" viewBox="0 0 180 160" xmlns="http://www.w3.org/2000/svg">
+  ${Array.from({length:7},(_,i)=>Array.from({length:7},(_,j)=>`<rect x="${10+j*24}" y="${10+i*20}" width="24" height="20" fill="${(i+j)%2===0?'#f8fafc':'#f1f5f9'}" stroke="#cbd5e1" stroke-width="0.5"/>`).join('')).join('')}
+  <polygon points="10,130 154,130 154,10" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="10" y="110" width="24" height="20" fill="#93c5fd" stroke="#1d4ed8" stroke-width="1"/>
+  <text x="22" y="123" font-size="8" fill="#1e40af" font-family="Arial" text-anchor="middle">1u²</text>
+  <text x="82" y="148" font-size="11" fill="#1e40af" font-family="Arial" font-weight="bold" text-anchor="middle">base = 6 units</text>
+  <text x="162" y="72" font-size="11" fill="#1e40af" font-family="Arial" font-weight="bold">6</text>
+  <text x="158" y="80" font-size="9" fill="#1e40af" font-family="Arial">units</text>
+</svg>`
+
+,qr58_dots: `<svg width="280" height="100" viewBox="0 0 280 100" xmlns="http://www.w3.org/2000/svg">
+  ${[[1,2],[2,3],[3,4],[4,5]].map(([fig,rows],fi)=>{
+    const ox=10+fi*68; let dots='';
+    for(let r=0;r<rows;r++) for(let c=0;c<rows;c++)
+      dots+=`<circle cx="${ox+c*10}" cy="${20+r*10}" r="3.5" fill="#1d4ed8"/>`;
+    return dots+`<text x="${ox+(rows-1)*5}" y="${28+rows*10}" font-size="9" fill="#64748b" font-family="Arial" text-anchor="middle">Fig ${fig}</text>`;
+  }).join('')}
+  <text x="140" y="92" font-size="10" fill="#64748b" font-family="Arial" text-anchor="middle">Pattern: each figure = (n+1)²</text>
+</svg>`
+
+,qr60_segment: `<svg width="300" height="65" viewBox="0 0 300 65" xmlns="http://www.w3.org/2000/svg">
+  <line x1="20" y1="32" x2="280" y2="32" stroke="#3b82f6" stroke-width="2"/>
+  <circle cx="20" cy="32" r="5" fill="#1d4ed8"/>
+  <circle cx="100" cy="32" r="5" fill="#15803d"/>
+  <circle cx="280" cy="32" r="5" fill="#1d4ed8"/>
+  <text x="20" y="56" font-size="13" fill="#1e40af" font-family="Arial" font-weight="bold" text-anchor="middle">A</text>
+  <text x="100" y="56" font-size="13" fill="#166534" font-family="Arial" font-weight="bold" text-anchor="middle">B</text>
+  <text x="280" y="56" font-size="13" fill="#1e40af" font-family="Arial" font-weight="bold" text-anchor="middle">C</text>
+  <line x1="20" y1="16" x2="100" y2="16" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="60" y="12" font-size="10" fill="#991b1b" font-family="Arial" text-anchor="middle">AB = 2</text>
+  <line x1="20" y1="8" x2="280" y2="8" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="150" y="6" font-size="10" fill="#64748b" font-family="Arial" text-anchor="middle">AC = x</text>
+</svg>`
+
+,qr62_grid: `<svg width="160" height="130" viewBox="0 0 160 130" xmlns="http://www.w3.org/2000/svg">
+  ${Array.from({length:10},(_,r)=>Array.from({length:10},(_,c)=>`<rect x="${5+c*14}" y="${5+r*11}" width="14" height="11" fill="${r<6?'#93c5fd':'white'}" stroke="#cbd5e1" stroke-width="0.5"/>`).join('')).join('')}
+  <rect x="5" y="5" width="140" height="110" fill="none" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="80" y="125" font-size="10" fill="#1e40af" font-family="Arial" font-weight="bold" text-anchor="middle">6 of 10 rows shaded = 60%</text>
+</svg>`
+
+,qr64_table: `<svg width="200" height="185" viewBox="0 0 200 185" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="10" width="180" height="165" fill="white" stroke="#1a3a5c" stroke-width="1.5"/>
+  <rect x="10" y="10" width="180" height="22" fill="#dbeafe" stroke="#1a3a5c" stroke-width="1.5"/>
+  <text x="60" y="26" font-size="11" fill="#1e40af" font-family="Arial" font-weight="bold">Color</text>
+  <text x="150" y="26" font-size="11" fill="#1e40af" font-family="Arial" font-weight="bold">Number</text>
+  <line x1="110" y1="10" x2="110" y2="175" stroke="#1a3a5c" stroke-width="1"/>
+  ${[['red',4],['orange',4],['yellow',4],['green',4],['blue',4],['purple','?'],['black',4]].map(([c,n],i)=>
+    `<rect x="10" y="${32+i*20}" width="180" height="20" fill="${c==='purple'?'#ede9fe':'white'}" stroke="#e2e8f0" stroke-width="0.5"/>
+     <text x="60" y="${46+i*20}" font-size="11" fill="${c==='purple'?'#4c1d95':'#334155'}" font-family="Arial" text-anchor="middle">${c}</text>
+     <text x="150" y="${46+i*20}" font-size="11" fill="${c==='purple'?'#4c1d95':'#334155'}" font-family="Arial" font-weight="${c==='purple'?'bold':'normal'}" text-anchor="middle">${n}</text>`
+  ).join('')}
+</svg>`
+    // PASTE NEW DIAGRAMS HERE — key must match "diag" field in question above
+    // Example:  ,q32_shape: `<svg width="200" height="150">...</svg>`
+    // PASTE NEW DIAGRAMS HERE
+    // ,your_diag_key: `<svg ...>...</svg>`
+  };
+  return d[key] || '';
+}
+
+/* ════════════════════════════════════════
+   LOCAL STORAGE
+════════════════════════════════════════ */
+const LS_KEY = 'quiz_progress_v1';
+const chosen = {}, statuses = {}, attempts = {};
+
+function saveProgress() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify({chosen, statuses, attempts})); } catch(e) {}
+}
+function loadProgress() {
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    if (!saved) return;
+    const data = JSON.parse(saved);
+    if (data.chosen)   Object.assign(chosen,   data.chosen);
+    if (data.statuses) Object.assign(statuses, data.statuses);
+    if (data.attempts) Object.assign(attempts, data.attempts);
+  } catch(e) {}
+}
+
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+let mode = 'all', curQs = [], cur = 0;
+
+/* ════════════════════════════════════════
+   QUIZ LOGIC
+════════════════════════════════════════ */
+function startQuiz(m) {
+  mode = m;
+  // Merge approved generated questions into the pool
+  const pool = [...ALL_QUESTIONS, ...APPROVED_GENERATED];
+  curQs = m === 'ma' ? pool.filter(q => q.sec === 'MA')
+        : m === 'qr' ? pool.filter(q => q.sec === 'QR')
+        : [...pool];
+  cur = 0;
+  document.getElementById('quiz-title').textContent =
+    m === 'ma' ? 'Mathematics Achievement' :
+    m === 'qr' ? 'Quantitative Reasoning' : 'All Questions';
+  document.getElementById('bar-fill').className = 'bar-fill ' + m;
+  showScreen('screen-quiz');
+  renderQ();
+}
+
+function go(i) {
+  if (i < 0 || i >= curQs.length) return;
+  cur = i;
+  renderQ();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function pick(idx) {
+  const q = curQs[cur];
+  const key = String(q.n);
+  if (chosen[key] != null) return;
+  attempts[key] = (attempts[key] || 0) + 1;
+  chosen[key] = idx;
+  const isCorrect = idx === q.ans;
+  statuses[key] = isCorrect ? 'correct' : 'wrong';
+  saveProgress();
+  renderQ(); updateDash();
+  supaInsert({
+    session_id:  SESSION_ID,
+    question_id: key,
+    section:     q.sec,
+    correct:     isCorrect,
+    attempts:    attempts[key],
+    answered_at: new Date().toISOString()
+  });
+}
+
+function renderTabs() {
+  document.getElementById('tabs').innerHTML = curQs.map((q, i) => {
+    const key = String(q.n);
+    let c = 'tab';
+    if (statuses[key] === 'correct') c += ' correct';
+    if (statuses[key] === 'wrong')   c += ' wrong';
+    if (i === cur) c += ' active';
+    const label = q.n.replace('MA-','M').replace('QR-','Q');
+    return `<button class="${c}" onclick="go(${i})" title="${q.n}">${label}</button>`;
+  }).join('');
+}
+
+function renderQ() {
+  const q = curQs[cur];
+  const key = String(q.n);
+  const answered = chosen[key] != null;
+  const diag = q.diag ? `<div class="q-diagram">${diagrams(q.diag)}</div>` : '';
+  const opts = q.opts.map((o, i) => {
+    let c = 'opt';
+    if (answered) {
+      if (i === q.ans) c += ' correct-ans';
+      else if (i === chosen[key]) c += ' wrong-sel';
+    }
+    return `<button class="${c}" ${answered ? 'disabled' : ''} onclick="pick(${i})">
+      <span class="badge">${['A','B','C','D'][i]}</span><span>${o}</span>
+    </button>`;
+  }).join('');
+  const fb = answered ? `<div class="feedback ${chosen[key] === q.ans ? 'correct' : 'incorrect'} show">
+    <div class="fb-title">${chosen[key] === q.ans ? '✓ Correct!' : '✗ Not quite.'}</div>${q.exp}
+  </div>` : '';
+  const done = curQs.filter(q2 => chosen[String(q2.n)] != null).length;
+  const corr = curQs.filter(q2 => statuses[String(q2.n)] === 'correct').length;
+  document.getElementById('q-area').innerHTML = `
+    <div class="q-card">
+      <div class="q-meta ${q.sec.toLowerCase()}">${q.n} — ${q.sec === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning'}</div>
+      <div class="q-text">${q.text}</div>${diag}
+      <div class="options">${opts}</div>${fb}
+    </div>`;
+  document.getElementById('prog-label').textContent = `${done} of ${curQs.length} answered`;
+  document.getElementById('score-badge').textContent = `Score: ${corr}/${done}`;
+  document.getElementById('bar-fill').style.width = (done / curQs.length * 100) + '%';
+  document.getElementById('btn-prev').disabled = cur === 0;
+  document.getElementById('btn-next').disabled = cur === curQs.length - 1;
+  renderTabs();
+}
+
+/* ════════════════════════════════════════
+   RESET SECTION
+════════════════════════════════════════ */
+function resetSection(sec) {
+  const label = sec === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning';
+  if (!confirm(`Reset all ${label} answers?\n\nAttempt counts will be kept.`)) return;
+  ALL_QUESTIONS.filter(q => q.sec === sec).forEach(q => {
+    const key = String(q.n);
+    delete chosen[key];
+    delete statuses[key];
+  });
+  saveProgress();
+  updateDash();
+}
+
+/* ════════════════════════════════════════
+   DASHBOARD
+════════════════════════════════════════ */
+async function updateDash() {
+  // Total = hardcoded questions + approved generated questions
+  const allPool = [...ALL_QUESTIONS, ...APPROVED_GENERATED];
+  const total = allPool.length;
+  document.getElementById('d-total').textContent = total;
+  document.getElementById('ma-pill').textContent = allPool.filter(q=>q.sec==='MA').length + ' Questions';
+  document.getElementById('qr-pill').textContent = allPool.filter(q=>q.sec==='QR').length + ' Questions';
+  document.getElementById('d-ma-total').textContent = allPool.filter(q=>q.sec==='MA').length;
+  document.getElementById('d-qr-total').textContent = allPool.filter(q=>q.sec==='QR').length;
+
+  // Fetch latest results from Supabase
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=question_id,section,correct&order=answered_at.desc&limit=500', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    if (!res.ok) return;
+    const rows = await res.json();
+
+    // Latest result per question
+    const latest = {};
+    rows.forEach(r => { if (!latest[r.question_id]) latest[r.question_id] = r; });
+    const latestVals = Object.values(latest);
+
+    const ans  = latestVals.length;
+    const corr = latestVals.filter(r => r.correct).length;
+    const wrg  = ans - corr;
+
+    const maRows = latestVals.filter(r => r.section === 'MA');
+    const qrRows = latestVals.filter(r => r.section === 'QR');
+    const maAns  = maRows.length;
+    const maCor  = maRows.filter(r => r.correct).length;
+    const qrAns  = qrRows.length;
+    const qrCor  = qrRows.filter(r => r.correct).length;
+
+    document.getElementById('d-answered').textContent = ans;
+    document.getElementById('d-correct').textContent  = corr;
+    document.getElementById('d-wrong').textContent    = wrg;
+    document.getElementById('d-ans-pct').textContent  = total ? Math.round(ans/total*100)+'%' : '0%';
+    document.getElementById('d-cor-pct').textContent  = ans ? Math.round(corr/ans*100)+'%' : '0%';
+    document.getElementById('d-wrg-pct').textContent  = ans ? Math.round(wrg/ans*100)+'%' : '0%';
+    document.getElementById('bar-answered').style.width = (total ? ans/total*100 : 0)+'%';
+    document.getElementById('bar-correct').style.width  = (ans ? corr/ans*100 : 0)+'%';
+    document.getElementById('bar-wrong').style.width    = (ans ? wrg/ans*100 : 0)+'%';
+    document.getElementById('d-ma-ans').textContent  = maAns;
+    document.getElementById('d-ma-cor').textContent  = maCor;
+    document.getElementById('d-ma-wrg').textContent  = maAns - maCor;
+    document.getElementById('d-ma-range').textContent = 'MA-1 to MA-' + allPool.filter(q=>q.sec==='MA' && /^MA-\d+$/.test(String(q.n))).length;
+    document.getElementById('d-qr-ans').textContent  = qrAns;
+    document.getElementById('d-qr-cor').textContent  = qrCor;
+    document.getElementById('d-qr-wrg').textContent  = qrAns - qrCor;
+    document.getElementById('d-qr-range').textContent = 'QR-1 to QR-' + allPool.filter(q=>q.sec==='QR' && /^QR-\d+$/.test(String(q.n))).length;
+  } catch(e) {
+    // Silently fail — stats will just show 0
+  }
+}
+
+/* ════════════════════════════════════════
+   PARENT DASHBOARD
+════════════════════════════════════════ */
+async function loadParentDash() {
+  document.getElementById('pd-status').textContent = 'Loading results…';
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=*&order=answered_at.desc&limit=500',
+      { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = await res.json();
+    renderParentDash(rows);
+  } catch(e) {
+    document.getElementById('pd-status').textContent = '❌ Could not load: ' + e.message;
+  }
+}
+
+function renderParentDash(rows) {
+  if (rows.length === 0) {
+    document.getElementById('pd-status').textContent = 'No results yet.';
+    document.getElementById('pd-content').innerHTML = '';
+    return;
+  }
+  document.getElementById('pd-status').textContent = '';
+  const sessions = {};
+  rows.forEach(r => { if (!sessions[r.session_id]) sessions[r.session_id] = []; sessions[r.session_id].push(r); });
+  // latest = most recent attempt per question (rows are ordered desc so first occurrence = latest)
+  const latest = {};
+  rows.forEach(r => { if (!latest[r.question_id]) latest[r.question_id] = r; });
+  // Summary counts based on LATEST attempt per question — not raw row count
+  const latestVals = Object.values(latest);
+  const totalAns = latestVals.length;
+  const totalCor = latestVals.filter(r => r.correct).length;
+  const maRows = Object.values(latest).filter(r => r.section === 'MA').sort((a,b) => a.question_id.localeCompare(b.question_id, undefined, {numeric:true}));
+  const qrRows = Object.values(latest).filter(r => r.section === 'QR').sort((a,b) => a.question_id.localeCompare(b.question_id, undefined, {numeric:true}));
+  const sessionRows = Object.keys(sessions).sort().reverse().slice(0,10).map(sid => {
+    const sr = sessions[sid];
+    const date = sid.slice(0,10);
+    const c = sr.filter(r => r.correct).length;
+    const t = sr.length;
+    const mac = sr.filter(r => r.section==='MA' && r.correct).length;
+    const mat = sr.filter(r => r.section==='MA').length;
+    const qrc = sr.filter(r => r.section==='QR' && r.correct).length;
+    const qrt = sr.filter(r => r.section==='QR').length;
+    return `<tr>
+      <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:0.85rem;">${date}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;font-weight:700;color:#1a3a5c;">${c}/${t}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;color:#1d4ed8;">${mat>0?mac+'/'+mat:'—'}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;color:#0f6e56;">${qrt>0?qrc+'/'+qrt:'—'}</td>
+    </tr>`;
+  }).join('');
+  function qRow(r) {
+    const ok = r.correct;
+    const q = [...ALL_QUESTIONS, ...APPROVED_GENERATED].find(q => String(q.n) === r.question_id);
+    const preview = q ? q.text.split('\n')[0].slice(0,55)+(q.text.length>55?'…':'') : r.question_id;
+    return `<tr>
+      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;font-size:0.8rem;font-weight:700;color:#64748b;white-space:nowrap;">${r.question_id}</td>
+      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;font-size:0.82rem;color:#334155;">${preview}</td>
+      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;text-align:center;">
+        <span style="background:${ok?'#d1fae5':'#fee2e2'};color:${ok?'#065f46':'#991b1b'};padding:3px 10px;border-radius:99px;font-size:0.75rem;font-weight:700;">${ok?'✓ Correct':'✗ Wrong'}</span>
+      </td>
+      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:0.82rem;color:#64748b;">${r.attempts}</td>
+    </tr>`;
+  }
+  document.getElementById('pd-content').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem;">
+      <div style="background:#f1f5f9;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.6rem;font-weight:700;color:#334155;">${totalAns}</div><div style="font-size:0.72rem;font-weight:600;color:#94a3b8;margin-top:3px;">Questions tried</div></div>
+      <div style="background:#d1fae5;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.6rem;font-weight:700;color:#065f46;">${totalCor}</div><div style="font-size:0.72rem;font-weight:600;color:#065f46;margin-top:3px;opacity:0.8;">Correct</div></div>
+      <div style="background:#fee2e2;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.6rem;font-weight:700;color:#991b1b;">${totalAns-totalCor}</div><div style="font-size:0.72rem;font-weight:600;color:#991b1b;margin-top:3px;opacity:0.8;">Incorrect</div></div>
+    </div>
+    <div style="background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:1.25rem;overflow:hidden;">
+      <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;">Recent Sessions</div>
+      <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;">
+        <th style="padding:10px 14px;text-align:left;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#94a3b8;">Date</th>
+        <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#94a3b8;">Total</th>
+        <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#1d4ed8;">MA</th>
+        <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#0f6e56;">QR</th>
+      </tr></thead><tbody>${sessionRows}</tbody></table>
+    </div>
+    ${maRows.length > 0 ? `<div style="background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:1.25rem;overflow:hidden;">
+      <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#1d4ed8;">📐 Mathematics Achievement</div>
+      <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;">
+        <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Q</th>
+        <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Question</th>
+        <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Result</th>
+        <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Attempts</th>
+      </tr></thead><tbody>${maRows.map(qRow).join('')}</tbody></table>
+    </div>` : ''}
+    ${qrRows.length > 0 ? `<div style="background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:1.25rem;overflow:hidden;">
+      <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#0f6e56;">🔢 Quantitative Reasoning</div>
+      <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;">
+        <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Q</th>
+        <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Question</th>
+        <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Result</th>
+        <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Attempts</th>
+      </tr></thead><tbody>${qrRows.map(qRow).join('')}</tbody></table>
+    </div>` : ''}`;
+}
+
+/* ════════════════════════════════════════
+   DIAGNOSTIC
+════════════════════════════════════════ */
+async function runDiagnostic() {
+  const el = document.getElementById('diag-result');
+  el.style.display = 'block';
+  el.innerHTML = '⏳ Testing…';
+  const steps = [];
+  try {
+    const r1 = await fetch(SUPA_URL + '/rest/v1/', { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    steps.push('✅ Step 1 — Reached Supabase (HTTP ' + r1.status + ')');
+  } catch(e) { steps.push('❌ Step 1 — Cannot reach Supabase: ' + e.message); el.innerHTML = steps.join('<br>'); return; }
+  try {
+    const r2 = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?limit=1', { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    steps.push(r2.ok ? '✅ Step 2 — Can READ table' : '❌ Step 2 — READ failed: ' + await r2.text());
+  } catch(e) { steps.push('❌ Step 2: ' + e.message); }
+  try {
+    const r3 = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=minimal'},
+      body: JSON.stringify({session_id:'diag_test',question_id:'MA-1',section:'MA',correct:true,attempts:1,answered_at:new Date().toISOString()})
+    });
+    steps.push((r3.status===201||r3.status===200) ? '✅ Step 3 — INSERT succeeded!' : '❌ Step 3 — INSERT failed: ' + await r3.text());
+  } catch(e) { steps.push('❌ Step 3: ' + e.message); }
+  steps.push('<br><b>🎉 Connection working!</b> Answer a question and click Refresh Results.');
+  el.innerHTML = steps.join('<br>');
+}
+
+/* ════════════════════════════════════════
+   SCREEN NAVIGATION
+════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goHome() { showScreen('screen-home'); updateDash(); renderHeatGrid(); }
+
+
+/* ════════════════════════════════════════
+   APPROVED GENERATED QUESTIONS
+   Fetched from Supabase at page load and merged into the quiz pool
+════════════════════════════════════════ */
+let APPROVED_GENERATED = [];
+
+// Map target_topic string → {strand, sub, dok} for generated questions
+function topicToTaxonomy(target_topic, section) {
+  if (!target_topic) return null;
+  const dokMatch = target_topic.match(/DoK\s*(\d)/i);
+  const dok = dokMatch ? parseInt(dokMatch[1]) : 2;
+  const topic = target_topic.replace(/\s*\(DoK\s*\d\)/i, '').trim();
+  const strandMap = {
+    'Fractions & Decimals':    'Numbers & Operations',
+    'Whole Number Arithmetic': 'Numbers & Operations',
+    'Ratios & Percentages':    'Numbers & Operations',
+    'Expressions & Equations': 'Algebraic Thinking',
+    'Patterns & Sequences':    'Algebraic Thinking',
+    '2D & 3D Shapes':          'Geometry',
+    'Coordinate Planes':       'Geometry',
+    'Perimeter & Area':        'Measurement',
+    'Units & Conversions':     'Measurement',
+    'Visual/Spatial Scaling':  'Measurement',
+    'Tables & Graphs':         'Data Analysis & Prob.',
+    'Mean, Median, Mode':      'Data Analysis & Prob.',
+    'Simple Probability':      'Data Analysis & Prob.',
+  };
+  const strand = strandMap[topic] || (section === 'MA' ? 'Numbers & Operations' : 'Algebraic Thinking');
+  return { strand, sub: topic || 'General', dok };
+}
+
+function genRowToQuestion(row) {
+  const tax = topicToTaxonomy(row.target_topic, row.section);
+  if (tax) TAXONOMY[row.question_id] = tax;
+  return {
+    n:   row.question_id,
+    sec: row.section,
+    text: row.text,
+    opts: [row.opt_a, row.opt_b, row.opt_c, row.opt_d],
+    ans:  row.correct_index,
+    exp:  row.explanation || '',
+    _generated: true
+  };
+}
+
+async function fetchApprovedGenerated() {
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/generated_questions?status=eq.approved&select=*', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    if (!res.ok) return;
+    const rows = await res.json();
+    APPROVED_GENERATED = rows.map(genRowToQuestion);
+    if (APPROVED_GENERATED.length > 0) updateDash(); // refresh counts now we know approved total
+  } catch(e) { /* silently fail */ }
+}
+
+/* ════════════════════════════════════════
+   QA REVIEW
+════════════════════════════════════════ */
+let qaQuestions = [], qaIdx = 0;
+
+async function loadQAReview() {
+  const statusEl = document.getElementById('qa-status');
+  const counterEl = document.getElementById('qa-counter');
+  const taxEl = document.getElementById('qa-taxonomy');
+  const areaEl = document.getElementById('qa-area');
+  const actionsEl = document.getElementById('qa-actions');
+  const navEl = document.getElementById('qa-nav');
+  const doneEl = document.getElementById('qa-done-msg');
+
+  statusEl.textContent = '⏳ Loading pending questions…';
+  statusEl.style.display = 'block';
+  counterEl.style.display = 'none';
+  taxEl.style.display = 'none';
+  areaEl.innerHTML = '';
+  actionsEl.style.display = 'none';
+  navEl.style.display = 'none';
+  doneEl.style.display = 'none';
+
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/generated_questions?status=eq.pending&select=*&order=generated_at.asc', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = await res.json();
+    if (rows.length === 0) {
+      statusEl.style.display = 'none';
+      doneEl.style.display = 'block';
+      return;
+    }
+    qaQuestions = rows;
+    qaIdx = 0;
+    statusEl.style.display = 'none';
+    qaRender();
+  } catch(e) {
+    statusEl.textContent = '❌ Could not load: ' + e.message;
+  }
+}
+
+function qaGo(i) {
+  if (i < 0 || i >= qaQuestions.length) return;
+  qaIdx = i;
+  qaRender();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function qaRender() {
+  const row = qaQuestions[qaIdx];
+  if (!row) return;
+  const tax = topicToTaxonomy(row.target_topic, row.section);
+  const dokLabel = ['', 'DoK 1 — Recall', 'DoK 2 — Conceptual', 'DoK 3 — Analytical'][tax?.dok] || '';
+
+  const counterEl = document.getElementById('qa-counter');
+  counterEl.style.display = 'flex';
+  document.getElementById('qa-counter-text').textContent = `Question ${qaIdx + 1} of ${qaQuestions.length} pending`;
+  const badge = document.getElementById('qa-section-badge');
+  badge.textContent = row.section === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning';
+  badge.style.background = row.section === 'MA' ? '#dbeafe' : '#d1fae5';
+  badge.style.color = row.section === 'MA' ? '#1e40af' : '#065f46';
+
+  const taxEl = document.getElementById('qa-taxonomy');
+  taxEl.style.display = 'block';
+  taxEl.innerHTML = tax
+    ? `<b>🏷 Taxonomy</b> &nbsp;|&nbsp; <b>ID:</b> ${row.question_id} &nbsp;|&nbsp; <b>Strand:</b> ${tax.strand} &nbsp;|&nbsp; <b>Subtopic:</b> ${tax.sub} &nbsp;|&nbsp; <b>${dokLabel}</b>`
+    : `<b>🏷 ID:</b> ${row.question_id} &nbsp;|&nbsp; <b>Topic:</b> ${row.target_topic || 'Unknown'}`;
+
+  const opts = [row.opt_a, row.opt_b, row.opt_c, row.opt_d].map((o, i) => {
+    const isCorrect = i === row.correct_index;
+    return `<button class="opt${isCorrect ? ' correct-ans' : ''}" disabled style="cursor:default;">
+      <span class="badge">${['A','B','C','D'][i]}</span><span>${o}</span>
+    </button>`;
+  }).join('');
+
+  const expHtml = row.explanation
+    ? `<div class="feedback correct show"><div class="fb-title">📖 Explanation</div>${row.explanation}</div>`
+    : `<div class="feedback incorrect show"><div class="fb-title">⚠ No explanation provided</div></div>`;
+
+  document.getElementById('qa-area').innerHTML = `
+    <div class="q-card">
+      <div class="q-meta ${row.section.toLowerCase()}">${row.question_id}</div>
+      <div class="q-text">${row.text}</div>
+      <div class="options">${opts}</div>
+      ${expHtml}
+    </div>`;
+
+  document.getElementById('qa-actions').style.display = 'flex';
+  const navEl = document.getElementById('qa-nav');
+  navEl.style.display = 'flex';
+  document.getElementById('qa-btn-prev').disabled = qaIdx === 0;
+  document.getElementById('qa-btn-next').disabled = qaIdx === qaQuestions.length - 1;
+}
+
+async function qaDecide(decision) {
+  const row = qaQuestions[qaIdx];
+  if (!row) return;
+  const actionsEl = document.getElementById('qa-actions');
+  actionsEl.style.display = 'none';
+
+  try {
+    // On approval, assign a clean sequential question ID (MA-39, QR-37, etc.)
+    let newQuestionId = row.question_id; // default: keep MAGEN/QRGEN id
+    if (decision === 'approved') {
+      const allPool = [...ALL_QUESTIONS, ...APPROVED_GENERATED];
+      if (row.section === 'MA') {
+        const maxMA = allPool
+          .filter(q => q.sec === 'MA' && /^MA-\d+$/.test(String(q.n)))
+          .map(q => parseInt(String(q.n).replace('MA-', '')))
+          .reduce((a, b) => Math.max(a, b), 0);
+        newQuestionId = `MA-${maxMA + 1}`;
+      } else {
+        const maxQR = allPool
+          .filter(q => q.sec === 'QR' && /^QR-\d+$/.test(String(q.n)))
+          .map(q => parseInt(String(q.n).replace('QR-', '')))
+          .reduce((a, b) => Math.max(a, b), 0);
+        newQuestionId = `QR-${maxQR + 1}`;
+      }
+    }
+
+    // PATCH status (and new question_id if approving) to Supabase
+    const patchBody = { status: decision };
+    if (decision === 'approved') patchBody.question_id = newQuestionId;
+
+    const res = await fetch(SUPA_URL + `/rest/v1/generated_questions?id=eq.${row.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(patchBody)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+    if (decision === 'approved') {
+      // Use the renamed row for the local question object
+      const renamedRow = { ...row, question_id: newQuestionId };
+      APPROVED_GENERATED.push(genRowToQuestion(renamedRow));
+      updateDash(); // refresh counts to include newly approved question
+    }
+
+    qaQuestions.splice(qaIdx, 1);
+    if (qaQuestions.length === 0) {
+      document.getElementById('qa-counter').style.display = 'none';
+      document.getElementById('qa-taxonomy').style.display = 'none';
+      document.getElementById('qa-area').innerHTML = '';
+      document.getElementById('qa-nav').style.display = 'none';
+      actionsEl.style.display = 'none';
+      document.getElementById('qa-done-msg').style.display = 'block';
+      return;
+    }
+    if (qaIdx >= qaQuestions.length) qaIdx = qaQuestions.length - 1;
+    actionsEl.style.display = 'flex';
+    qaRender();
+  } catch(e) {
+    actionsEl.style.display = 'flex';
+    alert('❌ Could not save: ' + e.message);
+  }
+}
+
+/* ════════════════════════════════════════════
+   TAXONOMY — strand, subtopic, DoK per question
+   Update when new questions are added
+════════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   QUESTION BANK — fetch from Supabase
+   Converts Supabase rows → ALL_QUESTIONS shape
+   and populates TAXONOMY
+════════════════════════════════════════ */
+function setLoadState(pct, msg) {
+  document.getElementById('load-bar').style.width = pct + '%';
+  document.getElementById('load-msg').textContent = msg;
+}
+
+async function fetchQuestionBank() {
+  try {
+    setLoadState(20, 'Fetching questions…');
+
+    // Fetch all active questions from Supabase
+    const res = await fetch(
+      SUPA_URL + '/rest/v1/questions?active=eq.true&select=*&order=question_id',
+      { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } }
+    );
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = await res.json();
+
+    setLoadState(60, `Building question bank (${rows.length} questions)…`);
+
+    // Convert Supabase rows → ALL_QUESTIONS shape
+    ALL_QUESTIONS = rows.map(r => {
+      const q = {
+        n:   r.question_id,
+        sec: r.section,
+        text: r.text,
+        opts: [r.opt_a, r.opt_b, r.opt_c, r.opt_d],
+        ans:  r.correct_index,
+        exp:  r.explanation || '',
+      };
+      if (r.diag) q.diag = r.diag;
+      return q;
+    });
+
+    // Populate TAXONOMY from Supabase rows
+    rows.forEach(r => {
+      if (r.strand && r.sub && r.dok) {
+        TAXONOMY[r.question_id] = { strand: r.strand, sub: r.sub, dok: r.dok };
+      }
+    });
+
+    setLoadState(90, 'Loading your progress…');
+
+    // Now run the rest of the init that depends on ALL_QUESTIONS
+    loadProgress();
+    updateDash();
+    await fetchApprovedGenerated();
+    renderHeatGrid();
+
+    setLoadState(100, 'Ready!');
+
+    // Small delay so user sees 100% briefly, then show home
+    await new Promise(r => setTimeout(r, 300));
+    showScreen('screen-home');
+
+  } catch(e) {
+    document.getElementById('load-msg').textContent =
+      '❌ Could not load questions: ' + e.message + ' — check connection';
+    document.getElementById('load-bar').style.background = '#ef4444';
+    console.error('fetchQuestionBank failed:', e);
+  }
+}
+
+
+
+const STRANDS = [
+  "Numbers & Operations",
+  "Algebraic Thinking",
+  "Geometry",
+  "Measurement",
+  "Data Analysis & Prob."
+];
+
+function computeHeatDataFromRows(rows) {
+  // Build heat data from Supabase rows — latest attempt per question
+  const data = {};
+  STRANDS.forEach(s => { data[s] = {1:{c:0,t:0}, 2:{c:0,t:0}, 3:{c:0,t:0}}; });
+  // Get latest result per question_id
+  const latest = {};
+  rows.forEach(r => { if (!latest[r.question_id]) latest[r.question_id] = r; });
+  Object.values(latest).forEach(r => {
+    const tx = TAXONOMY[r.question_id];
+    if (!tx) return;
+    data[tx.strand][tx.dok].t++;
+    if (r.correct) data[tx.strand][tx.dok].c++;
+  });
+  return data;
+}
+
+function applyHeatData(data) {
+  const el = document.getElementById('heat-grid-body');
+  if (!el) return;
+  el.innerHTML = STRANDS.map(s => {
+    const cells = [1,2,3].map(d => {
+      const {c,t} = data[s][d];
+      if (t === 0) return `<div class="hc"><div class="hcell hc-none">—</div></div>`;
+      const pct = Math.round(c/t*100);
+      const cls = pct >= 70 ? 'hc-strong' : pct >= 50 ? 'hc-ok' : 'hc-weak';
+      return `<div class="hc"><div class="hcell ${cls}">${pct}%<br><span style="font-size:10px;opacity:0.7;">${c}/${t}</span></div></div>`;
+    }).join('');
+    const shortName = s.replace('Numbers & Operations','Numbers & Ops').replace('Data Analysis & Prob.','Data & Prob.');
+    return `<div class="heat-row"><div class="hc">${shortName}</div>${cells}</div>`;
+  }).join('');
+}
+
+async function renderHeatGrid() {
+  const el = document.getElementById('heat-grid-body');
+  if (!el) return;
+  // Show loading state
+  el.innerHTML = `<div class="heat-row"><div class="hc" style="grid-column:span 4;color:var(--color-text-tertiary);font-size:12px;padding:14px;">Loading performance data…</div></div>`;
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=question_id,correct&order=answered_at.desc&limit=500', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = await res.json();
+    if (rows.length === 0) {
+      el.innerHTML = `<div class="heat-row"><div class="hc" style="grid-column:span 4;color:var(--color-text-tertiary);font-size:12px;padding:14px;">Answer some questions to see your performance map</div></div>`;
+      return;
+    }
+    applyHeatData(computeHeatDataFromRows(rows));
+  } catch(e) {
+    el.innerHTML = `<div class="heat-row"><div class="hc" style="grid-column:span 4;color:var(--color-text-tertiary);font-size:12px;padding:14px;">Could not load data — check connection</div></div>`;
+  }
+}
+
+// Initialise on load — fetchQuestionBank handles everything
+fetchQuestionBank();
+</script>
+</body>
+</html>
