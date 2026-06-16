@@ -310,9 +310,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
     <div id="qa-taxonomy" style="display:none;background:#f5f3ff;border:1.5px solid #c4b5fd;border-radius:12px;padding:0.85rem 1.1rem;margin-bottom:1rem;font-size:0.82rem;color:#4c1d95;line-height:1.7;">
     </div>
     <div id="qa-area"></div>
-    <div id="qa-actions" style="display:none;gap:12px;margin-top:1rem;">
-      <button onclick="qaDecide('rejected')" style="flex:1;padding:13px;border-radius:10px;border:2px solid #ef4444;background:white;color:#dc2626;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='white'">✗ Reject</button>
-      <button onclick="qaDecide('approved')" style="flex:1;padding:13px;border-radius:10px;border:2px solid #22c55e;background:white;color:#15803d;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='white'">✓ Approve</button>
+
+    <!-- Edit panel — hidden until ✏️ Edit is clicked -->
+    <div id="qa-edit-panel" style="display:none;background:#f8fafc;border:1.5px solid #94a3b8;border-radius:12px;padding:1.1rem;margin-top:0.75rem;">
+      <div style="font-size:0.85rem;font-weight:700;color:#334155;margin-bottom:0.9rem;">✏️ Edit Question</div>
+      <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Question text</label>
+      <textarea id="qa-edit-text" rows="3" style="width:100%;margin:4px 0 10px;padding:8px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.9rem;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div><label style="font-size:0.78rem;color:#64748b;font-weight:600;">Option A</label><input id="qa-edit-a" type="text" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;"></div>
+        <div><label style="font-size:0.78rem;color:#64748b;font-weight:600;">Option B</label><input id="qa-edit-b" type="text" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;"></div>
+        <div><label style="font-size:0.78rem;color:#64748b;font-weight:600;">Option C</label><input id="qa-edit-c" type="text" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;"></div>
+        <div><label style="font-size:0.78rem;color:#64748b;font-weight:600;">Option D</label><input id="qa-edit-d" type="text" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;"></div>
+      </div>
+      <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Correct answer</label>
+      <select id="qa-edit-correct" style="width:100%;margin:4px 0 10px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;">
+        <option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option>
+      </select>
+      <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Explanation</label>
+      <textarea id="qa-edit-exp" rows="3" style="width:100%;margin:4px 0 10px;padding:8px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.9rem;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
+      <div style="display:flex;gap:8px;">
+        <button onclick="qaCancelEdit()" style="flex:1;padding:10px;border-radius:8px;border:1.5px solid #94a3b8;background:white;color:#64748b;font-size:0.9rem;font-weight:600;cursor:pointer;">✕ Cancel</button>
+        <button onclick="qaSaveEdit()" style="flex:1;padding:10px;border-radius:8px;border:none;background:#3b82f6;color:white;font-size:0.9rem;font-weight:700;cursor:pointer;">💾 Save changes</button>
+      </div>
+    </div>
+
+    <div id="qa-actions" style="display:none;gap:8px;margin-top:1rem;flex-wrap:wrap;">
+      <button onclick="qaDecide('rejected')" style="flex:1;min-width:100px;padding:13px;border-radius:10px;border:2px solid #ef4444;background:white;color:#dc2626;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='white'">✗ Reject</button>
+      <button onclick="qaStartEdit()" style="flex:1;min-width:100px;padding:13px;border-radius:10px;border:2px solid #3b82f6;background:white;color:#1d4ed8;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='white'">✏️ Edit</button>
+      <button onclick="qaDecide('approved')" style="flex:1;min-width:100px;padding:13px;border-radius:10px;border:2px solid #22c55e;background:white;color:#15803d;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='white'">✓ Approve</button>
     </div>
     <div id="qa-nav" style="display:none;justify-content:space-between;gap:10px;margin-top:0.75rem;">
       <button class="nav-btn" id="qa-btn-prev" onclick="qaGo(qaIdx-1)">← Previous</button>
@@ -718,7 +743,7 @@ let mode = 'all', curQs = [], cur = 0;
 function startQuiz(m) {
   mode = m;
   // Merge approved generated questions into the pool
-  const pool = [...ALL_QUESTIONS, ...APPROVED_GENERATED];
+  const pool = ALL_QUESTIONS;
   curQs = m === 'ma' ? pool.filter(q => q.sec === 'MA')
         : m === 'qr' ? pool.filter(q => q.sec === 'QR')
         : [...pool];
@@ -824,7 +849,7 @@ function resetSection(sec) {
 ════════════════════════════════════════ */
 async function updateDash() {
   // Total = hardcoded questions + approved generated questions
-  const allPool = [...ALL_QUESTIONS, ...APPROVED_GENERATED];
+  const allPool = ALL_QUESTIONS;
   const total = allPool.length;
   document.getElementById('d-total').textContent = total;
   document.getElementById('ma-pill').textContent = allPool.filter(q=>q.sec==='MA').length + ' Questions';
@@ -930,7 +955,7 @@ function renderParentDash(rows) {
   }).join('');
   function qRow(r) {
     const ok = r.correct;
-    const q = [...ALL_QUESTIONS, ...APPROVED_GENERATED].find(q => String(q.n) === r.question_id);
+    const q = ALL_QUESTIONS.find(q => String(q.n) === r.question_id);
     const preview = q ? q.text.split('\n')[0].slice(0,55)+(q.text.length>55?'…':'') : r.question_id;
     return `<tr>
       <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;font-size:0.8rem;font-weight:700;color:#64748b;white-space:nowrap;">${r.question_id}</td>
@@ -1015,10 +1040,8 @@ function goHome() { showScreen('screen-home'); updateDash(); renderHeatGrid(); }
 
 
 /* ════════════════════════════════════════
-   APPROVED GENERATED QUESTIONS
-   Fetched from Supabase at page load and merged into the quiz pool
+   TAXONOMY HELPERS FOR GENERATED QUESTIONS
 ════════════════════════════════════════ */
-let APPROVED_GENERATED = [];
 
 // Map target_topic string → {strand, sub, dok} for generated questions
 function topicToTaxonomy(target_topic, section) {
@@ -1043,32 +1066,6 @@ function topicToTaxonomy(target_topic, section) {
   };
   const strand = strandMap[topic] || (section === 'MA' ? 'Numbers & Operations' : 'Algebraic Thinking');
   return { strand, sub: topic || 'General', dok };
-}
-
-function genRowToQuestion(row) {
-  const tax = topicToTaxonomy(row.target_topic, row.section);
-  if (tax) TAXONOMY[row.question_id] = tax;
-  return {
-    n:   row.question_id,
-    sec: row.section,
-    text: row.text,
-    opts: [row.opt_a, row.opt_b, row.opt_c, row.opt_d],
-    ans:  row.correct_index,
-    exp:  row.explanation || '',
-    _generated: true
-  };
-}
-
-async function fetchApprovedGenerated() {
-  try {
-    const res = await fetch(SUPA_URL + '/rest/v1/generated_questions?status=eq.approved&select=*', {
-      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-    });
-    if (!res.ok) return;
-    const rows = await res.json();
-    APPROVED_GENERATED = rows.map(genRowToQuestion);
-    if (APPROVED_GENERATED.length > 0) updateDash(); // refresh counts now we know approved total
-  } catch(e) { /* silently fail */ }
 }
 
 /* ════════════════════════════════════════
@@ -1167,6 +1164,77 @@ function qaRender() {
   document.getElementById('qa-btn-next').disabled = qaIdx === qaQuestions.length - 1;
 }
 
+/* ════════════════════════════════════════
+   QA EDIT FUNCTIONS
+════════════════════════════════════════ */
+function qaStartEdit() {
+  const row = qaQuestions[qaIdx];
+  if (!row) return;
+  // Populate edit fields from current row
+  document.getElementById('qa-edit-text').value    = row.text || '';
+  document.getElementById('qa-edit-a').value       = row.opt_a || '';
+  document.getElementById('qa-edit-b').value       = row.opt_b || '';
+  document.getElementById('qa-edit-c').value       = row.opt_c || '';
+  document.getElementById('qa-edit-d').value       = row.opt_d || '';
+  document.getElementById('qa-edit-correct').value = String(row.correct_index ?? 0);
+  document.getElementById('qa-edit-exp').value     = row.explanation || '';
+  // Show edit panel, hide action buttons
+  document.getElementById('qa-edit-panel').style.display = 'block';
+  document.getElementById('qa-actions').style.display    = 'none';
+  // Scroll edit panel into view
+  document.getElementById('qa-edit-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function qaCancelEdit() {
+  document.getElementById('qa-edit-panel').style.display = 'none';
+  document.getElementById('qa-actions').style.display    = 'flex';
+}
+
+async function qaSaveEdit() {
+  const row = qaQuestions[qaIdx];
+  if (!row) return;
+  const saveBtn = document.querySelector('#qa-edit-panel button:last-child');
+  saveBtn.textContent = '⏳ Saving…';
+  saveBtn.disabled = true;
+
+  const updates = {
+    text:          document.getElementById('qa-edit-text').value.trim(),
+    opt_a:         document.getElementById('qa-edit-a').value.trim(),
+    opt_b:         document.getElementById('qa-edit-b').value.trim(),
+    opt_c:         document.getElementById('qa-edit-c').value.trim(),
+    opt_d:         document.getElementById('qa-edit-d').value.trim(),
+    correct_index: parseInt(document.getElementById('qa-edit-correct').value),
+    explanation:   document.getElementById('qa-edit-exp').value.trim(),
+  };
+
+  try {
+    const res = await fetch(SUPA_URL + `/rest/v1/generated_questions?id=eq.${row.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(updates)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+    // Update local copy so re-render shows the edits
+    Object.assign(qaQuestions[qaIdx], updates);
+
+    // Close edit panel and re-render
+    document.getElementById('qa-edit-panel').style.display = 'none';
+    document.getElementById('qa-actions').style.display    = 'flex';
+    qaRender();
+  } catch(e) {
+    alert('❌ Could not save: ' + e.message);
+  } finally {
+    saveBtn.textContent = '💾 Save changes';
+    saveBtn.disabled = false;
+  }
+}
+
 async function qaDecide(decision) {
   const row = qaQuestions[qaIdx];
   if (!row) return;
@@ -1174,30 +1242,74 @@ async function qaDecide(decision) {
   actionsEl.style.display = 'none';
 
   try {
-    // On approval, assign a clean sequential question ID (MA-39, QR-37, etc.)
-    let newQuestionId = row.question_id; // default: keep MAGEN/QRGEN id
+    // On approval: assign clean sequential ID and promote to questions table
+    let newQuestionId = row.question_id;
     if (decision === 'approved') {
-      const allPool = [...ALL_QUESTIONS, ...APPROVED_GENERATED];
-      if (row.section === 'MA') {
-        const maxMA = allPool
-          .filter(q => q.sec === 'MA' && /^MA-\d+$/.test(String(q.n)))
-          .map(q => parseInt(String(q.n).replace('MA-', '')))
-          .reduce((a, b) => Math.max(a, b), 0);
-        newQuestionId = `MA-${maxMA + 1}`;
-      } else {
-        const maxQR = allPool
-          .filter(q => q.sec === 'QR' && /^QR-\d+$/.test(String(q.n)))
-          .map(q => parseInt(String(q.n).replace('QR-', '')))
-          .reduce((a, b) => Math.max(a, b), 0);
-        newQuestionId = `QR-${maxQR + 1}`;
-      }
+      // Compute next clean ID from questions table
+      const idRes = await fetch(
+        SUPA_URL + `/rest/v1/questions?select=question_id&section=eq.${row.section}&order=question_id`,
+        { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } }
+      );
+      const existingIds = idRes.ok ? await idRes.json() : [];
+      const prefix = row.section === 'MA' ? 'MA-' : 'QR-';
+      const maxNum = existingIds
+        .map(r => parseInt(r.question_id.replace(prefix, '')))
+        .filter(n => !isNaN(n))
+        .reduce((a, b) => Math.max(a, b), 0);
+      newQuestionId = `${prefix}${maxNum + 1}`;
+
+      // Fetch taxonomy for this question's topic
+      const tax = topicToTaxonomy(row.target_topic, row.section);
+
+      // INSERT into questions table (promote)
+      const insertRes = await fetch(SUPA_URL + '/rest/v1/questions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPA_KEY,
+          'Authorization': 'Bearer ' + SUPA_KEY,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          question_id:   newQuestionId,
+          section:       row.section,
+          text:          row.text,
+          opt_a:         row.opt_a,
+          opt_b:         row.opt_b,
+          opt_c:         row.opt_c,
+          opt_d:         row.opt_d,
+          correct_index: row.correct_index,
+          explanation:   row.explanation || '',
+          diag:          null,
+          strand:        tax?.strand || null,
+          sub:           tax?.sub    || null,
+          dok:           tax?.dok    || null,
+          source:        'generated',
+          active:        true,
+        })
+      });
+      if (!insertRes.ok) throw new Error('Insert failed: HTTP ' + insertRes.status);
+
+      // Add to local ALL_QUESTIONS pool so quiz works immediately
+      const newQ = {
+        n:   newQuestionId,
+        sec: row.section,
+        text: row.text,
+        opts: [row.opt_a, row.opt_b, row.opt_c, row.opt_d],
+        ans:  row.correct_index,
+        exp:  row.explanation || '',
+      };
+      if (tax) TAXONOMY[newQuestionId] = tax;
+      ALL_QUESTIONS.push(newQ);
+      updateDash();
     }
 
-    // PATCH status (and new question_id if approving) to Supabase
-    const patchBody = { status: decision };
+    // PATCH generated_questions — mark as promoted or rejected
+    const patchStatus = decision === 'approved' ? 'promoted' : 'rejected';
+    const patchBody = { status: patchStatus };
     if (decision === 'approved') patchBody.question_id = newQuestionId;
 
-    const res = await fetch(SUPA_URL + `/rest/v1/generated_questions?id=eq.${row.id}`, {
+    const patchRes = await fetch(SUPA_URL + `/rest/v1/generated_questions?id=eq.${row.id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -1207,22 +1319,16 @@ async function qaDecide(decision) {
       },
       body: JSON.stringify(patchBody)
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    if (!patchRes.ok) throw new Error('Patch failed: HTTP ' + patchRes.status);
 
-    if (decision === 'approved') {
-      // Use the renamed row for the local question object
-      const renamedRow = { ...row, question_id: newQuestionId };
-      APPROVED_GENERATED.push(genRowToQuestion(renamedRow));
-      updateDash(); // refresh counts to include newly approved question
-    }
-
+    // Remove from pending list and advance
     qaQuestions.splice(qaIdx, 1);
     if (qaQuestions.length === 0) {
-      document.getElementById('qa-counter').style.display = 'none';
+      document.getElementById('qa-counter').style.display  = 'none';
       document.getElementById('qa-taxonomy').style.display = 'none';
-      document.getElementById('qa-area').innerHTML = '';
-      document.getElementById('qa-nav').style.display = 'none';
-      actionsEl.style.display = 'none';
+      document.getElementById('qa-area').innerHTML         = '';
+      document.getElementById('qa-nav').style.display      = 'none';
+      actionsEl.style.display                              = 'none';
       document.getElementById('qa-done-msg').style.display = 'block';
       return;
     }
@@ -1234,6 +1340,7 @@ async function qaDecide(decision) {
     alert('❌ Could not save: ' + e.message);
   }
 }
+
 
 /* ════════════════════════════════════════════
    TAXONOMY — strand, subtopic, DoK per question
@@ -1289,7 +1396,6 @@ async function fetchQuestionBank() {
     // Now run the rest of the init that depends on ALL_QUESTIONS
     loadProgress();
     updateDash();
-    await fetchApprovedGenerated();
     renderHeatGrid();
 
     setLoadState(100, 'Ready!');
