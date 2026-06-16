@@ -137,13 +137,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 <div style="background:#f59e0b;color:#1a1a2e;text-align:center;padding:8px;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;">STAGING — test data only</div>
 
 <!-- LOADING SCREEN -->
-<div id="screen-loading" class="screen active" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:1.5rem;">
-  <div style="font-size:2.5rem;">📚</div>
-  <div style="font-size:1.1rem;font-weight:700;color:#1a1a2e;">Loading question bank…</div>
-  <div style="width:220px;height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
-    <div id="load-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:99px;transition:width 0.4s ease;"></div>
+<div id="screen-loading" class="screen active" style="position:fixed;top:0;left:0;right:0;z-index:999;background:#6366f1;color:white;text-align:center;padding:8px;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;display:flex;align-items:center;justify-content:center;gap:12px;">
+  <span>📚 Loading question bank…</span>
+  <div style="width:120px;height:4px;background:rgba(255,255,255,0.3);border-radius:99px;overflow:hidden;">
+    <div id="load-bar" style="height:100%;width:0%;background:white;border-radius:99px;transition:width 0.4s ease;"></div>
   </div>
-  <div id="load-msg" style="font-size:0.85rem;color:#64748b;">Connecting to Supabase…</div>
+  <span id="load-msg" style="font-weight:400;opacity:0.85;">Connecting…</span>
 </div>
 
 <!-- SCREEN 1: HOME -->
@@ -1295,14 +1294,16 @@ async function fetchQuestionBank() {
 
     setLoadState(100, 'Ready!');
 
-    // Small delay so user sees 100% briefly, then show home
-    await new Promise(r => setTimeout(r, 300));
+    // Small delay so user sees 100% briefly, then hide the banner and show home
+    await new Promise(r => setTimeout(r, 400));
+    document.getElementById('screen-loading').style.display = 'none';
     showScreen('screen-home');
 
   } catch(e) {
-    document.getElementById('load-msg').textContent =
-      '❌ Could not load questions: ' + e.message + ' — check connection';
-    document.getElementById('load-bar').style.background = '#ef4444';
+    const banner = document.getElementById('screen-loading');
+    banner.style.background = '#dc2626';
+    document.getElementById('load-msg').textContent = '❌ ' + e.message + ' — check connection';
+    document.getElementById('load-bar').style.background = '#fca5a5';
     console.error('fetchQuestionBank failed:', e);
   }
 }
