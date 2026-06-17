@@ -298,10 +298,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 <!-- SCREEN 4: QA REVIEW -->
 <div id="screen-qa" class="screen">
   <div class="top-bar" style="background:#4c1d95;">
-    <h1>🔬 QA Review — Generated Questions</h1>
+    <h1>🔬 QA Review</h1>
     <button class="back-btn" onclick="goHome()">← Home</button>
   </div>
   <div class="quiz-wrap">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;">
+      <button id="qa-filter-all"       onclick="setQAFilter('all')"       style="padding:5px 14px;border-radius:99px;border:1.5px solid #4c1d95;background:#4c1d95;color:white;font-size:0.8rem;font-weight:700;cursor:pointer;">All</button>
+      <button id="qa-filter-generated" onclick="setQAFilter('generated')" style="padding:5px 14px;border-radius:99px;border:1.5px solid #c4b5fd;background:white;color:#4c1d95;font-size:0.8rem;font-weight:700;cursor:pointer;">Generated</button>
+      <button id="qa-filter-user"      onclick="setQAFilter('user')"      style="padding:5px 14px;border-radius:99px;border:1.5px solid #c4b5fd;background:white;color:#4c1d95;font-size:0.8rem;font-weight:700;cursor:pointer;">User</button>
+      <button id="qa-filter-manual"    onclick="setQAFilter('manual')"    style="padding:5px 14px;border-radius:99px;border:1.5px solid #c4b5fd;background:white;color:#4c1d95;font-size:0.8rem;font-weight:700;cursor:pointer;">Manual</button>
+    </div>
     <div id="qa-status" style="text-align:center;padding:2rem;color:#64748b;font-size:0.95rem;"></div>
     <div id="qa-counter" style="display:none;background:white;border-radius:12px;padding:0.9rem 1.25rem;margin-bottom:1rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;color:#64748b;">
       <span id="qa-counter-text"></span>
@@ -1119,16 +1125,30 @@ function topicToTaxonomy(target_topic, section) {
 ════════════════════════════════════════ */
 let qaQuestions = [], qaIdx = 0;
 
-async function loadQAReview() {
-  const statusEl = document.getElementById('qa-status');
-  const counterEl = document.getElementById('qa-counter');
-  const taxEl = document.getElementById('qa-taxonomy');
-  const areaEl = document.getElementById('qa-area');
-  const actionsEl = document.getElementById('qa-actions');
-  const navEl = document.getElementById('qa-nav');
-  const doneEl = document.getElementById('qa-done-msg');
+let qaFilter = 'all';
 
-  statusEl.textContent = '⏳ Loading pending questions…';
+function setQAFilter(filter) {
+  qaFilter = filter;
+  ['all','generated','user','manual'].forEach(f => {
+    const el = document.getElementById('qa-filter-' + f);
+    if (!el) return;
+    el.style.background = f === filter ? '#4c1d95' : 'white';
+    el.style.color      = f === filter ? 'white'   : '#4c1d95';
+  });
+  loadQAReview();
+}
+
+async function loadQAReview() {
+  const statusEl  = document.getElementById('qa-status');
+  const counterEl = document.getElementById('qa-counter');
+  const taxEl     = document.getElementById('qa-taxonomy');
+  const areaEl    = document.getElementById('qa-area');
+  const actionsEl = document.getElementById('qa-actions');
+  const navEl     = document.getElementById('qa-nav');
+  const doneEl    = document.getElementById('qa-done-msg');
+  const editEl    = document.getElementById('qa-edit-panel');
+
+  statusEl.textContent = '⏳ Loading questions…';
   statusEl.style.display = 'block';
   counterEl.style.display = 'none';
   taxEl.style.display = 'none';
@@ -1136,19 +1156,47 @@ async function loadQAReview() {
   actionsEl.style.display = 'none';
   navEl.style.display = 'none';
   doneEl.style.display = 'none';
+  if (editEl) editEl.style.display = 'none';
 
   try {
-    const res = await fetch(SUPA_URL + '/rest/v1/generated_questions?status=eq.pending&select=*&order=generated_at.asc', {
-      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const rows = await res.json();
-    if (rows.length === 0) {
+    let allRows = [];
+
+    // Fetch from generated_questions (pending)
+    if (qaFilter === 'all' || qaFilter === 'generated') {
+      const r1 = await fetch(
+        SUPA_URL + '/rest/v1/generated_questions?status=eq.pending&select=*&order=generated_at.asc',
+        { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } }
+      );
+      if (r1.ok) {
+        const rows = await r1.json();
+        rows.forEach(r => { r._source = 'generated'; r._table = 'generated_questions'; });
+        allRows.push(...rows);
+      }
+    }
+
+    // Fetch from questions (active=false) — user and manual sources
+    if (qaFilter === 'all' || qaFilter === 'user' || qaFilter === 'manual') {
+      let url = SUPA_URL + '/rest/v1/questions?active=eq.false&select=*&order=question_id';
+      if (qaFilter === 'user')   url += '&source=eq.user';
+      if (qaFilter === 'manual') url += '&source=eq.manual';
+      const r2 = await fetch(url, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+      if (r2.ok) {
+        const rows = await r2.json();
+        rows.forEach(r => {
+          r._source      = r.source || 'manual';
+          r._table       = 'questions';
+          r.target_topic = r.sub ? `${r.sub} (DoK${r.dok})` : '';
+        });
+        allRows.push(...rows);
+      }
+    }
+
+    if (allRows.length === 0) {
       statusEl.style.display = 'none';
       doneEl.style.display = 'block';
       return;
     }
-    qaQuestions = rows;
+    qaQuestions = allRows;
     qaIdx = 0;
     statusEl.style.display = 'none';
     qaRender();
@@ -1254,7 +1302,9 @@ async function qaSaveEdit() {
   };
 
   try {
-    const res = await fetch(SUPA_URL + `/rest/v1/generated_questions?id=eq.${row.id}`, {
+    const table   = row._table === 'questions' ? 'questions' : 'generated_questions';
+    const idField = row._table === 'questions' ? `question_id=eq.${row.question_id}` : `id=eq.${row.id}`;
+    const res = await fetch(SUPA_URL + `/rest/v1/${table}?${idField}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -1288,84 +1338,73 @@ async function qaDecide(decision) {
   actionsEl.style.display = 'none';
 
   try {
-    // On approval: assign clean sequential ID and promote to questions table
-    let newQuestionId = row.question_id;
-    if (decision === 'approved') {
-      // Compute next clean ID from questions table
-      const idRes = await fetch(
-        SUPA_URL + `/rest/v1/questions?select=question_id&section=eq.${row.section}&order=question_id`,
-        { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } }
-      );
-      const existingIds = idRes.ok ? await idRes.json() : [];
-      const prefix = row.section === 'MA' ? 'MA-' : 'QR-';
-      const maxNum = existingIds
-        .map(r => parseInt(r.question_id.replace(prefix, '')))
-        .filter(n => !isNaN(n))
-        .reduce((a, b) => Math.max(a, b), 0);
-      newQuestionId = `${prefix}${maxNum + 1}`;
+    if (row._table === 'questions') {
+      // ── questions table: simply set active=true or leave as false ──
+      if (decision === 'approved') {
+        const res = await fetch(SUPA_URL + `/rest/v1/questions?question_id=eq.${row.question_id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ active: true })
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        // Add to local pool immediately
+        const newQ = { n: row.question_id, sec: row.section, text: row.text,
+          opts: [row.opt_a, row.opt_b, row.opt_c, row.opt_d], ans: row.correct_index, exp: row.explanation || '' };
+        if (row.diag) newQ.diag = row.diag;
+        if (row.strand) TAXONOMY[row.question_id] = { strand: row.strand, sub: row.sub, dok: row.dok };
+        ALL_QUESTIONS.push(newQ);
+        ALL_QUESTIONS.sort((a, b) => {
+          const [as, an] = [a.n.split('-')[0], parseInt(a.n.split('-')[1])||0];
+          const [bs, bn] = [b.n.split('-')[0], parseInt(b.n.split('-')[1])||0];
+          return as !== bs ? as.localeCompare(bs) : an - bn;
+        });
+        updateDash();
+      }
+      // Rejected: leave active=false, just remove from queue
 
-      // Fetch taxonomy for this question's topic
-      const tax = topicToTaxonomy(row.target_topic, row.section);
-
-      // INSERT into questions table (promote)
-      const insertRes = await fetch(SUPA_URL + '/rest/v1/questions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPA_KEY,
-          'Authorization': 'Bearer ' + SUPA_KEY,
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({
-          question_id:   newQuestionId,
-          section:       row.section,
-          text:          row.text,
-          opt_a:         row.opt_a,
-          opt_b:         row.opt_b,
-          opt_c:         row.opt_c,
-          opt_d:         row.opt_d,
-          correct_index: row.correct_index,
-          explanation:   row.explanation || '',
-          diag:          null,
-          strand:        tax?.strand || null,
-          sub:           tax?.sub    || null,
-          dok:           tax?.dok    || null,
-          source:        'generated',
-          active:        true,
-        })
+    } else {
+      // ── generated_questions table: INSERT into questions, PATCH status ──
+      let newQuestionId = row.question_id;
+      if (decision === 'approved') {
+        const idRes = await fetch(
+          SUPA_URL + `/rest/v1/questions?select=question_id&section=eq.${row.section}`,
+          { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } }
+        );
+        const existingIds = idRes.ok ? await idRes.json() : [];
+        const prefix = row.section === 'MA' ? 'MA-' : 'QR-';
+        const maxNum = existingIds
+          .map(r => parseInt(r.question_id.replace(prefix, '')))
+          .filter(n => !isNaN(n))
+          .reduce((a, b) => Math.max(a, b), 0);
+        newQuestionId = `${prefix}${maxNum + 1}`;
+        const tax = topicToTaxonomy(row.target_topic, row.section);
+        const insertRes = await fetch(SUPA_URL + '/rest/v1/questions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Prefer': 'return=minimal' },
+          body: JSON.stringify({
+            question_id: newQuestionId, section: row.section,
+            text: row.text, opt_a: row.opt_a, opt_b: row.opt_b, opt_c: row.opt_c, opt_d: row.opt_d,
+            correct_index: row.correct_index, explanation: row.explanation || '',
+            diag: null, strand: tax?.strand||null, sub: tax?.sub||null, dok: tax?.dok||null,
+            source: 'generated', active: true,
+          })
+        });
+        if (!insertRes.ok) throw new Error('Insert failed: HTTP ' + insertRes.status);
+        const newQ = { n: newQuestionId, sec: row.section, text: row.text,
+          opts: [row.opt_a, row.opt_b, row.opt_c, row.opt_d], ans: row.correct_index, exp: row.explanation||'' };
+        if (tax) TAXONOMY[newQuestionId] = tax;
+        ALL_QUESTIONS.push(newQ);
+        updateDash();
+      }
+      const patchBody = { status: decision === 'approved' ? 'promoted' : 'rejected' };
+      if (decision === 'approved') patchBody.question_id = newQuestionId;
+      const patchRes = await fetch(SUPA_URL + `/rest/v1/generated_questions?id=eq.${row.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Prefer': 'return=minimal' },
+        body: JSON.stringify(patchBody)
       });
-      if (!insertRes.ok) throw new Error('Insert failed: HTTP ' + insertRes.status);
-
-      // Add to local ALL_QUESTIONS pool so quiz works immediately
-      const newQ = {
-        n:   newQuestionId,
-        sec: row.section,
-        text: row.text,
-        opts: [row.opt_a, row.opt_b, row.opt_c, row.opt_d],
-        ans:  row.correct_index,
-        exp:  row.explanation || '',
-      };
-      if (tax) TAXONOMY[newQuestionId] = tax;
-      ALL_QUESTIONS.push(newQ);
-      updateDash();
+      if (!patchRes.ok) throw new Error('Patch failed: HTTP ' + patchRes.status);
     }
-
-    // PATCH generated_questions — mark as promoted or rejected
-    const patchStatus = decision === 'approved' ? 'promoted' : 'rejected';
-    const patchBody = { status: patchStatus };
-    if (decision === 'approved') patchBody.question_id = newQuestionId;
-
-    const patchRes = await fetch(SUPA_URL + `/rest/v1/generated_questions?id=eq.${row.id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPA_KEY,
-        'Authorization': 'Bearer ' + SUPA_KEY,
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify(patchBody)
-    });
-    if (!patchRes.ok) throw new Error('Patch failed: HTTP ' + patchRes.status);
 
     // Remove from pending list and advance
     qaQuestions.splice(qaIdx, 1);
