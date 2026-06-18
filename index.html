@@ -419,6 +419,7 @@ let TAXONOMY = {};
    DIAGRAMS
 ════════════════════════════════════════ */
 function diagrams(key) {
+  if (key && key.trimStart().startsWith('<svg')) return key;
   const d={
     table_zoe:`<table class="dtable"><thead><tr><th></th><th>Liam</th><th>Zoe</th><th>Marcus</th><th>Priya</th></tr></thead><tbody><tr><td><b>Day 1</b></td><td>12</td><td>18</td><td>20</td><td>15</td></tr><tr><td><b>Day 2</b></td><td>14</td><td>20</td><td>22</td><td>17</td></tr><tr><td><b>Day 3</b></td><td>16</td><td>24</td><td>24</td><td>20</td></tr><tr><td><b>Day 4</b></td><td>20</td><td>28</td><td>26</td><td>23</td></tr><tr><td><b>Day 5</b></td><td>24</td><td>30</td><td>28</td><td>26</td></tr></tbody></table>`,
     sports_table:`<table class="dtable"><thead><tr><th>Sport</th><th>Votes</th></tr></thead><tbody><tr><td>Football</td><td>95</td></tr><tr><td>Basketball</td><td>72</td></tr><tr><td>Tennis</td><td>61</td></tr><tr><td>Swimming</td><td>48</td></tr><tr><td>Cricket</td><td>44</td></tr></tbody></table>`,
