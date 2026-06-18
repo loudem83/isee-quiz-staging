@@ -1248,6 +1248,7 @@ function qaRender() {
     <div class="q-card">
       <div class="q-meta ${row.section.toLowerCase()}">${row.question_id}</div>
       <div class="q-text">${formatText(row.text)}</div>
+      ${row.diag ? `<div class="q-diagram">${diagrams(row.diag)}</div>` : ''}
       <div class="options">${opts}</div>
       ${expHtml}
     </div>`;
