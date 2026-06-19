@@ -579,6 +579,9 @@ function renderQ() {
       <div class="q-meta ${q.sec.toLowerCase()}">${q.n} — ${q.sec === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning'}</div>
       <div class="q-text">${formatText(q.text)}</div>${diag}
       <div class="options">${opts}</div>${fb}
+      <div style="margin-top:0.75rem;text-align:right;">
+        <button onclick="pushToQA('${q.n}')" style="font-size:0.8rem;padding:5px 14px;border-radius:8px;border:1.5px solid #c4b5fd;background:#f5f3ff;color:#4c1d95;cursor:pointer;font-weight:600;">✏️ Push to QA</button>
+      </div>
     </div>`;
   document.getElementById('prog-label').textContent = `${done} of ${curQs.length} answered`;
   document.getElementById('score-badge').textContent = `Score: ${corr}/${done}`;
@@ -586,6 +589,33 @@ function renderQ() {
   document.getElementById('btn-prev').disabled = cur === 0;
   document.getElementById('btn-next').disabled = cur === curQs.length - 1;
   renderTabs();
+}
+
+/* ════════════════════════════════════════
+   PUSH TO QA
+════════════════════════════════════════ */
+function pushToQA(questionId) {
+  const q = ALL_QUESTIONS.find(q => q.n === questionId);
+  if (!q) return;
+  const row = {
+    question_id:   q.n,
+    section:       q.sec,
+    text:          q.text,
+    opt_a:         q.opts[0],
+    opt_b:         q.opts[1],
+    opt_c:         q.opts[2],
+    opt_d:         q.opts[3],
+    correct_index: q.ans,
+    explanation:   q.exp,
+    diag:          q.diag || null,
+    active:        true,
+    _table:        'questions',
+    _source:       'manual'
+  };
+  qaQuestions = [row];
+  qaIdx = 0;
+  showScreen('screen-qa');
+  qaRender();
 }
 
 /* ════════════════════════════════════════
