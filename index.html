@@ -44,6 +44,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .pathway-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,0.12);}
 .pathway-card.ma:hover{border-color:#1d4ed8;}
 .pathway-card.qr:hover{border-color:#0f6e56;}
+.drill-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;}
+@media(max-width:480px){.drill-grid{grid-template-columns:1fr;}}
+.drill-card{background:white;border-radius:12px;padding:1rem 1.1rem;cursor:pointer;border:1.5px solid #e2e8f0;transition:all 0.15s;display:flex;justify-content:space-between;align-items:center;}
+.drill-card:hover{border-color:#0f6e56;background:#f0fdf4;transform:translateY(-1px);}
+.drill-card .dc-left h4{font-size:0.9rem;font-weight:700;color:#1a3a5c;margin:0 0 3px;}
+.drill-card .dc-left p{font-size:0.78rem;color:#64748b;margin:0;}
+.drill-card .dc-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
+.drill-card .dc-count{font-size:1.1rem;font-weight:700;color:#0f6e56;}
+.drill-card .dc-label{font-size:0.7rem;color:#94a3b8;}
+.drill-strand{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;margin:1rem 0 6px;}
 .pathway-card .icon{font-size:2.8rem;margin-bottom:12px;}
 .pathway-card h3{font-size:1.1rem;font-weight:700;margin-bottom:6px;}
 .pathway-card p{font-size:0.85rem;color:#64748b;line-height:1.5;}
@@ -175,6 +185,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
       <button class="all-btn" onclick="showScreen('screen-qa');loadQAReview();" style="border-color:#c4b5fd;color:#4c1d95;background:#f5f3ff;">
         🔬 QA Review — Generated Questions
       </button>
+      <button class="all-btn" onclick="showScreen('screen-drill');loadDrill();" style="border-color:#0f6e56;color:#0f6e56;background:#f0fdf4;">
+        🎯 Drill by Topic
+      </button>
     </div>
 
 
@@ -270,6 +283,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
       <button class="nav-btn" id="btn-prev" onclick="go(cur-1)">← Previous</button>
       <button class="nav-btn primary" id="btn-next" onclick="go(cur+1)">Next →</button>
     </div>
+  </div>
+</div>
+
+<!-- SCREEN 5: DRILL BY TOPIC -->
+<div id="screen-drill" class="screen">
+  <div class="top-bar">
+    <h1>🎯 Drill by Topic</h1>
+    <button class="back-btn" onclick="goHome()">← Home</button>
+  </div>
+  <div class="ql-wrap">
+    <div id="drill-status" style="font-size:0.9rem;color:#64748b;margin-bottom:1rem;"></div>
+    <div id="drill-content"></div>
   </div>
 </div>
 
@@ -453,6 +478,88 @@ let mode = 'all', curQs = [], cur = 0;
 /* ════════════════════════════════════════
    QUIZ LOGIC
 ════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   DRILL BY TOPIC
+════════════════════════════════════════ */
+function loadDrill() {
+  const statusEl  = document.getElementById('drill-status');
+  const contentEl = document.getElementById('drill-content');
+
+  // Build subtopic counts from ALL_QUESTIONS
+  const subtopicMap = {};
+  ALL_QUESTIONS.forEach(q => {
+    const tax = TAXONOMY[q.n];
+    if (!tax) return;
+    const key = tax.strand + '|||' + tax.sub;
+    if (!subtopicMap[key]) subtopicMap[key] = { strand: tax.strand, sub: tax.sub, count: 0 };
+    subtopicMap[key].count++;
+  });
+
+  if (Object.keys(subtopicMap).length === 0) {
+    statusEl.textContent = 'No taxonomy data found.';
+    contentEl.innerHTML = '';
+    return;
+  }
+
+  // Sort by strand then subtopic
+  const strandOrder = {
+    'Numbers & Operations': 1,
+    'Algebraic Thinking':   2,
+    'Measurement':          3,
+    'Geometry':             4,
+    'Data Analysis & Prob.': 5
+  };
+  const entries = Object.values(subtopicMap).sort((a, b) => {
+    const so = (strandOrder[a.strand] || 9) - (strandOrder[b.strand] || 9);
+    return so !== 0 ? so : a.sub.localeCompare(b.sub);
+  });
+
+  // Group by strand
+  let html = '';
+  let lastStrand = '';
+  const total = entries.reduce((s, e) => s + e.count, 0);
+  statusEl.textContent = `${total} questions across ${entries.length} subtopics`;
+
+  entries.forEach(e => {
+    if (e.strand !== lastStrand) {
+      if (lastStrand) html += '</div>';
+      html += `<div class="drill-strand">${e.strand}</div><div class="drill-grid">`;
+      lastStrand = e.strand;
+    }
+    const safeKey = encodeURIComponent(e.strand + '|||' + e.sub);
+    html += `
+      <div class="drill-card" onclick="startDrill('${safeKey}')">
+        <div class="dc-left">
+          <h4>${e.sub}</h4>
+          <p>${e.strand}</p>
+        </div>
+        <div class="dc-right">
+          <span class="dc-count">${e.count}</span>
+          <span class="dc-label">questions</span>
+        </div>
+      </div>`;
+  });
+  if (lastStrand) html += '</div>';
+  contentEl.innerHTML = html;
+}
+
+function startDrill(safeKey) {
+  const key    = decodeURIComponent(safeKey);
+  const [strand, sub] = key.split('|||');
+  const pool   = ALL_QUESTIONS.filter(q => {
+    const tax = TAXONOMY[q.n];
+    return tax && tax.strand === strand && tax.sub === sub;
+  });
+  if (pool.length === 0) { alert('No questions found for this subtopic.'); return; }
+  mode = 'drill';
+  curQs = pool;
+  cur   = 0;
+  document.getElementById('quiz-title').textContent = sub;
+  document.getElementById('bar-fill').className = 'bar-fill all';
+  showScreen('screen-quiz');
+  renderQ();
+}
+
 function startQuiz(m) {
   mode = m;
   // Merge approved generated questions into the pool
@@ -579,9 +686,6 @@ function renderQ() {
       <div class="q-meta ${q.sec.toLowerCase()}">${q.n} — ${q.sec === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning'}</div>
       <div class="q-text">${formatText(q.text)}</div>${diag}
       <div class="options">${opts}</div>${fb}
-      <div style="margin-top:0.75rem;text-align:right;">
-        <button onclick="pushToQA('${q.n}')" style="font-size:0.8rem;padding:5px 14px;border-radius:8px;border:1.5px solid #c4b5fd;background:#f5f3ff;color:#4c1d95;cursor:pointer;font-weight:600;">✏️ Push to QA</button>
-      </div>
     </div>`;
   document.getElementById('prog-label').textContent = `${done} of ${curQs.length} answered`;
   document.getElementById('score-badge').textContent = `Score: ${corr}/${done}`;
@@ -589,42 +693,6 @@ function renderQ() {
   document.getElementById('btn-prev').disabled = cur === 0;
   document.getElementById('btn-next').disabled = cur === curQs.length - 1;
   renderTabs();
-}
-
-/* ════════════════════════════════════════
-   PUSH TO QA
-════════════════════════════════════════ */
-async function pushToQA(questionId) {
-  if (!confirm(`Push "${questionId}" to QA for editing?\n\nIt will be temporarily removed from the live quiz until approved.`)) return;
-
-  // Set active=false in Supabase
-  const res = await fetch(SUPA_URL + `/rest/v1/questions?question_id=eq.${questionId}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SUPA_KEY,
-      'Authorization': 'Bearer ' + SUPA_KEY,
-      'Prefer': 'return=minimal'
-    },
-    body: JSON.stringify({ active: false })
-  });
-
-  if (!res.ok) {
-    alert('Failed to push to QA. Please try again.');
-    return;
-  }
-
-  // Remove from live pool
-  const idx = ALL_QUESTIONS.findIndex(q => q.n === questionId);
-  if (idx !== -1) ALL_QUESTIONS.splice(idx, 1);
-
-  // Navigate to QA screen and load
-  showScreen('screen-qa');
-  await loadQAReview();
-
-  // Find and jump to the question in the QA queue
-  const qaIdx2 = qaQuestions.findIndex(r => r.question_id === questionId);
-  if (qaIdx2 !== -1) { qaIdx = qaIdx2; qaRender(); }
 }
 
 /* ════════════════════════════════════════
