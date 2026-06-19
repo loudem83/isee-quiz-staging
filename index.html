@@ -594,28 +594,37 @@ function renderQ() {
 /* ════════════════════════════════════════
    PUSH TO QA
 ════════════════════════════════════════ */
-function pushToQA(questionId) {
-  const q = ALL_QUESTIONS.find(q => q.n === questionId);
-  if (!q) return;
-  const row = {
-    question_id:   q.n,
-    section:       q.sec,
-    text:          q.text,
-    opt_a:         q.opts[0],
-    opt_b:         q.opts[1],
-    opt_c:         q.opts[2],
-    opt_d:         q.opts[3],
-    correct_index: q.ans,
-    explanation:   q.exp,
-    diag:          q.diag || null,
-    active:        true,
-    _table:        'questions',
-    _source:       'manual'
-  };
-  qaQuestions = [row];
-  qaIdx = 0;
+async function pushToQA(questionId) {
+  if (!confirm(`Push "${questionId}" to QA for editing?\n\nIt will be temporarily removed from the live quiz until approved.`)) return;
+
+  // Set active=false in Supabase
+  const res = await fetch(SUPA_URL + `/rest/v1/questions?question_id=eq.${questionId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer ' + SUPA_KEY,
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({ active: false })
+  });
+
+  if (!res.ok) {
+    alert('Failed to push to QA. Please try again.');
+    return;
+  }
+
+  // Remove from live pool
+  const idx = ALL_QUESTIONS.findIndex(q => q.n === questionId);
+  if (idx !== -1) ALL_QUESTIONS.splice(idx, 1);
+
+  // Navigate to QA screen and load
   showScreen('screen-qa');
-  qaRender();
+  await loadQAReview();
+
+  // Find and jump to the question in the QA queue
+  const qaIdx2 = qaQuestions.findIndex(r => r.question_id === questionId);
+  if (qaIdx2 !== -1) { qaIdx = qaIdx2; qaRender(); }
 }
 
 /* ════════════════════════════════════════
