@@ -165,29 +165,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
   <div class="home-body">
     <div class="dash-section">
       <div class="dash-title">🚀 Choose a Pathway</div>
-      <div class="pathway-grid">
-        <div class="pathway-card ma" onclick="startQuiz('ma')">
-          <div class="icon">📐</div>
-          <h3>Mathematics Achievement</h3>
-          <p>Shapes, fractions, estimation, area, word problems</p>
-          <span class="pill" id="ma-pill">11 Questions</span>
-        </div>
-        <div class="pathway-card qr" onclick="startQuiz('qr')">
-          <div class="icon">🔢</div>
-          <h3>Quantitative Reasoning</h3>
-          <p>Algebra, proportions, functions, probability, data</p>
-          <span class="pill" id="qr-pill">20 Questions</span>
-        </div>
-      </div>
-      <button class="all-btn" onclick="startQuiz('all')">⭐ Take all questions together</button>
+      <button class="all-btn" onclick="showScreen('screen-workout');loadWorkout();" style="border-color:#1d4ed8;color:#1e40af;background:#eff6ff;font-size:1.05rem;padding:1.3rem;">
+        🏋️ Start Workout <span style="font-size:0.8rem;font-weight:400;margin-left:6px;opacity:0.7;">20 questions · DoK 1 → 2 → 3</span>
+      </button>
+      <button class="all-btn" onclick="showScreen('screen-drill');loadDrill();" style="border-color:#0f6e56;color:#0f6e56;background:#f0fdf4;">
+        🎯 Drill by Topic
+      </button>
       <button class="all-btn" onclick="showScreen('screen-pd');loadParentDash();" style="border-color:#f59e0b;color:#92400e;background:#fffbeb;">
         👨&#x200D;👦 Parent Dashboard — View All Results
       </button>
       <button class="all-btn" onclick="showScreen('screen-qa');loadQAReview();" style="border-color:#c4b5fd;color:#4c1d95;background:#f5f3ff;">
         🔬 QA Review — Generated Questions
-      </button>
-      <button class="all-btn" onclick="showScreen('screen-drill');loadDrill();" style="border-color:#0f6e56;color:#0f6e56;background:#f0fdf4;">
-        🎯 Drill by Topic
       </button>
     </div>
 
@@ -284,6 +272,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
       <button class="nav-btn" id="btn-prev" onclick="go(cur-1)">← Previous</button>
       <button class="nav-btn primary" id="btn-next" onclick="go(cur+1)">Next →</button>
     </div>
+  </div>
+</div>
+
+<!-- SCREEN 6: WORKOUT -->
+<div id="screen-workout" class="screen">
+  <div class="top-bar">
+    <h1>🏋️ Start Workout</h1>
+    <button class="back-btn" onclick="goHome()">← Home</button>
+  </div>
+  <div class="ql-wrap">
+    <p style="font-size:0.9rem;color:#64748b;margin-bottom:1rem;">Pick a topic — we'll load up to 20 questions starting with the easiest and building up.</p>
+    <div id="workout-status" style="font-size:0.9rem;color:#64748b;margin-bottom:1rem;"></div>
+    <div id="workout-content"></div>
   </div>
 </div>
 
@@ -510,6 +511,93 @@ let mode = 'all', curQs = [], cur = 0;
 /* ════════════════════════════════════════
    DRILL BY TOPIC
 ════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   WORKOUT
+════════════════════════════════════════ */
+function loadWorkout() {
+  const statusEl  = document.getElementById('workout-status');
+  const contentEl = document.getElementById('workout-content');
+
+  // Build strand counts from ALL_QUESTIONS
+  const strandMap = {};
+  ALL_QUESTIONS.forEach(q => {
+    const tax = TAXONOMY[q.n];
+    if (!tax) return;
+    if (!strandMap[tax.strand]) strandMap[tax.strand] = 0;
+    strandMap[tax.strand]++;
+  });
+
+  if (Object.keys(strandMap).length === 0) {
+    statusEl.textContent = 'No questions found.';
+    contentEl.innerHTML = '';
+    return;
+  }
+
+  const strandOrder = ['Whole Numbers','Decimals, Fractions & Percentages','Algebraic Thinking','Measurement','Geometry','Data Analysis & Prob.'];
+  const strandLabels = {'Whole Numbers':'Whole Numbers','Decimals, Fractions & Percentages':'Decimals, Fractions & Percentages','Algebraic Thinking':'Algebraic Concepts','Measurement':'Measurement','Geometry':'Geometry','Data Analysis & Prob.':'Data Analysis & Probability'};
+
+  const total = Object.values(strandMap).reduce((s,c) => s+c, 0);
+  statusEl.textContent = `${total} questions available`;
+
+  let html = '<div class="drill-grid">';
+  strandOrder.filter(s => strandMap[s]).forEach(strand => {
+    const count = Math.min(strandMap[strand], 20);
+    html += `
+      <div class="drill-card" onclick="startWorkout('${encodeURIComponent(strand)}')">
+        <div class="dc-left">
+          <h4>${strandLabels[strand]}</h4>
+          <p style="font-size:0.75rem;color:#94a3b8;margin-top:2px;">DoK 1 → 2 → 3</p>
+        </div>
+        <div class="dc-right">
+          <span class="dc-count">${count}</span>
+          <span class="dc-label">questions</span>
+        </div>
+      </div>`;
+  });
+  html += '</div>';
+  contentEl.innerHTML = html;
+}
+
+function startWorkout(safeStrand) {
+  const strand = decodeURIComponent(safeStrand);
+
+  // Get all questions for this strand
+  const pool = ALL_QUESTIONS.filter(q => {
+    const tax = TAXONOMY[q.n];
+    return tax && tax.strand === strand;
+  });
+  if (pool.length === 0) { alert('No questions found for this topic.'); return; }
+
+  // Shuffle within each DoK level, then sort DoK 1 → 2 → 3, cap at 20
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  const d1 = shuffle(pool.filter(q => TAXONOMY[q.n]?.dok === 1));
+  const d2 = shuffle(pool.filter(q => TAXONOMY[q.n]?.dok === 2));
+  const d3 = shuffle(pool.filter(q => TAXONOMY[q.n]?.dok === 3));
+
+  // Build ordered list, cap total at 20
+  // Allocate proportionally but always keep DoK order
+  const ordered = [...d1, ...d2, ...d3].slice(0, 20);
+
+  if (ordered.length === 0) { alert('No questions found for this topic.'); return; }
+
+  const strandLabels = {'Whole Numbers':'Whole Numbers','Decimals, Fractions & Percentages':'Decimals, Fractions & Percentages','Algebraic Thinking':'Algebraic Concepts','Measurement':'Measurement','Geometry':'Geometry','Data Analysis & Prob.':'Data Analysis & Probability'};
+
+  mode = 'workout';
+  curQs = ordered;
+  cur = 0;
+  document.getElementById('quiz-title').textContent = '🏋️ ' + (strandLabels[strand] || strand);
+  document.getElementById('bar-fill').className = 'bar-fill all';
+  showScreen('screen-quiz');
+  renderQ();
+}
+
 function loadDrill() {
   const statusEl  = document.getElementById('drill-status');
   const contentEl = document.getElementById('drill-content');
