@@ -654,6 +654,13 @@ async function startWorkout(safeStrand) {
   // ── 6. Launch quiz ────────────────────────────────────────────────────
   const strandLabels = {'Whole Numbers':'Whole Numbers','Decimals, Fractions & Percentages':'Decimals, Fractions & Percentages','Algebraic Thinking':'Algebraic Concepts','Measurement':'Measurement','Geometry':'Geometry','Data Analysis & Prob.':'Data Analysis & Probability'};
 
+  // Clear answer state for these questions so they appear fresh
+  top20.forEach(q => {
+    const key = String(q.n);
+    delete chosen[key];
+    delete statuses[key];
+  });
+
   mode = 'workout';
   curQs = top20;
   cur = 0;
