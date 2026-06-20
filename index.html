@@ -903,15 +903,99 @@ function renderParentDash(rows) {
   document.getElementById('pd-status').textContent = '';
   const sessions = {};
   rows.forEach(r => { if (!sessions[r.session_id]) sessions[r.session_id] = []; sessions[r.session_id].push(r); });
-  // latest = most recent attempt per question (rows are ordered desc so first occurrence = latest)
   const latest = {};
   rows.forEach(r => { if (!latest[r.question_id]) latest[r.question_id] = r; });
-  // Summary counts based on LATEST attempt per question — not raw row count
   const latestVals = Object.values(latest);
   const totalAns = latestVals.length;
   const totalCor = latestVals.filter(r => r.correct).length;
-  const maRows = Object.values(latest).filter(r => r.section === 'MA').sort((a,b) => a.question_id.localeCompare(b.question_id, undefined, {numeric:true}));
-  const qrRows = Object.values(latest).filter(r => r.section === 'QR').sort((a,b) => a.question_id.localeCompare(b.question_id, undefined, {numeric:true}));
+  const pct = totalAns ? Math.round(totalCor/totalAns*100) : 0;
+  const sessionCount = Object.keys(sessions).length;
+
+  // ── Skill performance ──────────────────────────────────────────────────
+  const skillStats = {};
+  latestVals.forEach(r => {
+    const tax = TAXONOMY[r.question_id];
+    if (!tax || !tax.skill) return;
+    const key = (tax.strand||'') + '|||' + tax.skill;
+    if (!skillStats[key]) skillStats[key] = { strand: tax.strand, skill: tax.skill, correct: 0, total: 0 };
+    skillStats[key].total++;
+    if (r.correct) skillStats[key].correct++;
+  });
+
+  // ── DoK performance ────────────────────────────────────────────────────
+  const dokStats = { 1:{c:0,t:0}, 2:{c:0,t:0}, 3:{c:0,t:0} };
+  latestVals.forEach(r => {
+    const tax = TAXONOMY[r.question_id];
+    if (!tax || !tax.dok) return;
+    dokStats[tax.dok].t++;
+    if (r.correct) dokStats[tax.dok].c++;
+  });
+
+  // ── Session scores for chart ───────────────────────────────────────────
+  const sessionScores = Object.keys(sessions).sort().slice(-12).map(sid => {
+    const sr = sessions[sid];
+    const c = sr.filter(r => r.correct).length;
+    return { date: sid.slice(5,10), pct: Math.round(c/sr.length*100) };
+  });
+
+  // ── Strand grouping ────────────────────────────────────────────────────
+  const strandOrder = ['Whole Numbers','Decimals, Fractions & Percentages','Algebraic Thinking','Measurement','Geometry','Data Analysis & Prob.'];
+  const strandLabels = {'Whole Numbers':'Whole Numbers','Decimals, Fractions & Percentages':'Decimals, Fractions & Percentages','Algebraic Thinking':'Algebraic Concepts','Measurement':'Measurement','Geometry':'Geometry','Data Analysis & Prob.':'Data Analysis & Probability'};
+
+  function scoreColor(p) {
+    if (p >= 70) return { bar:'#639922', text:'#3B6D11' };
+    if (p >= 50) return { bar:'#BA7517', text:'#854F0B' };
+    return { bar:'#E24B4A', text:'#A32D2D' };
+  }
+
+  // Build skill rows per strand
+  function skillRows(strand) {
+    return Object.values(skillStats)
+      .filter(s => s.strand === strand)
+      .sort((a,b) => a.skill.localeCompare(b.skill))
+      .map(s => {
+        const p = Math.round(s.correct/s.total*100);
+        const col = scoreColor(p);
+        return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-top:0.5px solid #f1f5f9;">
+          <span style="font-size:0.75rem;color:#64748b;flex:0 0 200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.skill}</span>
+          <div style="flex:1;background:#f1f5f9;border-radius:3px;height:12px;overflow:hidden;">
+            <div style="width:${p}%;height:100%;background:${col.bar};border-radius:3px;"></div>
+          </div>
+          <span style="font-size:0.75rem;font-weight:600;color:${col.text};flex:0 0 32px;text-align:right;">${p}%</span>
+          <span style="font-size:0.72rem;color:#94a3b8;flex:0 0 28px;text-align:right;">${s.total}q</span>
+        </div>`;
+      }).join('');
+  }
+
+  const strandBlocks = strandOrder.map(strand => {
+    const strandSkills = Object.values(skillStats).filter(s => s.strand === strand);
+    if (strandSkills.length === 0) return '';
+    const sc = strandSkills.reduce((s,x) => s+x.correct, 0);
+    const st = strandSkills.reduce((s,x) => s+x.total, 0);
+    const sp = st ? Math.round(sc/st*100) : 0;
+    const col = scoreColor(sp);
+    return `<div style="background:white;border:0.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="font-size:0.85rem;font-weight:600;color:#1a3a5c;">${strandLabels[strand]||strand}</span>
+        <span style="font-size:0.85rem;font-weight:600;color:${col.text};">${sp}%</span>
+      </div>
+      ${skillRows(strand)}
+    </div>`;
+  }).join('');
+
+  // DoK cards
+  const dokLabels = {1:'DoK 1 — recall', 2:'DoK 2 — apply', 3:'DoK 3 — analyse'};
+  const dokCards = [1,2,3].map(d => {
+    const p = dokStats[d].t ? Math.round(dokStats[d].c/dokStats[d].t*100) : null;
+    const col = p !== null ? scoreColor(p) : { text:'#94a3b8' };
+    return `<div style="background:white;border:0.5px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center;">
+      <div style="font-size:0.72rem;color:#94a3b8;margin-bottom:4px;">${dokLabels[d]}</div>
+      <div style="font-size:1.4rem;font-weight:500;color:${col.text};">${p !== null ? p+'%' : '—'}</div>
+      <div style="font-size:0.72rem;color:#94a3b8;margin-top:2px;">${dokStats[d].t} answered</div>
+    </div>`;
+  }).join('');
+
+  // Session history table
   const sessionRows = Object.keys(sessions).sort().reverse().slice(0,10).map(sid => {
     const sr = sessions[sid];
     const date = sid.slice(0,10);
@@ -928,6 +1012,7 @@ function renderParentDash(rows) {
       <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;color:#0f6e56;">${qrt>0?qrc+'/'+qrt:'—'}</td>
     </tr>`;
   }).join('');
+
   function qRow(r) {
     const ok = r.correct;
     const q = ALL_QUESTIONS.find(q => String(q.n) === r.question_id);
@@ -941,14 +1026,35 @@ function renderParentDash(rows) {
       <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:0.82rem;color:#64748b;">${r.attempts}</td>
     </tr>`;
   }
+
+  const maRows = Object.values(latest).filter(r => r.section === 'MA').sort((a,b) => a.question_id.localeCompare(b.question_id, undefined, {numeric:true}));
+  const qrRows = Object.values(latest).filter(r => r.section === 'QR').sort((a,b) => a.question_id.localeCompare(b.question_id, undefined, {numeric:true}));
+
   document.getElementById('pd-content').innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem;">
-      <div style="background:#f1f5f9;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.6rem;font-weight:700;color:#334155;">${totalAns}</div><div style="font-size:0.72rem;font-weight:600;color:#94a3b8;margin-top:3px;">Questions tried</div></div>
-      <div style="background:#d1fae5;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.6rem;font-weight:700;color:#065f46;">${totalCor}</div><div style="font-size:0.72rem;font-weight:600;color:#065f46;margin-top:3px;opacity:0.8;">Correct</div></div>
-      <div style="background:#fee2e2;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.6rem;font-weight:700;color:#991b1b;">${totalAns-totalCor}</div><div style="font-size:0.72rem;font-weight:600;color:#991b1b;margin-top:3px;opacity:0.8;">Incorrect</div></div>
+    <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">Overview</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem;">
+      <div style="background:#f1f5f9;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#334155;">${totalAns}</div><div style="font-size:0.72rem;color:#94a3b8;margin-top:3px;">Questions answered</div></div>
+      <div style="background:#d1fae5;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#065f46;">${pct}%</div><div style="font-size:0.72rem;color:#065f46;margin-top:3px;opacity:0.8;">Overall score</div></div>
+      <div style="background:#f1f5f9;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#334155;">${sessionCount}</div><div style="font-size:0.72rem;color:#94a3b8;margin-top:3px;">Sessions</div></div>
+      <div style="background:#f1f5f9;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#334155;">${190 - totalAns}</div><div style="font-size:0.72rem;color:#94a3b8;margin-top:3px;">Questions remaining</div></div>
     </div>
-    <div style="background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:1.25rem;overflow:hidden;">
-      <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;">Recent Sessions</div>
+
+    ${sessionScores.length >= 2 ? `
+    <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">Progress over time</div>
+    <div style="background:white;border:0.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:1.25rem;">
+      <div style="position:relative;width:100%;height:120px;">
+        <canvas id="pd-progress-chart" role="img" aria-label="Line chart showing score per session">${sessionScores.map(s=>s.date+': '+s.pct+'%').join(', ')}</canvas>
+      </div>
+    </div>` : ''}
+
+    <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">Performance by skill</div>
+    <div style="margin-bottom:1.25rem;">${strandBlocks || '<div style="color:#94a3b8;font-size:0.85rem;">No skill data yet — answer some questions first.</div>'}</div>
+
+    <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">DoK breakdown</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem;">${dokCards}</div>
+
+    <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">Recent sessions</div>
+    <div style="background:white;border-radius:12px;border:0.5px solid #e2e8f0;margin-bottom:1.25rem;overflow:hidden;">
       <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;">
         <th style="padding:10px 14px;text-align:left;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#94a3b8;">Date</th>
         <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#94a3b8;">Total</th>
@@ -956,8 +1062,9 @@ function renderParentDash(rows) {
         <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#0f6e56;">QR</th>
       </tr></thead><tbody>${sessionRows}</tbody></table>
     </div>
-    ${maRows.length > 0 ? `<div style="background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:1.25rem;overflow:hidden;">
-      <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#1d4ed8;">📐 Mathematics Achievement</div>
+
+    ${maRows.length > 0 ? `<div style="background:white;border-radius:12px;border:0.5px solid #e2e8f0;margin-bottom:1.25rem;overflow:hidden;">
+      <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#1d4ed8;">Mathematics Achievement</div>
       <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;">
         <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Q</th>
         <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Question</th>
@@ -965,8 +1072,8 @@ function renderParentDash(rows) {
         <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Attempts</th>
       </tr></thead><tbody>${maRows.map(qRow).join('')}</tbody></table>
     </div>` : ''}
-    ${qrRows.length > 0 ? `<div style="background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:1.25rem;overflow:hidden;">
-      <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#0f6e56;">🔢 Quantitative Reasoning</div>
+    ${qrRows.length > 0 ? `<div style="background:white;border-radius:12px;border:0.5px solid #e2e8f0;margin-bottom:1.25rem;overflow:hidden;">
+      <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#0f6e56;">Quantitative Reasoning</div>
       <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;">
         <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Q</th>
         <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Question</th>
@@ -974,6 +1081,39 @@ function renderParentDash(rows) {
         <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Attempts</th>
       </tr></thead><tbody>${qrRows.map(qRow).join('')}</tbody></table>
     </div>` : ''}`;
+
+  // Render progress chart after DOM update
+  if (sessionScores.length >= 2) {
+    setTimeout(() => {
+      const canvas = document.getElementById('pd-progress-chart');
+      if (!canvas || !window.Chart) return;
+      new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels: sessionScores.map(s => s.date),
+          datasets: [{
+            data: sessionScores.map(s => s.pct),
+            borderColor: '#378ADD',
+            backgroundColor: '#E6F1FB',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 3,
+            pointBackgroundColor: '#378ADD',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { min: 0, max: 100, ticks: { callback: v => v+'%', font:{size:10}, color:'#94a3b8' }, grid: { color:'rgba(0,0,0,0.05)' }, border:{display:false} },
+            x: { ticks: { font:{size:10}, color:'#94a3b8' }, grid:{display:false}, border:{display:false} }
+          }
+        }
+      });
+    }, 100);
+  }
 }
 
 /* ════════════════════════════════════════
