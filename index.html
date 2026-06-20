@@ -65,7 +65,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .reset-btn{width:100%;margin-top:8px;padding:9px 14px;border-radius:10px;border:1.5px solid #fca5a5;background:#fff;color:#dc2626;font-size:0.85rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all 0.15s;}
 .reset-btn:hover{background:#fef2f2;border-color:#ef4444;}
 
-/* QUIZ */
+/* MONKEY GAME PANEL */
+.workout-layout{display:flex;gap:16px;align-items:flex-start;}
+.monkey-panel{width:180px;flex-shrink:0;display:none;}
+.monkey-panel.visible{display:block;}
+.monkey-game{background:#0d1f0d;border-radius:12px;width:180px;height:360px;position:relative;overflow:hidden;border:1px solid #1a3a1a;}
+.quiz-col{flex:1;min-width:0;}
+@keyframes msk{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.msk{animation:msk .35s ease;}
+@keyframes mthump{0%,100%{transform:scaleX(1) scaleY(1)}30%{transform:scaleX(1.25) scaleY(0.88)}65%{transform:scaleX(0.85) scaleY(1.1)}}
+@keyframes mdance{0%{transform:rotate(0deg)}20%{transform:rotate(-14deg) scaleX(1.1)}40%{transform:rotate(14deg) scaleX(0.9)}60%{transform:rotate(-10deg)}80%{transform:rotate(8deg)}100%{transform:rotate(0deg)}}
+.mthumping{animation:mthump .22s ease 3;}
+.mdancing{animation:mdance .45s ease infinite;}
+.mbarrel{position:absolute;font-size:12px;animation:mrb 2s linear infinite;display:none;}
+@keyframes mrb{0%{left:4px;transform:rotate(0deg)}100%{left:145px;transform:rotate(360deg)}}
+
+
 .quiz-wrap{max-width:760px;margin:0 auto;padding:1.1rem 1rem 3rem;}
 .progress-wrap{background:white;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
 .sync-bar{font-size:0.8rem;font-weight:600;text-align:center;padding:6px;margin-bottom:6px;border-radius:8px;background:#f0fdf4;display:none;}
@@ -294,23 +309,99 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
     <button class="back-btn" onclick="goHome()">← Home</button>
   </div>
   <div class="quiz-wrap">
-    <div class="progress-wrap">
-      <div id="sync-indicator" class="sync-bar"></div>
-      <div class="progress-top">
-        <span id="prog-label">0 answered</span>
-        <span class="score-badge" id="score-badge">Score: 0/0</span>
+    <div class="workout-layout">
+
+      <!-- Monkey panel (workout mode only) -->
+      <div class="monkey-panel" id="monkey-panel">
+        <div class="monkey-game" id="monkey-game">
+          <!-- Jungle SVG -->
+          <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none" viewBox="0 0 180 360" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="12" cy="55" rx="20" ry="11" fill="#0f2e0f" opacity=".8"/>
+            <ellipse cx="170" cy="110" rx="18" ry="10" fill="#0f2e0f" opacity=".7"/>
+            <ellipse cx="8" cy="200" rx="16" ry="9" fill="#0f2e0f" opacity=".6"/>
+            <ellipse cx="172" cy="250" rx="20" ry="10" fill="#0f2e0f" opacity=".7"/>
+            <ellipse cx="10" cy="310" rx="17" ry="9" fill="#0f2e0f" opacity=".6"/>
+            <!-- Platforms -->
+            <rect x="0" y="331" width="180" height="7" rx="3" fill="#4a2c0a"/>
+            <rect x="18" y="249" width="162" height="7" rx="3" fill="#3a5a0a"/>
+            <rect x="0" y="165" width="162" height="7" rx="3" fill="#5a4a0a"/>
+            <rect x="0" y="82" width="180" height="7" rx="3" fill="#0a2a5a"/>
+            <!-- Liana 1: right x=155, floor0→1 -->
+            <path d="M155,331 C149,312 161,292 155,274 C149,260 153,254 155,250" stroke="#5a7a2a" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <path d="M155,331 C149,312 161,292 155,274 C149,260 153,254 155,250" stroke="#7ab040" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="5,7" opacity=".5"/>
+            <ellipse cx="151" cy="308" rx="9" ry="4" fill="#4a8020" transform="rotate(-25,151,308)"/>
+            <ellipse cx="159" cy="278" rx="8" ry="3.5" fill="#4a8020" transform="rotate(20,159,278)"/>
+            <ellipse cx="151" cy="258" rx="7" ry="3" fill="#4a8020" transform="rotate(-15,151,258)"/>
+            <!-- Liana 2: left x=25, floor1→2 -->
+            <path d="M25,249 C19,230 31,210 25,192 C19,178 23,172 25,165" stroke="#5a7a2a" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <path d="M25,249 C19,230 31,210 25,192 C19,178 23,172 25,165" stroke="#7ab040" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="5,7" opacity=".5"/>
+            <ellipse cx="21" cy="227" rx="9" ry="4" fill="#4a8020" transform="rotate(22,21,227)"/>
+            <ellipse cx="29" cy="197" rx="8" ry="3.5" fill="#4a8020" transform="rotate(-18,29,197)"/>
+            <ellipse cx="21" cy="177" rx="7" ry="3" fill="#4a8020" transform="rotate(14,21,177)"/>
+            <!-- Liana 3: right x=155, floor2→3 -->
+            <path d="M155,165 C149,146 161,126 155,108 C149,94 153,88 155,82" stroke="#5a7a2a" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <path d="M155,165 C149,146 161,126 155,108 C149,94 153,88 155,82" stroke="#7ab040" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="5,7" opacity=".5"/>
+            <ellipse cx="151" cy="143" rx="9" ry="4" fill="#4a8020" transform="rotate(-22,151,143)"/>
+            <ellipse cx="159" cy="113" rx="8" ry="3.5" fill="#4a8020" transform="rotate(18,159,113)"/>
+            <ellipse cx="151" cy="91" rx="7" ry="3" fill="#4a8020" transform="rotate(-14,151,91)"/>
+            <!-- Bananas -->
+            <text id="mk-bn0" x="62" y="62" font-size="20" opacity="0.18" style="filter:grayscale(1);transition:opacity .5s,filter .5s">🍌</text>
+            <text id="mk-bn1" x="84" y="62" font-size="20" opacity="0.18" style="filter:grayscale(1);transition:opacity .5s,filter .5s">🍌</text>
+            <text id="mk-bn2" x="106" y="62" font-size="20" opacity="0.18" style="filter:grayscale(1);transition:opacity .5s,filter .5s">🍌</text>
+          </svg>
+          <!-- Barrel -->
+          <div class="mbarrel" id="mk-barrel" style="bottom:26px">🛢️</div>
+          <!-- Monkey -->
+          <div id="mk-monkey" style="position:absolute;bottom:26px;left:4px;width:28px;height:36px;transition:left .4s ease,bottom .5s cubic-bezier(.4,0,.2,1)">
+            <svg id="mk-msvg" viewBox="0 0 28 36" width="28" height="36" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20,29 Q30,26 28,17 Q26,11 20,14" fill="none" stroke="#7c4a1e" stroke-width="2.5" stroke-linecap="round"/>
+              <ellipse cx="14" cy="25" rx="8" ry="9" fill="#a0522d"/>
+              <ellipse cx="14" cy="27" rx="4.5" ry="6" fill="#d4956a"/>
+              <path id="mk-larm" d="M6,22 Q2,24 3,29" fill="none" stroke="#a0522d" stroke-width="3.5" stroke-linecap="round"/>
+              <path id="mk-rarm" d="M22,22 Q26,24 25,29" fill="none" stroke="#a0522d" stroke-width="3.5" stroke-linecap="round"/>
+              <circle cx="14" cy="11" r="9" fill="#a0522d"/>
+              <circle cx="5" cy="11" r="3.5" fill="#a0522d"/>
+              <circle cx="5" cy="11" r="2" fill="#d4956a"/>
+              <circle cx="23" cy="11" r="3.5" fill="#a0522d"/>
+              <circle cx="23" cy="11" r="2" fill="#d4956a"/>
+              <ellipse cx="14" cy="14" rx="6" ry="5" fill="#d4956a"/>
+              <circle cx="11" cy="9.5" r="2" fill="white"/>
+              <circle cx="17" cy="9.5" r="2" fill="white"/>
+              <circle cx="11.5" cy="9.5" r="1.2" fill="#1a0800"/>
+              <circle cx="17.5" cy="9.5" r="1.2" fill="#1a0800"/>
+              <ellipse cx="14" cy="14.5" rx="2" ry="1.6" fill="#7c4a1e"/>
+              <circle cx="12.8" cy="14" r=".6" fill="#5a2d0c"/>
+              <circle cx="15.2" cy="14" r=".6" fill="#5a2d0c"/>
+              <path id="mk-mouth" d="M11,17.5 Q14,20 17,17.5" fill="none" stroke="#5a2d0c" stroke-width="1.2" stroke-linecap="round"/>
+              <path d="M9.5,33 Q8.5,36 7,36" fill="none" stroke="#a0522d" stroke-width="2.8" stroke-linecap="round"/>
+              <path d="M18.5,33 Q19.5,36 21,36" fill="none" stroke="#a0522d" stroke-width="2.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
       </div>
-      <div class="bar-track"><div class="bar-fill" id="bar-fill"></div></div>
-    </div>
-    <div class="tabs-wrap">
-      <div class="tabs-label">Jump to question</div>
-      <div class="tabs" id="tabs"></div>
-    </div>
-    <div id="q-area"></div>
-    <div class="q-nav">
-      <button class="nav-btn" id="btn-prev" onclick="go(cur-1)">← Previous</button>
-      <button class="nav-btn primary" id="btn-next" onclick="go(cur+1)">Next →</button>
-    </div>
+
+      <!-- Quiz content column -->
+      <div class="quiz-col">
+        <div class="progress-wrap">
+          <div id="sync-indicator" class="sync-bar"></div>
+          <div class="progress-top">
+            <span id="prog-label">0 answered</span>
+            <span class="score-badge" id="score-badge">Score: 0/0</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill" id="bar-fill"></div></div>
+        </div>
+        <div class="tabs-wrap">
+          <div class="tabs-label">Jump to question</div>
+          <div class="tabs" id="tabs"></div>
+        </div>
+        <div id="q-area"></div>
+        <div class="q-nav">
+          <button class="nav-btn" id="btn-prev" onclick="go(cur-1)">← Previous</button>
+          <button class="nav-btn primary" id="btn-next" onclick="go(cur+1)">Next →</button>
+        </div>
+      </div>
+
+    </div><!-- end workout-layout -->
   </div>
 </div>
 
@@ -714,6 +805,8 @@ async function startWorkout(safeStrand) {
   showScreen('screen-quiz');
 
   // Show countdown then render first question
+  mkReset();
+  mkShow(true);
   workoutCountdown(label, () => renderQ());
 }
 
@@ -826,6 +919,7 @@ function showWorkoutEnd() {
 
 function restartWorkout() {
   document.getElementById('workout-end').style.display = 'none';
+  mkShow(false);
   showScreen('screen-workout');
   loadWorkout();
 }
@@ -834,6 +928,158 @@ function closeWorkoutEnd() {
   document.getElementById('workout-end').style.display = 'none';
   goHome();
 }
+
+/* ════════════════════════════════════════
+   MONKEY GAME
+════════════════════════════════════════ */
+const MK_FLOORS = [
+  {bottom:26,  lianaL:140, startL:4,   restL:20},   // floor0: walk right→liana right
+  {bottom:112, lianaL:10,  startL:148, restL:120},   // floor1: walk left←liana left
+  {bottom:192, lianaL:140, startL:4,   restL:20},    // floor2: walk right→liana right
+  {bottom:276, lianaL:70,  startL:148, restL:70},    // floor3: top, centre
+];
+
+// Per question 1-20: what happens
+function mkGetStep(q) {
+  if (q >= 1  && q <= 4)  return {type:'walk',  floor:0, step:q-1};
+  if (q === 5)             return {type:'climb', from:0,  to:1};
+  if (q >= 6  && q <= 9)  return {type:'walk',  floor:1, step:q-6};
+  if (q === 10)            return {type:'climb', from:1,  to:2};
+  if (q >= 11 && q <= 14) return {type:'walk',  floor:2, step:q-11};
+  if (q === 15)            return {type:'climb', from:2,  to:3};
+  if (q === 16)            return {type:'banana', idx:0};
+  if (q === 17)            return {type:'banana', idx:1};
+  if (q === 18)            return {type:'banana', idx:2};
+  if (q === 19)            return {type:'thump'};
+  if (q === 20)            return {type:'dance'};
+}
+
+function mkWalkX(floor, step) {
+  const f = MK_FLOORS[floor];
+  const dist = f.lianaL - f.startL;
+  return Math.round(f.startL + (step + 1) / 4 * dist);
+}
+
+let mkBusy = false;
+let mkCorrectCount = 0;
+
+function mkSetPos(l, b, instant) {
+  const m = document.getElementById('mk-monkey');
+  if (!m) return;
+  if (instant) {
+    m.style.transition = 'none';
+    m.style.left = l + 'px'; m.style.bottom = b + 'px';
+    void m.offsetWidth;
+    m.style.transition = 'left .4s ease,bottom .5s cubic-bezier(.4,0,.2,1)';
+  } else {
+    m.style.left = l + 'px'; m.style.bottom = b + 'px';
+  }
+}
+
+function mkArms(mode) {
+  const la = document.getElementById('mk-larm');
+  const ra = document.getElementById('mk-rarm');
+  const sv = document.getElementById('mk-msvg');
+  if (!la || !ra || !sv) return;
+  sv.classList.remove('mthumping', 'mdancing');
+  if (mode === 'swing') {
+    la.setAttribute('d', 'M6,18 Q-1,8 2,2');
+    ra.setAttribute('d', 'M22,18 Q29,8 26,2');
+  } else if (mode === 'chest') {
+    la.setAttribute('d', 'M6,22 Q10,18 12,22');
+    ra.setAttribute('d', 'M22,22 Q18,18 16,22');
+    void sv.offsetWidth;
+    sv.classList.add('mthumping');
+  } else if (mode === 'dance') {
+    la.setAttribute('d', 'M6,20 Q0,12 3,5');
+    ra.setAttribute('d', 'M22,20 Q28,12 25,5');
+    sv.classList.add('mdancing');
+  } else if (mode === 'up') {
+    la.setAttribute('d', 'M6,20 Q1,13 3,6');
+    ra.setAttribute('d', 'M22,20 Q27,13 25,6');
+  } else {
+    la.setAttribute('d', 'M6,22 Q2,24 3,29');
+    ra.setAttribute('d', 'M22,22 Q26,24 25,29');
+  }
+}
+
+function mkMouth(happy) {
+  const m = document.getElementById('mk-mouth');
+  if (!m) return;
+  m.setAttribute('d', happy
+    ? 'M11,17.5 Q14,20 17,17.5'
+    : 'M11,18.5 Q14,16 17,18.5');
+}
+
+function mkBanana(idx) {
+  const el = document.getElementById('mk-bn' + idx);
+  if (!el) return;
+  el.style.opacity = '1';
+  el.style.filter = 'none';
+}
+
+function mkCorrect() {
+  if (mkBusy) return;
+  mkCorrectCount++;
+  const step = mkGetStep(mkCorrectCount);
+  if (!step) return;
+
+  if (step.type === 'walk') {
+    const f = MK_FLOORS[step.floor];
+    mkArms('walk'); mkMouth(true);
+    mkSetPos(mkWalkX(step.floor, step.step), f.bottom);
+  }
+  else if (step.type === 'climb') {
+    mkBusy = true;
+    const f0 = MK_FLOORS[step.from], f1 = MK_FLOORS[step.to];
+    mkArms('walk'); mkMouth(true);
+    mkSetPos(f0.lianaL, f0.bottom);
+    setTimeout(() => { mkArms('swing'); mkSetPos(f0.lianaL, f1.bottom); }, 500);
+    setTimeout(() => { mkArms('walk'); mkSetPos(f1.startL, f1.bottom); }, 1200);
+    setTimeout(() => { mkBusy = false; }, 1700);
+  }
+  else if (step.type === 'banana') {
+    mkBanana(step.idx);
+    mkArms('up'); mkMouth(true);
+  }
+  else if (step.type === 'thump') {
+    mkArms('chest'); mkMouth(true);
+  }
+  else if (step.type === 'dance') {
+    mkArms('dance'); mkMouth(true);
+  }
+}
+
+function mkWrong() {
+  const m = document.getElementById('mk-monkey');
+  const b = document.getElementById('mk-barrel');
+  if (!m || !b) return;
+  m.classList.add('msk'); mkMouth(false);
+  b.style.display = 'block';
+  setTimeout(() => { m.classList.remove('msk'); mkMouth(true); b.style.display = 'none'; }, 700);
+}
+
+function mkReset() {
+  mkBusy = false; mkCorrectCount = 0;
+  mkSetPos(4, MK_FLOORS[0].bottom, true);
+  mkArms('walk'); mkMouth(true);
+  const sv = document.getElementById('mk-msvg');
+  if (sv) sv.classList.remove('mthumping', 'mdancing');
+  [0, 1, 2].forEach(i => {
+    const el = document.getElementById('mk-bn' + i);
+    if (el) { el.style.opacity = '0.18'; el.style.filter = 'grayscale(1)'; }
+  });
+  const bar = document.getElementById('mk-barrel');
+  if (bar) bar.style.display = 'none';
+}
+
+function mkShow(visible) {
+  const p = document.getElementById('monkey-panel');
+  if (p) p.classList.toggle('visible', visible);
+}
+
+function workoutMonkeyCorrect() { mkCorrect(); }
+function workoutMonkeyWrong()   { mkWrong(); }
 
 function loadDrill() {
   const statusEl  = document.getElementById('drill-status');
@@ -912,6 +1158,7 @@ function loadDrill() {
 }
 
 function startDrillStrand(safeStrand) {
+  mkShow(false);
   const strand = decodeURIComponent(safeStrand);
   const pool = ALL_QUESTIONS.filter(q => {
     const tax = TAXONOMY[q.n];
@@ -929,6 +1176,7 @@ function startDrillStrand(safeStrand) {
 }
 
 function startDrillSkill(safeKey) {
+  mkShow(false);
   const key = decodeURIComponent(safeKey);
   const [strand, skill] = key.split('|||');
   const pool = ALL_QUESTIONS.filter(q => {
@@ -993,7 +1241,7 @@ function startDrill(safeKey) {
 
 function startQuiz(m) {
   mode = m;
-  // Merge approved generated questions into the pool
+  mkShow(false);
   const pool = ALL_QUESTIONS;
   curQs = m === 'ma' ? pool.filter(q => q.sec === 'MA')
         : m === 'qr' ? pool.filter(q => q.sec === 'QR')
@@ -1024,7 +1272,11 @@ function pick(idx) {
   statuses[key] = isCorrect ? 'correct' : 'wrong';
   saveProgress();
   renderQ(); updateDash();
-  if (mode === 'workout') workoutReaction(isCorrect);
+  if (mode === 'workout') {
+    workoutReaction(isCorrect);
+    if (isCorrect) workoutMonkeyCorrect();
+    else workoutMonkeyWrong();
+  }
   supaInsert({
     session_id:  SESSION_ID,
     question_id: key,
@@ -1490,6 +1742,7 @@ function goHome() {
   document.getElementById('streak-badge').classList.remove('show');
   document.getElementById('milestone-banner').classList.remove('show');
   document.getElementById('workout-end').style.display = 'none';
+  mkShow(false);
   showScreen('screen-home'); updateDash(); renderHeatGrid();
 }
 
