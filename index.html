@@ -365,11 +365,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
           <div>
             <label style="font-size:0.78rem;color:#64748b;font-weight:600;">Strand</label>
             <select id="qa-edit-strand" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;">
-              <option value="Numbers & Operations">Numbers &amp; Operations</option>
-              <option value="Algebraic Thinking">Algebraic Thinking</option>
+              <option value="Whole Numbers">Whole Numbers</option>
+              <option value="Decimals, Fractions & Percentages">Decimals, Fractions &amp; Percentages</option>
+              <option value="Algebraic Thinking">Algebraic Concepts</option>
               <option value="Measurement">Measurement</option>
               <option value="Geometry">Geometry</option>
-              <option value="Data Analysis & Prob.">Data Analysis &amp; Prob.</option>
+              <option value="Data Analysis & Prob.">Data Analysis &amp; Probability</option>
             </select>
           </div>
           <div>
@@ -382,7 +383,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
           </div>
         </div>
         <label style="font-size:0.78rem;color:#64748b;font-weight:600;">Subtopic</label>
-        <select id="qa-edit-sub" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;margin-bottom:0;"></select>
+        <select id="qa-edit-sub" style="width:100%;margin-top:3px;margin-bottom:8px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;"></select>
+        <label style="font-size:0.78rem;color:#64748b;font-weight:600;">Skill</label>
+        <select id="qa-edit-skill" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;margin-bottom:0;"></select>
       </div>
       <div style="display:flex;gap:8px;">
         <button onclick="qaCancelEdit()" style="flex:1;padding:10px;border-radius:8px;border:1.5px solid #94a3b8;background:white;color:#64748b;font-size:0.9rem;font-weight:600;cursor:pointer;">✕ Cancel</button>
@@ -510,44 +513,110 @@ function loadDrill() {
   const statusEl  = document.getElementById('drill-status');
   const contentEl = document.getElementById('drill-content');
 
-  // Build subtopic counts from ALL_QUESTIONS
-  const subtopicMap = {};
+  // Build strand and skill counts from ALL_QUESTIONS
+  const strandMap  = {};
+  const skillMap   = {};
+
   ALL_QUESTIONS.forEach(q => {
     const tax = TAXONOMY[q.n];
     if (!tax) return;
-    const key = tax.strand + '|||' + tax.sub;
-    if (!subtopicMap[key]) subtopicMap[key] = { strand: tax.strand, sub: tax.sub, count: 0 };
-    subtopicMap[key].count++;
+    const strand = tax.strand;
+    const skill  = tax.skill || null;
+
+    if (!strandMap[strand]) strandMap[strand] = 0;
+    strandMap[strand]++;
+
+    if (skill) {
+      const key = strand + '|||' + skill;
+      if (!skillMap[key]) skillMap[key] = { strand, skill, count: 0 };
+      skillMap[key].count++;
+    }
   });
 
-  if (Object.keys(subtopicMap).length === 0) {
+  if (Object.keys(strandMap).length === 0) {
     statusEl.textContent = 'No taxonomy data found.';
     contentEl.innerHTML = '';
     return;
   }
 
-  // Sort by subtopic name alphabetically
-  const entries = Object.values(subtopicMap).sort((a, b) => a.sub.localeCompare(b.sub));
-  const total = entries.reduce((s, e) => s + e.count, 0);
-  statusEl.textContent = `${total} questions across ${entries.length} topics`;
+  const strandOrder = ['Whole Numbers','Decimals, Fractions & Percentages','Algebraic Thinking','Measurement','Geometry','Data Analysis & Prob.'];
+  const strandLabels = {
+    'Whole Numbers': 'Whole Numbers',
+    'Decimals, Fractions & Percentages': 'Decimals, Fractions & Percentages',
+    'Algebraic Thinking': 'Algebraic Concepts',
+    'Measurement': 'Measurement',
+    'Geometry': 'Geometry',
+    'Data Analysis & Prob.': 'Data Analysis & Probability',
+  };
 
-  // Flat grid — no strand grouping
+  const total = Object.values(strandMap).reduce((s,c) => s+c, 0);
+  statusEl.textContent = `${total} questions across ${Object.keys(strandMap).length} topics`;
+
   let html = '<div class="drill-grid">';
-  entries.forEach(e => {
-    const safeKey = encodeURIComponent(e.strand + '|||' + e.sub);
+  strandOrder.filter(s => strandMap[s]).forEach(strand => {
+    const safeKey = encodeURIComponent(strand + '|||__all__');
+    const skills = Object.values(skillMap)
+      .filter(s => s.strand === strand)
+      .sort((a,b) => a.skill.localeCompare(b.skill));
+
+    const skillsHtml = skills.map(s => {
+      const sk = encodeURIComponent(strand + '|||' + s.skill);
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:0.5px solid #f1f5f9;cursor:pointer;" onclick="startDrillSkill('${sk}')">
+        <span style="font-size:0.75rem;color:#475569;">${s.skill}</span>
+        <span style="font-size:0.75rem;font-weight:600;color:#0f6e56;min-width:24px;text-align:right;">${s.count}</span>
+      </div>`;
+    }).join('');
+
     html += `
-      <div class="drill-card" onclick="startDrill('${safeKey}')">
-        <div class="dc-left">
-          <h4>${e.sub}</h4>
+      <div class="drill-card" style="flex-direction:column;align-items:stretch;cursor:default;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:pointer;" onclick="startDrillStrand('${encodeURIComponent(strand)}')">
+          <h4 style="margin:0;font-size:0.9rem;font-weight:700;color:#1a3a5c;">${strandLabels[strand]}</h4>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;">
+            <span class="dc-count">${strandMap[strand]}</span>
+            <span class="dc-label">questions</span>
+          </div>
         </div>
-        <div class="dc-right">
-          <span class="dc-count">${e.count}</span>
-          <span class="dc-label">questions</span>
+        <div style="border-top:0.5px solid #e2e8f0;padding-top:6px;">
+          ${skillsHtml}
         </div>
       </div>`;
   });
   html += '</div>';
   contentEl.innerHTML = html;
+}
+
+function startDrillStrand(safeStrand) {
+  const strand = decodeURIComponent(safeStrand);
+  const pool = ALL_QUESTIONS.filter(q => {
+    const tax = TAXONOMY[q.n];
+    return tax && tax.strand === strand;
+  });
+  if (pool.length === 0) { alert('No questions found for this topic.'); return; }
+  mode = 'drill';
+  curQs = pool;
+  cur = 0;
+  const labels = {'Whole Numbers':'Whole Numbers','Decimals, Fractions & Percentages':'Decimals, Fractions & Percentages','Algebraic Thinking':'Algebraic Concepts','Measurement':'Measurement','Geometry':'Geometry','Data Analysis & Prob.':'Data Analysis & Probability'};
+  document.getElementById('quiz-title').textContent = labels[strand] || strand;
+  document.getElementById('bar-fill').className = 'bar-fill all';
+  showScreen('screen-quiz');
+  renderQ();
+}
+
+function startDrillSkill(safeKey) {
+  const key = decodeURIComponent(safeKey);
+  const [strand, skill] = key.split('|||');
+  const pool = ALL_QUESTIONS.filter(q => {
+    const tax = TAXONOMY[q.n];
+    return tax && tax.strand === strand && tax.skill === skill;
+  });
+  if (pool.length === 0) { alert('No questions found for this skill.'); return; }
+  mode = 'drill';
+  curQs = pool;
+  cur = 0;
+  document.getElementById('quiz-title').textContent = skill;
+  document.getElementById('bar-fill').className = 'bar-fill all';
+  showScreen('screen-quiz');
+  renderQ();
 }
 
 /* ════════════════════════════════════════
@@ -720,7 +789,7 @@ function renderQ() {
   document.getElementById('q-area').innerHTML = `
     <div class="q-card">
       <div class="q-meta ${q.sec.toLowerCase()}">${q.n} — ${q.sec === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning'}</div>
-      ${(()=>{ const tax = TAXONOMY[q.n]; return tax ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;"><span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;">${tax.strand}</span><span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;">${tax.sub}</span><span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#fef9c3;color:#92400e;font-weight:600;">DoK ${tax.dok}</span></div>` : ''; })()}
+      ${(()=>{ const tax = TAXONOMY[q.n]; return tax ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;"><span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;">${tax.strand}</span><span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#fef9c3;color:#92400e;font-weight:600;">DoK ${tax.dok}</span>${tax.skill ? `<span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f0fdf4;color:#065f46;font-weight:600;">${tax.skill}</span>` : ''}</div>` : ''; })()}
       <div class="q-text">${formatText(q.text)}</div>${diag}
       <div class="options">${opts}</div>${fb}
       <div style="margin-top:0.75rem;text-align:right;">
@@ -1102,8 +1171,8 @@ function qaRender() {
       <div class="q-meta ${row.section.toLowerCase()}">${row.question_id}</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
         <span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;">${row.strand || '—'}</span>
-        <span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;">${row.sub || '—'}</span>
         <span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#fef9c3;color:#92400e;font-weight:600;">${row.dok ? 'DoK ' + row.dok : '—'}</span>
+        ${row.skill ? `<span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f0fdf4;color:#065f46;font-weight:600;">${row.skill}</span>` : ''}
       </div>
       <div class="q-text">${formatText(row.text)}</div>
       ${row.diag ? `<div class="q-diagram">${diagrams(row.diag)}</div>` : ''}
@@ -1125,21 +1194,34 @@ function qaStartEdit() {
   const row = qaQuestions[qaIdx];
   if (!row) return;
 
-  // Subtopic options per strand
+  // Skill options per strand
+  const skillOptions = {
+    'Whole Numbers':                     ['Adding & Subtracting Integers','Multiplying & Dividing Integers','Order of Operations','Place Value & Standard Form','Factors, Multiples & Divisibility','Prime & Composite Numbers','Remainder Problems','Whole Number Word Problems'],
+    'Decimals, Fractions & Percentages': ['Adding & Subtracting Decimals','Multiplying & Dividing Decimals','Adding & Subtracting Fractions & Mixed Numbers','Comparing & Ordering Fractions & Decimals','Converting Between Fractions, Decimals & Percents','Fraction & Percent of a Quantity','Estimating with Fractions & Decimals','Ratio & Proportion Word Problems'],
+    'Algebraic Thinking':                ['Numerical & Shape Patterns','Input/Output & Function Tables','Writing & Translating Expressions','Solving 1-Variable Equations','Solving Multi-Step & Symbol Equations','Linear Relationships & Word Problems'],
+    'Measurement':                       ['Perimeter of Polygons','Area of Rectangles, Squares & Triangles','Area & Perimeter of Composite Figures','Volume of Solids','Missing Side given Area or Perimeter','Unit Conversions & Time','Angles in Triangles & Polygons'],
+    'Geometry':                          ['Identifying & Classifying Shapes','Symmetry, Transformations & Views of 3D','Coordinate Planes'],
+    'Data Analysis & Prob.':             ['Reading Tables & Graphs','Mean, Median & Mode','Simple Probability','Data Interpretation & Inference'],
+  };
+
+  // Sub options per strand (6 broad strands)
   const subOptions = {
-    'Numbers & Operations': ['Whole Number Arithmetic','Fractions & Decimals','Ratios & Percentages'],
-    'Algebraic Thinking':   ['Expressions & Equations','Patterns & Sequences'],
-    'Measurement':          ['Perimeter & Area','Units & Conversions','Visual/Spatial Scaling'],
-    'Geometry':             ['2D & 3D Shapes','Coordinate Planes'],
-    'Data Analysis & Prob.':['Mean, Median, Mode','Simple Probability','Tables & Graphs','Data Interpretation']
+    'Whole Numbers':                     ['Whole Numbers'],
+    'Decimals, Fractions & Percentages': ['Decimals, Fractions & Percentages'],
+    'Algebraic Thinking':                ['Algebraic Concepts'],
+    'Measurement':                       ['Measurement'],
+    'Geometry':                          ['Geometry'],
+    'Data Analysis & Prob.':             ['Data Analysis & Probability'],
   };
 
   // Populate strand and subtopic dropdowns
   const strandEl = document.getElementById('qa-edit-strand');
   const subEl    = document.getElementById('qa-edit-sub');
-  const currentStrand = row.strand || 'Numbers & Operations';
+  const skillEl  = document.getElementById('qa-edit-skill');
+  const currentStrand = row.strand || 'Whole Numbers';
   const currentSub    = row.sub    || '';
   const currentDok    = row.dok    || 2;
+  const currentSkill  = row.skill  || '';
 
   strandEl.value = currentStrand;
 
@@ -1149,10 +1231,22 @@ function qaStartEdit() {
       `<option value="${s}" ${s === selectedSub ? 'selected' : ''}>${s}</option>`
     ).join('');
   }
-  populateSubs(currentStrand, currentSub);
 
-  // Update subtopics when strand changes
-  strandEl.onchange = () => populateSubs(strandEl.value, '');
+  function populateSkills(strand, selectedSkill) {
+    const opts = skillOptions[strand] || [];
+    skillEl.innerHTML = opts.map(s =>
+      `<option value="${s}" ${s === selectedSkill ? 'selected' : ''}>${s}</option>`
+    ).join('');
+  }
+
+  populateSubs(currentStrand, currentSub);
+  populateSkills(currentStrand, currentSkill);
+
+  // Update subtopics and skills when strand changes
+  strandEl.onchange = () => {
+    populateSubs(strandEl.value, '');
+    populateSkills(strandEl.value, '');
+  };
 
   document.getElementById('qa-edit-dok').value = String(currentDok);
 
@@ -1194,6 +1288,7 @@ async function qaSaveEdit() {
     strand:        document.getElementById('qa-edit-strand').value,
     sub:           document.getElementById('qa-edit-sub').value,
     dok:           parseInt(document.getElementById('qa-edit-dok').value),
+    skill:         document.getElementById('qa-edit-skill').value,
   };
 
   try {
@@ -1246,7 +1341,7 @@ async function qaDecide(decision) {
         const newQ = { n: row.question_id, sec: row.section, text: row.text,
           opts: [row.opt_a, row.opt_b, row.opt_c, row.opt_d], ans: row.correct_index, exp: row.explanation || '' };
         if (row.diag) newQ.diag = row.diag;
-        if (row.strand) TAXONOMY[row.question_id] = { strand: row.strand, sub: row.sub, dok: row.dok };
+        if (row.strand) TAXONOMY[row.question_id] = { strand: row.strand, sub: row.sub, dok: row.dok, skill: row.skill || null };
         ALL_QUESTIONS.push(newQ);
         ALL_QUESTIONS.sort((a, b) => {
           const [as, an] = [a.n.split('-')[0], parseInt(a.n.split('-')[1])||0];
@@ -1375,7 +1470,7 @@ async function fetchQuestionBank() {
     // Populate TAXONOMY from Supabase rows
     rows.forEach(r => {
       if (r.strand && r.sub && r.dok) {
-        TAXONOMY[r.question_id] = { strand: r.strand, sub: r.sub, dok: r.dok };
+        TAXONOMY[r.question_id] = { strand: r.strand, sub: r.sub, dok: r.dok, skill: r.skill || null };
       }
     });
 
