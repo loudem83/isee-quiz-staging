@@ -543,6 +543,35 @@ function loadDrill() {
   contentEl.innerHTML = html;
 }
 
+/* ════════════════════════════════════════
+   PUSH TO QA
+════════════════════════════════════════ */
+async function pushToQA(questionId) {
+  if (!confirm(`Push "${questionId}" to QA for editing?\n\nIt will be temporarily removed from the live quiz until approved.`)) return;
+
+  const res = await fetch(SUPA_URL + `/rest/v1/questions?question_id=eq.${questionId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer ' + SUPA_KEY,
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({ active: false })
+  });
+
+  if (!res.ok) { alert('Failed to push to QA. Please try again.'); return; }
+
+  const idx = ALL_QUESTIONS.findIndex(q => q.n === questionId);
+  if (idx !== -1) ALL_QUESTIONS.splice(idx, 1);
+
+  showScreen('screen-qa');
+  await loadQAReview();
+
+  const qaIdx2 = qaQuestions.findIndex(r => r.question_id === questionId);
+  if (qaIdx2 !== -1) { qaIdx = qaIdx2; qaRender(); }
+}
+
 function startDrill(safeKey) {
   const key    = decodeURIComponent(safeKey);
   const [strand, sub] = key.split('|||');
@@ -686,6 +715,9 @@ function renderQ() {
       <div class="q-meta ${q.sec.toLowerCase()}">${q.n} — ${q.sec === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning'}</div>
       <div class="q-text">${formatText(q.text)}</div>${diag}
       <div class="options">${opts}</div>${fb}
+      <div style="margin-top:0.75rem;text-align:right;">
+        <button onclick="pushToQA('${q.n}')" style="font-size:0.8rem;padding:5px 14px;border-radius:8px;border:1.5px solid #c4b5fd;background:#f5f3ff;color:#4c1d95;cursor:pointer;font-weight:600;">✏️ Push to QA</button>
+      </div>
     </div>`;
   document.getElementById('prog-label').textContent = `${done} of ${curQs.length} answered`;
   document.getElementById('score-badge').textContent = `Score: ${corr}/${done}`;
