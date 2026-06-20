@@ -359,6 +359,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
       </select>
       <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Explanation</label>
       <textarea id="qa-edit-exp" rows="3" style="width:100%;margin:4px 0 10px;padding:8px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.9rem;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
+      <div style="border-top:1px solid #e2e8f0;margin:6px 0 10px;padding-top:10px;">
+        <div style="font-size:0.78rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">🏷️ Taxonomy</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <div>
+            <label style="font-size:0.78rem;color:#64748b;font-weight:600;">Strand</label>
+            <select id="qa-edit-strand" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;">
+              <option value="Numbers & Operations">Numbers &amp; Operations</option>
+              <option value="Algebraic Thinking">Algebraic Thinking</option>
+              <option value="Measurement">Measurement</option>
+              <option value="Geometry">Geometry</option>
+              <option value="Data Analysis & Prob.">Data Analysis &amp; Prob.</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.78rem;color:#64748b;font-weight:600;">DoK</label>
+            <select id="qa-edit-dok" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;">
+              <option value="1">1 — Recall</option>
+              <option value="2">2 — Apply</option>
+              <option value="3">3 — Analyse</option>
+            </select>
+          </div>
+        </div>
+        <label style="font-size:0.78rem;color:#64748b;font-weight:600;">Subtopic</label>
+        <select id="qa-edit-sub" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;margin-bottom:0;"></select>
+      </div>
       <div style="display:flex;gap:8px;">
         <button onclick="qaCancelEdit()" style="flex:1;padding:10px;border-radius:8px;border:1.5px solid #94a3b8;background:white;color:#64748b;font-size:0.9rem;font-weight:600;cursor:pointer;">✕ Cancel</button>
         <button onclick="qaSaveEdit()" style="flex:1;padding:10px;border-radius:8px;border:none;background:#3b82f6;color:white;font-size:0.9rem;font-weight:700;cursor:pointer;">💾 Save changes</button>
@@ -713,6 +738,7 @@ function renderQ() {
   document.getElementById('q-area').innerHTML = `
     <div class="q-card">
       <div class="q-meta ${q.sec.toLowerCase()}">${q.n} — ${q.sec === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning'}</div>
+      ${(()=>{ const tax = TAXONOMY[q.n]; return tax ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;"><span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;">${tax.strand}</span><span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;">${tax.sub}</span><span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#fef9c3;color:#92400e;font-weight:600;">DoK ${tax.dok}</span></div>` : ''; })()}
       <div class="q-text">${formatText(q.text)}</div>${diag}
       <div class="options">${opts}</div>${fb}
       <div style="margin-top:0.75rem;text-align:right;">
@@ -1092,6 +1118,11 @@ function qaRender() {
   document.getElementById('qa-area').innerHTML = `
     <div class="q-card">
       <div class="q-meta ${row.section.toLowerCase()}">${row.question_id}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+        <span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;">${row.strand || '—'}</span>
+        <span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;">${row.sub || '—'}</span>
+        <span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#fef9c3;color:#92400e;font-weight:600;">${row.dok ? 'DoK ' + row.dok : '—'}</span>
+      </div>
       <div class="q-text">${formatText(row.text)}</div>
       ${row.diag ? `<div class="q-diagram">${diagrams(row.diag)}</div>` : ''}
       <div class="options">${opts}</div>
@@ -1111,6 +1142,38 @@ function qaRender() {
 function qaStartEdit() {
   const row = qaQuestions[qaIdx];
   if (!row) return;
+
+  // Subtopic options per strand
+  const subOptions = {
+    'Numbers & Operations': ['Whole Number Arithmetic','Fractions & Decimals','Ratios & Percentages'],
+    'Algebraic Thinking':   ['Expressions & Equations','Patterns & Sequences'],
+    'Measurement':          ['Perimeter & Area','Units & Conversions','Visual/Spatial Scaling'],
+    'Geometry':             ['2D & 3D Shapes','Coordinate Planes'],
+    'Data Analysis & Prob.':['Mean, Median, Mode','Simple Probability','Tables & Graphs','Data Interpretation']
+  };
+
+  // Populate strand and subtopic dropdowns
+  const strandEl = document.getElementById('qa-edit-strand');
+  const subEl    = document.getElementById('qa-edit-sub');
+  const currentStrand = row.strand || 'Numbers & Operations';
+  const currentSub    = row.sub    || '';
+  const currentDok    = row.dok    || 2;
+
+  strandEl.value = currentStrand;
+
+  function populateSubs(strand, selectedSub) {
+    const opts = subOptions[strand] || [];
+    subEl.innerHTML = opts.map(s =>
+      `<option value="${s}" ${s === selectedSub ? 'selected' : ''}>${s}</option>`
+    ).join('');
+  }
+  populateSubs(currentStrand, currentSub);
+
+  // Update subtopics when strand changes
+  strandEl.onchange = () => populateSubs(strandEl.value, '');
+
+  document.getElementById('qa-edit-dok').value = String(currentDok);
+
   // Populate edit fields from current row
   document.getElementById('qa-edit-text').value    = row.text || '';
   document.getElementById('qa-edit-a').value       = row.opt_a || '';
@@ -1146,6 +1209,9 @@ async function qaSaveEdit() {
     opt_d:         document.getElementById('qa-edit-d').value.trim(),
     correct_index: parseInt(document.getElementById('qa-edit-correct').value),
     explanation:   document.getElementById('qa-edit-exp').value.trim(),
+    strand:        document.getElementById('qa-edit-strand').value,
+    sub:           document.getElementById('qa-edit-sub').value,
+    dok:           parseInt(document.getElementById('qa-edit-dok').value),
   };
 
   try {
