@@ -76,6 +76,45 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .bar-fill.ma{background:linear-gradient(90deg,#3b82f6,#1a3a5c);}
 .bar-fill.qr{background:linear-gradient(90deg,#22c55e,#0f6e56);}
 .bar-fill.all{background:linear-gradient(90deg,#8b5cf6,#1a3a5c);}
+.bar-fill.workout{background:linear-gradient(90deg,#f59e0b,#ef4444);}
+
+/* ── Countdown overlay ── */
+#workout-countdown{position:fixed;inset:0;background:rgba(26,58,92,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;pointer-events:none;}
+#workout-countdown .cd-topic{font-size:1.1rem;font-weight:600;color:rgba(255,255,255,0.7);margin-bottom:1rem;letter-spacing:.04em;}
+#workout-countdown .cd-number{font-size:6rem;font-weight:700;color:white;line-height:1;animation:cdPop 0.4s ease;}
+#workout-countdown .cd-go{font-size:3.5rem;font-weight:700;color:#fbbf24;animation:cdPop 0.4s ease;}
+@keyframes cdPop{0%{transform:scale(1.8);opacity:0}100%{transform:scale(1);opacity:1}}
+
+/* ── Reaction overlay ── */
+#workout-reaction{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:99;}
+#workout-reaction .wr-emoji{font-size:5rem;animation:wrPop 0.5s cubic-bezier(.17,.67,.48,1.4);}
+#workout-reaction .wr-msg{font-size:1.3rem;font-weight:700;margin-top:8px;animation:wrFade 0.5s ease;}
+@keyframes wrPop{0%{transform:scale(0);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+@keyframes wrFade{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
+
+/* ── Shake animation for wrong answer ── */
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+.shake{animation:shake 0.4s ease;}
+
+/* ── Streak badge ── */
+#streak-badge{position:fixed;top:80px;right:16px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:white;border-radius:12px;padding:8px 14px;font-size:0.9rem;font-weight:700;z-index:98;transition:all 0.3s;transform:scale(0);opacity:0;}
+#streak-badge.show{transform:scale(1);opacity:1;}
+
+/* ── Milestone banner ── */
+#milestone-banner{position:fixed;top:0;left:0;right:0;background:linear-gradient(135deg,#8b5cf6,#1d4ed8);color:white;text-align:center;padding:14px;font-size:1rem;font-weight:700;z-index:100;transform:translateY(-100%);transition:transform 0.4s ease;}
+#milestone-banner.show{transform:translateY(0);}
+
+/* ── End screen ── */
+#workout-end{position:fixed;inset:0;background:white;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;display:none;}
+#workout-end .we-emoji{font-size:5rem;margin-bottom:1rem;}
+#workout-end .we-title{font-size:1.8rem;font-weight:700;color:#1a3a5c;margin-bottom:.5rem;}
+#workout-end .we-sub{font-size:1rem;color:#64748b;margin-bottom:1.5rem;}
+#workout-end .we-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:360px;margin-bottom:1.5rem;}
+#workout-end .we-stat{background:#f1f5f9;border-radius:12px;padding:14px 8px;}
+#workout-end .we-stat .val{font-size:1.8rem;font-weight:700;color:#1a3a5c;}
+#workout-end .we-stat .lbl{font-size:0.72rem;color:#94a3b8;margin-top:2px;}
+#workout-end .we-btn{width:100%;max-width:360px;padding:14px;border-radius:14px;border:none;background:#1d4ed8;color:white;font-size:1rem;font-weight:700;cursor:pointer;margin-bottom:10px;}
+#workout-end .we-btn.sec{background:#f1f5f9;color:#1a3a5c;}
 .tabs-wrap{background:white;border-radius:12px;padding:0.9rem 1rem;margin-bottom:1rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
 .tabs-label{font-size:0.72rem;color:#94a3b8;margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;}
 .tabs{display:flex;flex-wrap:wrap;gap:5px;}
@@ -651,8 +690,8 @@ async function startWorkout(safeStrand) {
     return da - db;
   });
 
-  // ── 6. Launch quiz ────────────────────────────────────────────────────
   const strandLabels = {'Whole Numbers':'Whole Numbers','Decimals, Fractions & Percentages':'Decimals, Fractions & Percentages','Algebraic Thinking':'Algebraic Concepts','Measurement':'Measurement','Geometry':'Geometry','Data Analysis & Prob.':'Data Analysis & Probability'};
+  const label = strandLabels[strand] || strand;
 
   // Clear answer state for these questions so they appear fresh
   top20.forEach(q => {
@@ -661,14 +700,139 @@ async function startWorkout(safeStrand) {
     delete statuses[key];
   });
 
+  // Reset workout state
+  workoutStreak = 0;
+  workoutCorrect = 0;
+  workoutTopicLabel = label;
+
   mode = 'workout';
   curQs = top20;
   cur = 0;
   statusEl.textContent = '';
-  document.getElementById('quiz-title').textContent = '🏋️ ' + (strandLabels[strand] || strand);
-  document.getElementById('bar-fill').className = 'bar-fill all';
+  document.getElementById('quiz-title').textContent = '🏋️ ' + label;
+  document.getElementById('bar-fill').className = 'bar-fill workout';
   showScreen('screen-quiz');
-  renderQ();
+
+  // Show countdown then render first question
+  workoutCountdown(label, () => renderQ());
+}
+
+/* ════════════════════════════════════════
+   WORKOUT ANIMATIONS
+════════════════════════════════════════ */
+let workoutStreak = 0;
+let workoutCorrect = 0;
+let workoutTopicLabel = '';
+let workoutReactionTimer = null;
+
+function workoutCountdown(topicLabel, onDone) {
+  const el = document.getElementById('workout-countdown');
+  el.style.display = 'flex';
+  const steps = [
+    { html: `<div class="cd-topic">${topicLabel}</div><div class="cd-number">3</div>` },
+    { html: `<div class="cd-topic">${topicLabel}</div><div class="cd-number">2</div>` },
+    { html: `<div class="cd-topic">${topicLabel}</div><div class="cd-number">1</div>` },
+    { html: `<div class="cd-go">Go! 🚀</div>` },
+  ];
+  let i = 0;
+  function next() {
+    if (i >= steps.length) {
+      el.style.display = 'none';
+      onDone();
+      return;
+    }
+    el.innerHTML = steps[i].html;
+    i++;
+    setTimeout(next, i === steps.length ? 600 : 800);
+  }
+  next();
+}
+
+function workoutReaction(isCorrect) {
+  if (mode !== 'workout') return;
+  if (workoutReactionTimer) clearTimeout(workoutReactionTimer);
+
+  const correctEmojis = ['🌟','⭐','🎯','✨','💡','🔥','👏'];
+  const correctMsgs   = ['Nice one!','Nailed it!','Keep going!','Brilliant!','Spot on!','Excellent!','You got it!'];
+  const wrongMsgs     = ['Not quite…','Keep trying!','Almost there!'];
+
+  const el = document.getElementById('workout-reaction');
+  if (isCorrect) {
+    workoutStreak++;
+    workoutCorrect++;
+    const emoji = correctEmojis[Math.floor(Math.random() * correctEmojis.length)];
+    const msg   = correctMsgs[Math.floor(Math.random() * correctMsgs.length)];
+    el.style.display = 'flex';
+    el.innerHTML = `<div class="wr-emoji">${emoji}</div><div class="wr-msg" style="color:#065f46">${msg}</div>`;
+    workoutReactionTimer = setTimeout(() => { el.style.display = 'none'; }, 900);
+    updateStreakBadge();
+  } else {
+    workoutStreak = 0;
+    const msg = wrongMsgs[Math.floor(Math.random() * wrongMsgs.length)];
+    el.style.display = 'flex';
+    el.innerHTML = `<div class="wr-emoji">💪</div><div class="wr-msg" style="color:#92400e">${msg}</div>`;
+    workoutReactionTimer = setTimeout(() => { el.style.display = 'none'; }, 900);
+    updateStreakBadge();
+    // Shake the selected option
+    setTimeout(() => {
+      const btns = document.querySelectorAll('.option-btn.wrong-sel');
+      btns.forEach(b => { b.classList.add('shake'); setTimeout(() => b.classList.remove('shake'), 400); });
+    }, 50);
+  }
+  // Check milestones
+  const done = curQs.filter(q2 => chosen[String(q2.n)] != null).length;
+  if (done === Math.floor(curQs.length / 2)) showMilestone('Halfway there! Keep it up 🏃');
+  if (done === curQs.length - 3) showMilestone('Almost done! Final push 💪');
+  if (done === curQs.length) setTimeout(() => showWorkoutEnd(), 1000);
+}
+
+function updateStreakBadge() {
+  const badge = document.getElementById('streak-badge');
+  if (workoutStreak >= 3) {
+    badge.textContent = `🔥 ${workoutStreak} in a row!`;
+    badge.classList.add('show');
+  } else {
+    badge.classList.remove('show');
+  }
+}
+
+function showMilestone(msg) {
+  const banner = document.getElementById('milestone-banner');
+  banner.textContent = msg;
+  banner.classList.add('show');
+  setTimeout(() => banner.classList.remove('show'), 2500);
+}
+
+function showWorkoutEnd() {
+  const total   = curQs.length;
+  const correct = workoutCorrect;
+  const pct     = total ? Math.round(correct / total * 100) : 0;
+  let emoji, title, sub;
+  if (pct >= 90)      { emoji = '🏆'; title = 'Outstanding!';   sub = 'You absolutely crushed it!'; }
+  else if (pct >= 70) { emoji = '🌟'; title = 'Well done!';     sub = 'Great effort today.'; }
+  else if (pct >= 50) { emoji = '💪'; title = 'Good work!';     sub = 'Keep practising — you\'re getting there.'; }
+  else                { emoji = '🎯'; title = 'Nice try!';       sub = 'These topics need more practice. Come back tomorrow!'; }
+
+  document.getElementById('we-emoji').textContent   = emoji;
+  document.getElementById('we-title').textContent   = title;
+  document.getElementById('we-sub').textContent     = sub;
+  document.getElementById('we-correct').textContent = correct;
+  document.getElementById('we-total').textContent   = total;
+  document.getElementById('we-pct').textContent     = pct + '%';
+  document.getElementById('workout-end').style.display = 'flex';
+  // Hide streak badge
+  document.getElementById('streak-badge').classList.remove('show');
+}
+
+function restartWorkout() {
+  document.getElementById('workout-end').style.display = 'none';
+  showScreen('screen-workout');
+  loadWorkout();
+}
+
+function closeWorkoutEnd() {
+  document.getElementById('workout-end').style.display = 'none';
+  goHome();
 }
 
 function loadDrill() {
@@ -860,6 +1024,7 @@ function pick(idx) {
   statuses[key] = isCorrect ? 'correct' : 'wrong';
   saveProgress();
   renderQ(); updateDash();
+  if (mode === 'workout') workoutReaction(isCorrect);
   supaInsert({
     session_id:  SESSION_ID,
     question_id: key,
@@ -1319,7 +1484,14 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-function goHome() { showScreen('screen-home'); updateDash(); renderHeatGrid(); }
+function goHome() {
+  document.getElementById('workout-reaction').style.display = 'none';
+  document.getElementById('workout-countdown').style.display = 'none';
+  document.getElementById('streak-badge').classList.remove('show');
+  document.getElementById('milestone-banner').classList.remove('show');
+  document.getElementById('workout-end').style.display = 'none';
+  showScreen('screen-home'); updateDash(); renderHeatGrid();
+}
 
 
 /* ════════════════════════════════════════
@@ -1871,5 +2043,22 @@ async function renderHeatGrid() {
 // Initialise on load — fetchQuestionBank handles everything
 fetchQuestionBank();
 </script>
+<!-- Workout overlays -->
+<div id="workout-countdown" style="display:none"></div>
+<div id="workout-reaction" style="display:none"></div>
+<div id="streak-badge"></div>
+<div id="milestone-banner"></div>
+<div id="workout-end">
+  <div class="we-emoji" id="we-emoji">🏆</div>
+  <div class="we-title" id="we-title">Well done!</div>
+  <div class="we-sub" id="we-sub">Great effort today.</div>
+  <div class="we-stats">
+    <div class="we-stat"><div class="val" id="we-correct">0</div><div class="lbl">Correct</div></div>
+    <div class="we-stat"><div class="val" id="we-total">0</div><div class="lbl">Questions</div></div>
+    <div class="we-stat"><div class="val" id="we-pct">0%</div><div class="lbl">Score</div></div>
+  </div>
+  <button class="we-btn" onclick="restartWorkout()">🏋️ Another Workout</button>
+  <button class="we-btn sec" onclick="closeWorkoutEnd()">← Back to Home</button>
+</div>
 </body>
 </html>
