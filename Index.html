@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[STAGING] ISEE Maths Practice Quiz</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1a1a2e;min-height:100vh;}
+.screen{display:none;min-height:100vh;}.screen.active{display:block;}
+
+/* TOP BAR */
+.top-bar{background:#1a3a5c;color:white;padding:1rem 1.5rem;display:flex;align-items:center;gap:12px;}
+.top-bar h1{font-size:1.1rem;font-weight:600;}
+.back-btn{background:rgba(255,255,255,0.15);border:none;color:white;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;margin-left:auto;}
+.back-btn:hover{background:rgba(255,255,255,0.25);}
+
+/* HOME */
+.home-hero{background:linear-gradient(135deg,#1a3a5c 0%,#0f6e56 100%);color:white;padding:3rem 1.5rem 2.5rem;text-align:center;}
+.home-hero h2{font-size:2rem;font-weight:700;margin-bottom:8px;}
+.home-hero p{font-size:1rem;opacity:0.85;}
+.home-body{max-width:700px;margin:0 auto;padding:2rem 1rem;}
+.dash-section{background:white;border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
+.dash-title{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;margin-bottom:12px;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+@media(max-width:400px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-card{border-radius:10px;padding:12px 8px;text-align:center;}
+.stat-card .val{font-size:1.8rem;font-weight:700;line-height:1;}
+.stat-card .lbl{font-size:0.72rem;font-weight:600;margin-top:4px;opacity:0.8;}
+.stat-card.total{background:#f1f5f9;color:#334155;}
+.stat-card.answered{background:#dbeafe;color:#1e40af;}
+.stat-card.correct{background:#d1fae5;color:#065f46;}
+.stat-card.wrong{background:#fee2e2;color:#991b1b;}
+.mini-bar-wrap{margin-top:12px;}
+.mini-bar-label{display:flex;justify-content:space-between;font-size:0.8rem;color:#64748b;margin-bottom:5px;}
+.mini-bar-track{background:#e2e8f0;border-radius:99px;height:8px;margin-bottom:8px;overflow:hidden;}
+.mini-bar-fill{height:8px;border-radius:99px;transition:width 0.5s;}
+.mini-bar-fill.answered{background:#3b82f6;}
+.mini-bar-fill.correct{background:#22c55e;}
+.mini-bar-fill.wrong{background:#ef4444;}
+.pathway-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;}
+@media(max-width:540px){.pathway-grid{grid-template-columns:1fr;}}
+.pathway-card{background:white;border-radius:16px;padding:1.75rem 1.5rem;cursor:pointer;border:2px solid transparent;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.07);text-align:center;}
+.pathway-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,0.12);}
+.pathway-card.ma:hover{border-color:#1d4ed8;}
+.pathway-card.qr:hover{border-color:#0f6e56;}
+.drill-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;}
+@media(max-width:480px){.drill-grid{grid-template-columns:1fr;}}
+.drill-card{background:white;border-radius:12px;padding:1rem 1.1rem;cursor:pointer;border:1.5px solid #e2e8f0;transition:all 0.15s;display:flex;justify-content:space-between;align-items:center;}
+.drill-card:hover{border-color:#0f6e56;background:#f0fdf4;transform:translateY(-1px);}
+.drill-card .dc-left h4{font-size:0.9rem;font-weight:700;color:#1a3a5c;margin:0 0 3px;}
+.drill-card .dc-left p{font-size:0.78rem;color:#64748b;margin:0;}
+.drill-card .dc-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
+.drill-card .dc-count{font-size:1.1rem;font-weight:700;color:#0f6e56;}
+.drill-card .dc-label{font-size:0.7rem;color:#94a3b8;}
+.drill-strand{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;margin:1rem 0 6px;}
+.pathway-card .icon{font-size:2.8rem;margin-bottom:12px;}
+.pathway-card h3{font-size:1.1rem;font-weight:700;margin-bottom:6px;}
+.pathway-card p{font-size:0.85rem;color:#64748b;line-height:1.5;}
+.pathway-card .pill{display:inline-block;padding:3px 12px;border-radius:99px;font-size:0.75rem;font-weight:700;margin-top:10px;}
+.pathway-card.ma .pill{background:#dbeafe;color:#1e40af;}
+.pathway-card.qr .pill{background:#d1fae5;color:#065f46;}
+.all-btn{width:100%;background:white;border:2px dashed #c4b5fd;border-radius:16px;padding:1.1rem;cursor:pointer;font-size:1rem;font-weight:600;color:#5b21b6;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:1.25rem;}
+.all-btn:hover{background:#ede9fe;border-color:#7c3aed;}
+.reset-btn{width:100%;margin-top:8px;padding:9px 14px;border-radius:10px;border:1.5px solid #fca5a5;background:#fff;color:#dc2626;font-size:0.85rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all 0.15s;}
+.reset-btn:hover{background:#fef2f2;border-color:#ef4444;}
+
+/* QUIZ */
+.quiz-wrap{max-width:760px;margin:0 auto;padding:1.1rem 1rem 3rem;}
+.progress-wrap{background:white;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
+.sync-bar{font-size:0.8rem;font-weight:600;text-align:center;padding:6px;margin-bottom:6px;border-radius:8px;background:#f0fdf4;display:none;}
+.progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:0.85rem;color:#555;}
+.score-badge{background:#1a3a5c;color:white;border-radius:99px;padding:3px 12px;font-size:0.8rem;font-weight:600;}
+.bar-track{background:#e8edf2;border-radius:99px;height:8px;}
+.bar-fill{height:8px;border-radius:99px;transition:width 0.4s;}
+.bar-fill.ma{background:linear-gradient(90deg,#3b82f6,#1a3a5c);}
+.bar-fill.qr{background:linear-gradient(90deg,#22c55e,#0f6e56);}
+.bar-fill.all{background:linear-gradient(90deg,#8b5cf6,#1a3a5c);}
+.tabs-wrap{background:white;border-radius:12px;padding:0.9rem 1rem;margin-bottom:1rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
+.tabs-label{font-size:0.72rem;color:#94a3b8;margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;}
+.tabs{display:flex;flex-wrap:wrap;gap:5px;}
+.tab{width:34px;height:34px;border-radius:8px;border:1.5px solid #dce3ea;background:white;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#555;transition:all 0.15s;}
+.tab:hover{border-color:#3b82f6;color:#1d4ed8;}
+.tab.active{background:#1a3a5c;border-color:#1a3a5c;color:white;}
+.tab.correct{background:#d1fae5;border-color:#22c55e;color:#065f46;}
+.tab.wrong{background:#fee2e2;border-color:#ef4444;color:#991b1b;}
+.tab.correct.active{background:#15803d;border-color:#15803d;color:white;}
+.tab.wrong.active{background:#dc2626;border-color:#dc2626;color:white;}
+.q-card{background:white;border-radius:14px;padding:1.5rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:1rem;}
+.q-meta{font-size:0.72rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:10px;}
+.q-meta.ma{color:#1d4ed8;}.q-meta.qr{color:#0f6e56;}
+.q-text{font-size:1rem;line-height:1.65;color:#1a1a2e;margin-bottom:14px;}
+.q-diagram{margin:10px 0 16px;overflow-x:auto;}
+.dtable{border-collapse:collapse;font-size:0.875rem;margin:10px 0;}
+.dtable th{background:#dbeafe;color:#1e40af;padding:7px 14px;border:1px solid #bfdbfe;font-weight:600;}
+.dtable td{padding:6px 14px;border:1px solid #e2e8f0;}
+.dtable tr:nth-child(even) td{background:#f8fafc;}
+.options{display:flex;flex-direction:column;gap:9px;}
+.opt{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;border:1.5px solid #dce3ea;background:white;cursor:pointer;font-size:0.95rem;color:#1a1a2e;text-align:left;transition:all 0.15s;width:100%;}
+.opt:hover:not(:disabled){border-color:#3b82f6;background:#f0f7ff;}
+.opt:disabled{cursor:default;}
+.opt .badge{width:30px;height:30px;border-radius:50%;border:2px solid #c5cdd6;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;color:#666;transition:all 0.15s;}
+.opt.correct-ans{border-color:#22c55e;background:#f0fdf4;}
+.opt.correct-ans .badge{background:#22c55e;border-color:#22c55e;color:white;}
+.opt.wrong-sel{border-color:#ef4444;background:#fef2f2;}
+.opt.wrong-sel .badge{background:#ef4444;border-color:#ef4444;color:white;}
+.feedback{margin-top:14px;padding:12px 16px;border-radius:10px;font-size:0.9rem;line-height:1.55;display:none;}
+.feedback.show{display:block;}
+.feedback.correct{background:#f0fdf4;border:1.5px solid #22c55e;color:#14532d;}
+.feedback.incorrect{background:#fef2f2;border:1.5px solid #ef4444;color:#7f1d1d;}
+.fb-title{font-weight:700;margin-bottom:4px;}
+.q-nav{display:flex;justify-content:space-between;gap:10px;}
+.nav-btn{flex:1;padding:11px;border-radius:10px;border:1.5px solid #dce3ea;background:white;cursor:pointer;font-size:0.95rem;font-weight:600;color:#1a3a5c;transition:all 0.15s;}
+.nav-btn:hover:not(:disabled){background:#f0f7ff;border-color:#3b82f6;}
+.nav-btn:disabled{opacity:0.35;cursor:default;}
+.nav-btn.primary{background:#1a3a5c;color:white;border-color:#1a3a5c;}
+.nav-btn.primary:hover:not(:disabled){background:#0f2640;}
+/* ── TAXONOMY HEAT GRID ── */
+.heat-wrap{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-top:0;}
+.heat-head{display:grid;grid-template-columns:150px repeat(3,1fr);background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary);}
+.hh{padding:8px 6px;font-size:11px;font-weight:500;color:var(--color-text-secondary);text-align:center;}
+.hh:first-child{text-align:left;padding-left:12px;}
+.heat-row{display:grid;grid-template-columns:150px repeat(3,1fr);border-bottom:0.5px solid var(--color-border-tertiary);}
+.heat-row:last-child{border-bottom:none;}
+.hc{padding:8px 6px;font-size:12px;display:flex;align-items:center;justify-content:center;}
+.hc:first-child{justify-content:flex-start;padding-left:12px;color:var(--color-text-primary);font-size:12px;}
+.hcell{border-radius:6px;width:90%;text-align:center;padding:4px 4px;font-size:11px;font-weight:500;}
+.hc-strong{background:#EAF3DE;color:#27500A;}
+.hc-ok{background:#FAEEDA;color:#633806;}
+.hc-weak{background:#FCEBEB;color:#791F1F;}
+.hc-none{background:var(--color-background-secondary);color:var(--color-text-tertiary);font-size:11px;}
+.heat-legend{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;}
+.hl{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary);}
+.hl-dot{width:8px;height:8px;border-radius:50%;}
+@media(max-width:500px){
+  .heat-head,.heat-row{grid-template-columns:110px repeat(3,1fr);}
+  .hh,.hc{font-size:10px;padding:6px 3px;}
+  .hh:first-child,.hc:first-child{padding-left:8px;}
+}
+
+/* PARENT DASHBOARD */
+.ql-wrap{max-width:760px;margin:0 auto;padding:1.1rem 1rem 3rem;}
+</style>
+</head>
+<body>
+
+<div style="background:#f59e0b;color:#1a1a2e;text-align:center;padding:8px;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;">STAGING — test data only</div>
+
+<!-- LOADING SCREEN -->
+<div id="screen-loading" class="screen active" style="position:fixed;top:0;left:0;right:0;z-index:999;background:#6366f1;color:white;text-align:center;padding:8px;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;display:flex;align-items:center;justify-content:center;gap:12px;">
+  <span>📚 Loading question bank…</span>
+  <div style="width:120px;height:4px;background:rgba(255,255,255,0.3);border-radius:99px;overflow:hidden;">
+    <div id="load-bar" style="height:100%;width:0%;background:white;border-radius:99px;transition:width 0.4s ease;"></div>
+  </div>
+  <span id="load-msg" style="font-weight:400;opacity:0.85;">Connecting…</span>
+</div>
+
+<!-- SCREEN 1: HOME -->
+<div id="screen-home" class="screen">
+  <div class="home-hero">
+    <h2>🎓 ISEE Maths Practice Quiz</h2>
+    <p>Interactive practice for Mathematics Achievement &amp; Quantitative Reasoning</p>
+  </div>
+  <div class="home-body">
+    <div class="dash-section">
+      <div class="dash-title">🚀 Choose a Pathway</div>
+      <div class="pathway-grid">
+        <div class="pathway-card ma" onclick="startQuiz('ma')">
+          <div class="icon">📐</div>
+          <h3>Mathematics Achievement</h3>
+          <p>Shapes, fractions, estimation, area, word problems</p>
+          <span class="pill" id="ma-pill">11 Questions</span>
+        </div>
+        <div class="pathway-card qr" onclick="startQuiz('qr')">
+          <div class="icon">🔢</div>
+          <h3>Quantitative Reasoning</h3>
+          <p>Algebra, proportions, functions, probability, data</p>
+          <span class="pill" id="qr-pill">20 Questions</span>
+        </div>
+      </div>
+      <button class="all-btn" onclick="startQuiz('all')">⭐ Take all questions together</button>
+      <button class="all-btn" onclick="showScreen('screen-pd');loadParentDash();" style="border-color:#f59e0b;color:#92400e;background:#fffbeb;">
+        👨&#x200D;👦 Parent Dashboard — View All Results
+      </button>
+      <button class="all-btn" onclick="showScreen('screen-qa');loadQAReview();" style="border-color:#c4b5fd;color:#4c1d95;background:#f5f3ff;">
+        🔬 QA Review — Generated Questions
+      </button>
+      <button class="all-btn" onclick="showScreen('screen-drill');loadDrill();" style="border-color:#0f6e56;color:#0f6e56;background:#f0fdf4;">
+        🎯 Drill by Topic
+      </button>
+    </div>
+
+
+    <div class="dash-section">
+      <div class="dash-title">📊 Dashboard</div>
+      <div class="stats-grid">
+        <div class="stat-card total"><div class="val" id="d-total">31</div><div class="lbl">Total Qs</div></div>
+        <div class="stat-card answered"><div class="val" id="d-answered">0</div><div class="lbl">Answered</div></div>
+        <div class="stat-card correct"><div class="val" id="d-correct">0</div><div class="lbl">Correct</div></div>
+        <div class="stat-card wrong"><div class="val" id="d-wrong">0</div><div class="lbl">Incorrect</div></div>
+      </div>
+      <div class="mini-bar-wrap">
+        <div class="mini-bar-label"><span>Answered</span><span id="d-ans-pct">0%</span></div>
+        <div class="mini-bar-track"><div class="mini-bar-fill answered" id="bar-answered" style="width:0%"></div></div>
+        <div class="mini-bar-label"><span>Correct</span><span id="d-cor-pct">0%</span></div>
+        <div class="mini-bar-track"><div class="mini-bar-fill correct" id="bar-correct" style="width:0%"></div></div>
+        <div class="mini-bar-label"><span>Incorrect</span><span id="d-wrg-pct">0%</span></div>
+        <div class="mini-bar-track"><div class="mini-bar-fill wrong" id="bar-wrong" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="dash-section">
+      <div class="dash-title">📘 By Section</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:#dbeafe;border-radius:10px;padding:12px;">
+          <div style="font-size:0.8rem;font-weight:700;color:#1e40af;margin-bottom:6px;">Mathematics Achievement</div>
+          <div style="font-size:0.82rem;color:#1e40af;">Questions: <b id="d-ma-range">MA-1 to MA-11</b></div>
+          <div style="font-size:0.82rem;color:#1e40af;">Answered: <b id="d-ma-ans">0</b> / <b id="d-ma-total">11</b></div>
+          <div style="font-size:0.82rem;color:#1e40af;">Correct: <b id="d-ma-cor">0</b></div>
+          <div style="font-size:0.82rem;color:#1e40af;">Wrong: <b id="d-ma-wrg">0</b></div>
+          <button class="reset-btn" onclick="resetSection('MA')">🔄 Reset MA answers</button>
+        </div>
+        <div style="background:#d1fae5;border-radius:10px;padding:12px;">
+          <div style="font-size:0.8rem;font-weight:700;color:#065f46;margin-bottom:6px;">Quantitative Reasoning</div>
+          <div style="font-size:0.82rem;color:#065f46;">Questions: <b id="d-qr-range">QR-1 to QR-20</b></div>
+          <div style="font-size:0.82rem;color:#065f46;">Answered: <b id="d-qr-ans">0</b> / <b id="d-qr-total">20</b></div>
+          <div style="font-size:0.82rem;color:#065f46;">Correct: <b id="d-qr-cor">0</b></div>
+          <div style="font-size:0.82rem;color:#065f46;">Wrong: <b id="d-qr-wrg">0</b></div>
+          <button class="reset-btn" onclick="resetSection('QR')">🔄 Reset QR answers</button>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="dash-section">
+      <div class="dash-title">📊 Performance by strand &amp; difficulty</div>
+      <div class="heat-wrap">
+        <div class="heat-head">
+          <div class="hh">Strand</div>
+          <div class="hh">DoK 1<br><span style="font-weight:400;font-size:10px;">recall</span></div>
+          <div class="hh">DoK 2<br><span style="font-weight:400;font-size:10px;">conceptual</span></div>
+          <div class="hh">DoK 3<br><span style="font-weight:400;font-size:10px;">analytical</span></div>
+        </div>
+        <div id="heat-grid-body">
+          <div class="heat-row" style="grid-column:span 4;padding:14px;text-align:center;">
+            <div class="hc" style="grid-column:span 4;color:var(--color-text-tertiary);font-size:13px;">Answer some questions to see your performance map</div>
+          </div>
+        </div>
+      </div>
+      <div class="heat-legend">
+        <div class="hl"><div class="hl-dot" style="background:#639922"></div>Strong (70%+)</div>
+        <div class="hl"><div class="hl-dot" style="background:#BA7517"></div>Developing (50–69%)</div>
+        <div class="hl"><div class="hl-dot" style="background:#E24B4A"></div>Needs work (&lt;50%)</div>
+        <div class="hl"><div class="hl-dot" style="background:var(--color-border-tertiary)"></div>Not yet answered</div>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+<!-- SCREEN 2: QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="top-bar">
+    <h1 id="quiz-title">Quiz</h1>
+    <button class="back-btn" onclick="goHome()">← Home</button>
+  </div>
+  <div class="quiz-wrap">
+    <div class="progress-wrap">
+      <div id="sync-indicator" class="sync-bar"></div>
+      <div class="progress-top">
+        <span id="prog-label">0 answered</span>
+        <span class="score-badge" id="score-badge">Score: 0/0</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" id="bar-fill"></div></div>
+    </div>
+    <div class="tabs-wrap">
+      <div class="tabs-label">Jump to question</div>
+      <div class="tabs" id="tabs"></div>
+    </div>
+    <div id="q-area"></div>
+    <div class="q-nav">
+      <button class="nav-btn" id="btn-prev" onclick="go(cur-1)">← Previous</button>
+      <button class="nav-btn primary" id="btn-next" onclick="go(cur+1)">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 5: DRILL BY TOPIC -->
+<div id="screen-drill" class="screen">
+  <div class="top-bar">
+    <h1>🎯 Drill by Topic</h1>
+    <button class="back-btn" onclick="goHome()">← Home</button>
+  </div>
+  <div class="ql-wrap">
+    <div id="drill-status" style="font-size:0.9rem;color:#64748b;margin-bottom:1rem;"></div>
+    <div id="drill-content"></div>
+  </div>
+</div>
+
+<!-- SCREEN 3: PARENT DASHBOARD -->
+<div id="screen-pd" class="screen">
+  <div class="top-bar">
+    <h1>👨‍👦 Parent Dashboard</h1>
+    <button class="back-btn" onclick="goHome()">← Home</button>
+  </div>
+  <div class="ql-wrap">
+    <div style="background:#fef9c3;border:1px solid #fde047;border-radius:10px;padding:12px 16px;font-size:0.85rem;color:#713f12;margin-bottom:1rem;">
+      🔒 Results are saved automatically. Summary cards show the <b>latest attempt</b> per question. Session history shows every sitting.
+    </div>
+    <!-- Diagnostic Tool -->
+    <div id="pd-diag" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:1.1rem;margin-bottom:1rem;">
+      <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;margin-bottom:10px;">🔧 Connection Diagnostic</div>
+      <button onclick="runDiagnostic()" style="width:100%;padding:10px;border-radius:8px;background:#1a3a5c;color:white;border:none;font-size:0.9rem;font-weight:600;cursor:pointer;margin-bottom:10px;">Run Connection Test</button>
+      <div id="diag-result" style="font-size:0.82rem;line-height:1.7;display:none;"></div>
+    </div>
+    <div id="pd-status" style="font-size:0.9rem;color:#64748b;margin-bottom:1rem;"></div>
+    <div id="pd-content"></div>
+    <button onclick="loadParentDash()" style="width:100%;padding:11px;border-radius:10px;border:1.5px solid #dce3ea;background:white;cursor:pointer;font-size:0.9rem;font-weight:600;color:#1a3a5c;margin-top:0.5rem;">🔄 Refresh Results</button>
+  </div>
+</div>
+
+<!-- SCREEN 4: QA REVIEW -->
+<div id="screen-qa" class="screen">
+  <div class="top-bar" style="background:#4c1d95;">
+    <h1>🔬 QA Review</h1>
+    <button class="back-btn" onclick="goHome()">← Home</button>
+  </div>
+  <div class="quiz-wrap">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;">
+      <button id="qa-filter-all"       onclick="setQAFilter('all')"       style="padding:5px 14px;border-radius:99px;border:1.5px solid #4c1d95;background:#4c1d95;color:white;font-size:0.8rem;font-weight:700;cursor:pointer;">All</button>
+      <button id="qa-filter-generated" onclick="setQAFilter('generated')" style="padding:5px 14px;border-radius:99px;border:1.5px solid #c4b5fd;background:white;color:#4c1d95;font-size:0.8rem;font-weight:700;cursor:pointer;">Generated</button>
+      <button id="qa-filter-user"      onclick="setQAFilter('user')"      style="padding:5px 14px;border-radius:99px;border:1.5px solid #c4b5fd;background:white;color:#4c1d95;font-size:0.8rem;font-weight:700;cursor:pointer;">User</button>
+      <button id="qa-filter-manual"    onclick="setQAFilter('manual')"    style="padding:5px 14px;border-radius:99px;border:1.5px solid #c4b5fd;background:white;color:#4c1d95;font-size:0.8rem;font-weight:700;cursor:pointer;">Manual</button>
+    </div>
+    <div id="qa-status" style="text-align:center;padding:2rem;color:#64748b;font-size:0.95rem;"></div>
+    <div id="qa-counter" style="display:none;background:white;border-radius:12px;padding:0.9rem 1.25rem;margin-bottom:1rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;color:#64748b;">
+      <span id="qa-counter-text"></span>
+      <span id="qa-section-badge" style="padding:3px 12px;border-radius:99px;font-size:0.78rem;font-weight:700;"></span>
+    </div>
+    <div id="qa-taxonomy" style="display:none;background:#f5f3ff;border:1.5px solid #c4b5fd;border-radius:12px;padding:0.85rem 1.1rem;margin-bottom:1rem;font-size:0.82rem;color:#4c1d95;line-height:1.7;">
+    </div>
+    <div id="qa-area"></div>
+
+    <!-- Edit panel — hidden until ✏️ Edit is clicked -->
+    <div id="qa-edit-panel" style="display:none;background:#f8fafc;border:1.5px solid #94a3b8;border-radius:12px;padding:1.1rem;margin-top:0.75rem;">
+      <div style="font-size:0.85rem;font-weight:700;color:#334155;margin-bottom:0.9rem;">✏️ Edit Question</div>
+      <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Question text</label>
+      <textarea id="qa-edit-text" rows="3" style="width:100%;margin:4px 0 10px;padding:8px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.9rem;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div><label style="font-size:0.78rem;color:#64748b;font-weight:600;">Option A</label><input id="qa-edit-a" type="text" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;"></div>
+        <div><label style="font-size:0.78rem;color:#64748b;font-weight:600;">Option B</label><input id="qa-edit-b" type="text" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;"></div>
+        <div><label style="font-size:0.78rem;color:#64748b;font-weight:600;">Option C</label><input id="qa-edit-c" type="text" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;"></div>
+        <div><label style="font-size:0.78rem;color:#64748b;font-weight:600;">Option D</label><input id="qa-edit-d" type="text" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;"></div>
+      </div>
+      <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Correct answer</label>
+      <select id="qa-edit-correct" style="width:100%;margin:4px 0 10px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;">
+        <option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option>
+      </select>
+      <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Explanation</label>
+      <textarea id="qa-edit-exp" rows="3" style="width:100%;margin:4px 0 10px;padding:8px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.9rem;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
+      <div style="border-top:1px solid #e2e8f0;margin:6px 0 10px;padding-top:10px;">
+        <div style="font-size:0.78rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">🏷️ Taxonomy</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <div>
+            <label style="font-size:0.78rem;color:#64748b;font-weight:600;">Strand</label>
+            <select id="qa-edit-strand" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;">
+              <option value="Numbers & Operations">Numbers &amp; Operations</option>
+              <option value="Algebraic Thinking">Algebraic Thinking</option>
+              <option value="Measurement">Measurement</option>
+              <option value="Geometry">Geometry</option>
+              <option value="Data Analysis & Prob.">Data Analysis &amp; Prob.</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.78rem;color:#64748b;font-weight:600;">DoK</label>
+            <select id="qa-edit-dok" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;">
+              <option value="1">1 — Recall</option>
+              <option value="2">2 — Apply</option>
+              <option value="3">3 — Analyse</option>
+            </select>
+          </div>
+        </div>
+        <label style="font-size:0.78rem;color:#64748b;font-weight:600;">Subtopic</label>
+        <select id="qa-edit-sub" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;margin-bottom:0;"></select>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="qaCancelEdit()" style="flex:1;padding:10px;border-radius:8px;border:1.5px solid #94a3b8;background:white;color:#64748b;font-size:0.9rem;font-weight:600;cursor:pointer;">✕ Cancel</button>
+        <button onclick="qaSaveEdit()" style="flex:1;padding:10px;border-radius:8px;border:none;background:#3b82f6;color:white;font-size:0.9rem;font-weight:700;cursor:pointer;">💾 Save changes</button>
+      </div>
+    </div>
+
+    <div id="qa-actions" style="display:none;gap:8px;margin-top:1rem;flex-wrap:wrap;">
+      <button onclick="qaDecide('rejected')" style="flex:1;min-width:100px;padding:13px;border-radius:10px;border:2px solid #ef4444;background:white;color:#dc2626;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='white'">✗ Reject</button>
+      <button onclick="qaStartEdit()" style="flex:1;min-width:100px;padding:13px;border-radius:10px;border:2px solid #3b82f6;background:white;color:#1d4ed8;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='white'">✏️ Edit</button>
+      <button onclick="qaDecide('approved')" style="flex:1;min-width:100px;padding:13px;border-radius:10px;border:2px solid #22c55e;background:white;color:#15803d;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='white'">✓ Approve</button>
+    </div>
+    <div id="qa-nav" style="display:none;justify-content:space-between;gap:10px;margin-top:0.75rem;">
+      <button class="nav-btn" id="qa-btn-prev" onclick="qaGo(qaIdx-1)">← Previous</button>
+      <button class="nav-btn" id="qa-btn-next" onclick="qaGo(qaIdx+1)">Next →</button>
+    </div>
+    <div id="qa-done-msg" style="display:none;text-align:center;padding:2.5rem 1rem;">
+      <div style="font-size:2.5rem;margin-bottom:12px;">🎉</div>
+      <div style="font-size:1.1rem;font-weight:700;color:#1a1a2e;margin-bottom:6px;">All questions reviewed!</div>
+      <div style="font-size:0.9rem;color:#64748b;">No pending questions remain. Generate more or go back home.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════
+   SUPABASE CONFIG
+════════════════════════════════════════ */
+const SUPA_URL = 'https://yajqvfwzhudghivzgijt.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhanF2Znd6aHVkZ2hpdnpnaWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNTA0MjUsImV4cCI6MjA5NjkyNjQyNX0.9jFDuKr-mL9gl_skZcP5THhnJNjs-8ogzG4zmV6fIyk';
+
+async function supaInsert(row) {
+  showSyncStatus('⏳ Saving…', '#92400e', '#fffbeb');
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(row)
+    });
+    if (res.status === 201 || res.status === 200) {
+      showSyncStatus('✅ Saved', '#065f46', '#f0fdf4');
+      setTimeout(() => showSyncStatus('','',''), 2500);
+    } else {
+      const err = await res.text();
+      showSyncStatus('⚠️ Save failed (' + res.status + '): ' + err.slice(0,60), '#991b1b', '#fef2f2');
+    }
+  } catch(e) {
+    showSyncStatus('⚠️ Network error: ' + e.message, '#991b1b', '#fef2f2');
+  }
+}
+
+function showSyncStatus(msg, color, bg) {
+  const el = document.getElementById('sync-indicator');
+  if (!el) return;
+  if (!msg) { el.style.display = 'none'; el.textContent = ''; return; }
+  el.textContent = msg;
+  el.style.color = color;
+  el.style.background = bg;
+  el.style.display = 'block';
+}
+
+// Persist session ID per day
+const _todayKey = 'quiz_session_' + new Date().toISOString().slice(0,10);
+const SESSION_ID = localStorage.getItem(_todayKey) ||
+  (() => { const id = new Date().toISOString().slice(0,10) + '_' + Math.random().toString(36).slice(2,8); localStorage.setItem(_todayKey, id); return id; })();
+
+/* ════════════════════════════════════════
+   QUESTION BANK
+   To add a new question, paste a new object
+   before the closing ]; below.
+   Format: ,{n:"QR-21",sec:"QR",text:"...",opts:["A","B","C","D"],ans:0,exp:"..."}
+════════════════════════════════════════ */
+// Question bank — populated from Supabase by fetchQuestionBank() on load
+let ALL_QUESTIONS = [];
+// Taxonomy map — populated from Supabase by fetchQuestionBank() on load
+let TAXONOMY = {};
+
+/* ════════════════════════════════════════
+   DIAGRAMS
+════════════════════════════════════════ */
+function diagrams(key) {
+  if (!key) return '';
+  if (key.trimStart().startsWith('<svg')) return key;
+  if (key.trimStart().startsWith('<table')) return key;
+  return '';
+}
+
+/* ════════════════════════════════════════
+   LOCAL STORAGE
+════════════════════════════════════════ */
+const LS_KEY = 'quiz_progress_v1';
+const chosen = {}, statuses = {}, attempts = {};
+
+function saveProgress() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify({chosen, statuses, attempts})); } catch(e) {}
+}
+function loadProgress() {
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    if (!saved) return;
+    const data = JSON.parse(saved);
+    if (data.chosen)   Object.assign(chosen,   data.chosen);
+    if (data.statuses) Object.assign(statuses, data.statuses);
+    if (data.attempts) Object.assign(attempts, data.attempts);
+  } catch(e) {}
+}
+
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+let mode = 'all', curQs = [], cur = 0;
+
+/* ════════════════════════════════════════
+   QUIZ LOGIC
+════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   DRILL BY TOPIC
+════════════════════════════════════════ */
+function loadDrill() {
+  const statusEl  = document.getElementById('drill-status');
+  const contentEl = document.getElementById('drill-content');
+
+  // Build subtopic counts from ALL_QUESTIONS
+  const subtopicMap = {};
+  ALL_QUESTIONS.forEach(q => {
+    const tax = TAXONOMY[q.n];
+    if (!tax) return;
+    const key = tax.strand + '|||' + tax.sub;
+    if (!subtopicMap[key]) subtopicMap[key] = { strand: tax.strand, sub: tax.sub, count: 0 };
+    subtopicMap[key].count++;
+  });
+
+  if (Object.keys(subtopicMap).length === 0) {
+    statusEl.textContent = 'No taxonomy data found.';
+    contentEl.innerHTML = '';
+    return;
+  }
+
+  // Sort by subtopic name alphabetically
+  const entries = Object.values(subtopicMap).sort((a, b) => a.sub.localeCompare(b.sub));
+  const total = entries.reduce((s, e) => s + e.count, 0);
+  statusEl.textContent = `${total} questions across ${entries.length} topics`;
+
+  // Flat grid — no strand grouping
+  let html = '<div class="drill-grid">';
+  entries.forEach(e => {
+    const safeKey = encodeURIComponent(e.strand + '|||' + e.sub);
+    html += `
+      <div class="drill-card" onclick="startDrill('${safeKey}')">
+        <div class="dc-left">
+          <h4>${e.sub}</h4>
+        </div>
+        <div class="dc-right">
+          <span class="dc-count">${e.count}</span>
+          <span class="dc-label">questions</span>
+        </div>
+      </div>`;
+  });
+  html += '</div>';
+  contentEl.innerHTML = html;
+}
+
+/* ════════════════════════════════════════
+   PUSH TO QA
+════════════════════════════════════════ */
+async function pushToQA(questionId) {
+  if (!confirm(`Push "${questionId}" to QA for editing?\n\nIt will be temporarily removed from the live quiz until approved.`)) return;
+
+  const res = await fetch(SUPA_URL + `/rest/v1/questions?question_id=eq.${questionId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer ' + SUPA_KEY,
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({ active: false })
+  });
+
+  if (!res.ok) { alert('Failed to push to QA. Please try again.'); return; }
+
+  const idx = ALL_QUESTIONS.findIndex(q => q.n === questionId);
+  if (idx !== -1) ALL_QUESTIONS.splice(idx, 1);
+
+  showScreen('screen-qa');
+  await loadQAReview();
+
+  const qaIdx2 = qaQuestions.findIndex(r => r.question_id === questionId);
+  if (qaIdx2 !== -1) { qaIdx = qaIdx2; qaRender(); }
+}
+
+function startDrill(safeKey) {
+  const key    = decodeURIComponent(safeKey);
+  const [strand, sub] = key.split('|||');
+  const pool   = ALL_QUESTIONS.filter(q => {
+    const tax = TAXONOMY[q.n];
+    return tax && tax.strand === strand && tax.sub === sub;
+  });
+  if (pool.length === 0) { alert('No questions found for this subtopic.'); return; }
+  mode = 'drill';
+  curQs = pool;
+  cur   = 0;
+  document.getElementById('quiz-title').textContent = sub;
+  document.getElementById('bar-fill').className = 'bar-fill all';
+  showScreen('screen-quiz');
+  renderQ();
+}
+
+function startQuiz(m) {
+  mode = m;
+  // Merge approved generated questions into the pool
+  const pool = ALL_QUESTIONS;
+  curQs = m === 'ma' ? pool.filter(q => q.sec === 'MA')
+        : m === 'qr' ? pool.filter(q => q.sec === 'QR')
+        : [...pool];
+  cur = 0;
+  document.getElementById('quiz-title').textContent =
+    m === 'ma' ? 'Mathematics Achievement' :
+    m === 'qr' ? 'Quantitative Reasoning' : 'All Questions';
+  document.getElementById('bar-fill').className = 'bar-fill ' + m;
+  showScreen('screen-quiz');
+  renderQ();
+}
+
+function go(i) {
+  if (i < 0 || i >= curQs.length) return;
+  cur = i;
+  renderQ();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function pick(idx) {
+  const q = curQs[cur];
+  const key = String(q.n);
+  if (chosen[key] != null) return;
+  attempts[key] = (attempts[key] || 0) + 1;
+  chosen[key] = idx;
+  const isCorrect = idx === q.ans;
+  statuses[key] = isCorrect ? 'correct' : 'wrong';
+  saveProgress();
+  renderQ(); updateDash();
+  supaInsert({
+    session_id:  SESSION_ID,
+    question_id: key,
+    section:     q.sec,
+    correct:     isCorrect,
+    attempts:    attempts[key],
+    answered_at: new Date().toISOString()
+  });
+}
+
+function renderTabs() {
+  document.getElementById('tabs').innerHTML = curQs.map((q, i) => {
+    const key = String(q.n);
+    let c = 'tab';
+    if (statuses[key] === 'correct') c += ' correct';
+    if (statuses[key] === 'wrong')   c += ' wrong';
+    if (i === cur) c += ' active';
+    const label = q.n.replace('MA-','M').replace('QR-','Q');
+    return `<button class="${c}" onclick="go(${i})" title="${q.n}">${label}</button>`;
+  }).join('');
+}
+
+function formatText(text) {
+  if (!text) return '';
+  const lines = text.split('\n');
+  let html = '';
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i].trim();
+    // Detect pipe-table: line contains | and has at least 2 cells
+    if (line.includes('|') && line.split('|').filter(c => c.trim()).length >= 2) {
+      // Collect all consecutive pipe lines
+      const tableLines = [];
+      while (i < lines.length && lines[i].includes('|')) {
+        tableLines.push(lines[i]);
+        i++;
+      }
+      // Filter out separator rows (---|---|--- style)
+      const dataRows = tableLines.filter(l => !/^\s*[\|\-\s]+$/.test(l) || l.includes('|'));
+      const separatorRe = /^\s*\|?[\s\-\|]+\|?\s*$/;
+      const rows = dataRows.filter(l => !separatorRe.test(l));
+      if (rows.length === 0) continue;
+      // Build HTML table
+      let tbl = '<table class="dtable" style="margin:10px 0;">';
+      rows.forEach((row, ri) => {
+        const rawCells = row.split('|');
+        const start = rawCells[0].trim() === '' ? 1 : 0;
+        const end = rawCells[rawCells.length - 1].trim() === '' ? rawCells.length - 1 : rawCells.length;
+        const cells = rawCells.slice(start, end).map(c => c.trim());
+        const tag = ri === 0 ? 'th' : 'td';
+        tbl += '<tr>' + cells.map(c => `<${tag}>${c}</${tag}>`).join('') + '</tr>';
+      });
+      tbl += '</table>';
+      html += tbl;
+    } else {
+      // Regular text line — convert newlines to <br> but skip blank lines between sections
+      if (line === '') {
+        html += '<br>';
+      } else {
+        html += `<span>${line}</span><br>`;
+      }
+      i++;
+    }
+  }
+  // Clean up trailing <br>
+  return html.replace(/(<br>)+$/, '');
+}
+
+function renderQ() {
+  const q = curQs[cur];
+  const key = String(q.n);
+  const answered = chosen[key] != null;
+  const diag = q.diag ? `<div class="q-diagram">${diagrams(q.diag)}</div>` : '';
+  const opts = q.opts.map((o, i) => {
+    let c = 'opt';
+    if (answered) {
+      if (i === q.ans) c += ' correct-ans';
+      else if (i === chosen[key]) c += ' wrong-sel';
+    }
+    return `<button class="${c}" ${answered ? 'disabled' : ''} onclick="pick(${i})">
+      <span class="badge">${['A','B','C','D'][i]}</span><span>${o}</span>
+    </button>`;
+  }).join('');
+  const fb = answered ? `<div class="feedback ${chosen[key] === q.ans ? 'correct' : 'incorrect'} show">
+    <div class="fb-title">${chosen[key] === q.ans ? '✓ Correct!' : '✗ Not quite.'}</div>${q.exp}
+  </div>` : '';
+  const done = curQs.filter(q2 => chosen[String(q2.n)] != null).length;
+  const corr = curQs.filter(q2 => statuses[String(q2.n)] === 'correct').length;
+  document.getElementById('q-area').innerHTML = `
+    <div class="q-card">
+      <div class="q-meta ${q.sec.toLowerCase()}">${q.n} — ${q.sec === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning'}</div>
+      ${(()=>{ const tax = TAXONOMY[q.n]; return tax ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;"><span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;">${tax.strand}</span><span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;">${tax.sub}</span><span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#fef9c3;color:#92400e;font-weight:600;">DoK ${tax.dok}</span></div>` : ''; })()}
+      <div class="q-text">${formatText(q.text)}</div>${diag}
+      <div class="options">${opts}</div>${fb}
+      <div style="margin-top:0.75rem;text-align:right;">
+        <button onclick="pushToQA('${q.n}')" style="font-size:0.8rem;padding:5px 14px;border-radius:8px;border:1.5px solid #c4b5fd;background:#f5f3ff;color:#4c1d95;cursor:pointer;font-weight:600;">✏️ Push to QA</button>
+      </div>
+    </div>`;
+  document.getElementById('prog-label').textContent = `${done} of ${curQs.length} answered`;
+  document.getElementById('score-badge').textContent = `Score: ${corr}/${done}`;
+  document.getElementById('bar-fill').style.width = (done / curQs.length * 100) + '%';
+  document.getElementById('btn-prev').disabled = cur === 0;
+  document.getElementById('btn-next').disabled = cur === curQs.length - 1;
+  renderTabs();
+}
+
+/* ════════════════════════════════════════
+   RESET SECTION
+════════════════════════════════════════ */
+function resetSection(sec) {
+  const label = sec === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning';
+  if (!confirm(`Reset all ${label} answers?\n\nAttempt counts will be kept.`)) return;
+  ALL_QUESTIONS.filter(q => q.sec === sec).forEach(q => {
+    const key = String(q.n);
+    delete chosen[key];
+    delete statuses[key];
+  });
+  saveProgress();
+  updateDash();
+}
+
+/* ════════════════════════════════════════
+   DASHBOARD
+════════════════════════════════════════ */
+async function updateDash() {
+  // Total = hardcoded questions + approved generated questions
+  const allPool = ALL_QUESTIONS;
+  const total = allPool.length;
+  document.getElementById('d-total').textContent = total;
+  document.getElementById('ma-pill').textContent = allPool.filter(q=>q.sec==='MA').length + ' Questions';
+  document.getElementById('qr-pill').textContent = allPool.filter(q=>q.sec==='QR').length + ' Questions';
+  document.getElementById('d-ma-total').textContent = allPool.filter(q=>q.sec==='MA').length;
+  document.getElementById('d-qr-total').textContent = allPool.filter(q=>q.sec==='QR').length;
+
+  // Fetch latest results from Supabase
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=question_id,section,correct&order=answered_at.desc&limit=500', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    if (!res.ok) return;
+    const rows = await res.json();
+
+    // Latest result per question
+    const latest = {};
+    rows.forEach(r => { if (!latest[r.question_id]) latest[r.question_id] = r; });
+    const latestVals = Object.values(latest);
+
+    const ans  = latestVals.length;
+    const corr = latestVals.filter(r => r.correct).length;
+    const wrg  = ans - corr;
+
+    const maRows = latestVals.filter(r => r.section === 'MA');
+    const qrRows = latestVals.filter(r => r.section === 'QR');
+    const maAns  = maRows.length;
+    const maCor  = maRows.filter(r => r.correct).length;
+    const qrAns  = qrRows.length;
+    const qrCor  = qrRows.filter(r => r.correct).length;
+
+    document.getElementById('d-answered').textContent = ans;
+    document.getElementById('d-correct').textContent  = corr;
+    document.getElementById('d-wrong').textContent    = wrg;
+    document.getElementById('d-ans-pct').textContent  = total ? Math.round(ans/total*100)+'%' : '0%';
+    document.getElementById('d-cor-pct').textContent  = ans ? Math.round(corr/ans*100)+'%' : '0%';
+    document.getElementById('d-wrg-pct').textContent  = ans ? Math.round(wrg/ans*100)+'%' : '0%';
+    document.getElementById('bar-answered').style.width = (total ? ans/total*100 : 0)+'%';
+    document.getElementById('bar-correct').style.width  = (ans ? corr/ans*100 : 0)+'%';
+    document.getElementById('bar-wrong').style.width    = (ans ? wrg/ans*100 : 0)+'%';
+    document.getElementById('d-ma-ans').textContent  = maAns;
+    document.getElementById('d-ma-cor').textContent  = maCor;
+    document.getElementById('d-ma-wrg').textContent  = maAns - maCor;
+    document.getElementById('d-ma-range').textContent = 'MA-1 to MA-' + allPool.filter(q=>q.sec==='MA' && /^MA-\d+$/.test(String(q.n))).length;
+    document.getElementById('d-qr-ans').textContent  = qrAns;
+    document.getElementById('d-qr-cor').textContent  = qrCor;
+    document.getElementById('d-qr-wrg').textContent  = qrAns - qrCor;
+    document.getElementById('d-qr-range').textContent = 'QR-1 to QR-' + allPool.filter(q=>q.sec==='QR' && /^QR-\d+$/.test(String(q.n))).length;
+  } catch(e) {
+    // Silently fail — stats will just show 0
+  }
+}
+
+/* ════════════════════════════════════════
+   PARENT DASHBOARD
+════════════════════════════════════════ */
+async function loadParentDash() {
+  document.getElementById('pd-status').textContent = 'Loading results…';
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=*&order=answered_at.desc&limit=500',
+      { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = await res.json();
+    renderParentDash(rows);
+  } catch(e) {
+    document.getElementById('pd-status').textContent = '❌ Could not load: ' + e.message;
+  }
+}
+
+function renderParentDash(rows) {
+  if (rows.length === 0) {
+    document.getElementById('pd-status').textContent = 'No results yet.';
+    document.getElementById('pd-content').innerHTML = '';
+    return;
+  }
+  document.getElementById('pd-status').textContent = '';
+  const sessions = {};
+  rows.forEach(r => { if (!sessions[r.session_id]) sessions[r.session_id] = []; sessions[r.session_id].push(r); });
+  // latest = most recent attempt per question (rows are ordered desc so first occurrence = latest)
+  const latest = {};
+  rows.forEach(r => { if (!latest[r.question_id]) latest[r.question_id] = r; });
+  // Summary counts based on LATEST attempt per question — not raw row count
+  const latestVals = Object.values(latest);
+  const totalAns = latestVals.length;
+  const totalCor = latestVals.filter(r => r.correct).length;
+  const maRows = Object.values(latest).filter(r => r.section === 'MA').sort((a,b) => a.question_id.localeCompare(b.question_id, undefined, {numeric:true}));
+  const qrRows = Object.values(latest).filter(r => r.section === 'QR').sort((a,b) => a.question_id.localeCompare(b.question_id, undefined, {numeric:true}));
+  const sessionRows = Object.keys(sessions).sort().reverse().slice(0,10).map(sid => {
+    const sr = sessions[sid];
+    const date = sid.slice(0,10);
+    const c = sr.filter(r => r.correct).length;
+    const t = sr.length;
+    const mac = sr.filter(r => r.section==='MA' && r.correct).length;
+    const mat = sr.filter(r => r.section==='MA').length;
+    const qrc = sr.filter(r => r.section==='QR' && r.correct).length;
+    const qrt = sr.filter(r => r.section==='QR').length;
+    return `<tr>
+      <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:0.85rem;">${date}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;font-weight:700;color:#1a3a5c;">${c}/${t}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;color:#1d4ed8;">${mat>0?mac+'/'+mat:'—'}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;color:#0f6e56;">${qrt>0?qrc+'/'+qrt:'—'}</td>
+    </tr>`;
+  }).join('');
+  function qRow(r) {
+    const ok = r.correct;
+    const q = ALL_QUESTIONS.find(q => String(q.n) === r.question_id);
+    const preview = q ? q.text.split('\n')[0].slice(0,55)+(q.text.length>55?'…':'') : r.question_id;
+    return `<tr>
+      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;font-size:0.8rem;font-weight:700;color:#64748b;white-space:nowrap;">${r.question_id}</td>
+      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;font-size:0.82rem;color:#334155;">${preview}</td>
+      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;text-align:center;">
+        <span style="background:${ok?'#d1fae5':'#fee2e2'};color:${ok?'#065f46':'#991b1b'};padding:3px 10px;border-radius:99px;font-size:0.75rem;font-weight:700;">${ok?'✓ Correct':'✗ Wrong'}</span>
+      </td>
+      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:0.82rem;color:#64748b;">${r.attempts}</td>
+    </tr>`;
+  }
+  document.getElementById('pd-content').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem;">
+      <div style="background:#f1f5f9;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.6rem;font-weight:700;color:#334155;">${totalAns}</div><div style="font-size:0.72rem;font-weight:600;color:#94a3b8;margin-top:3px;">Questions tried</div></div>
+      <div style="background:#d1fae5;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.6rem;font-weight:700;color:#065f46;">${totalCor}</div><div style="font-size:0.72rem;font-weight:600;color:#065f46;margin-top:3px;opacity:0.8;">Correct</div></div>
+      <div style="background:#fee2e2;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.6rem;font-weight:700;color:#991b1b;">${totalAns-totalCor}</div><div style="font-size:0.72rem;font-weight:600;color:#991b1b;margin-top:3px;opacity:0.8;">Incorrect</div></div>
+    </div>
+    <div style="background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:1.25rem;overflow:hidden;">
+      <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;">Recent Sessions</div>
+      <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;">
+        <th style="padding:10px 14px;text-align:left;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#94a3b8;">Date</th>
+        <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#94a3b8;">Total</th>
+        <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#1d4ed8;">MA</th>
+        <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#0f6e56;">QR</th>
+      </tr></thead><tbody>${sessionRows}</tbody></table>
+    </div>
+    ${maRows.length > 0 ? `<div style="background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:1.25rem;overflow:hidden;">
+      <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#1d4ed8;">📐 Mathematics Achievement</div>
+      <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;">
+        <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Q</th>
+        <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Question</th>
+        <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Result</th>
+        <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Attempts</th>
+      </tr></thead><tbody>${maRows.map(qRow).join('')}</tbody></table>
+    </div>` : ''}
+    ${qrRows.length > 0 ? `<div style="background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:1.25rem;overflow:hidden;">
+      <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#0f6e56;">🔢 Quantitative Reasoning</div>
+      <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;">
+        <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Q</th>
+        <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Question</th>
+        <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Result</th>
+        <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Attempts</th>
+      </tr></thead><tbody>${qrRows.map(qRow).join('')}</tbody></table>
+    </div>` : ''}`;
+}
+
+/* ════════════════════════════════════════
+   DIAGNOSTIC
+════════════════════════════════════════ */
+async function runDiagnostic() {
+  const el = document.getElementById('diag-result');
+  el.style.display = 'block';
+  el.innerHTML = '⏳ Testing…';
+  const steps = [];
+  try {
+    const r1 = await fetch(SUPA_URL + '/rest/v1/', { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    steps.push('✅ Step 1 — Reached Supabase (HTTP ' + r1.status + ')');
+  } catch(e) { steps.push('❌ Step 1 — Cannot reach Supabase: ' + e.message); el.innerHTML = steps.join('<br>'); return; }
+  try {
+    const r2 = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?limit=1', { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    steps.push(r2.ok ? '✅ Step 2 — Can READ table' : '❌ Step 2 — READ failed: ' + await r2.text());
+  } catch(e) { steps.push('❌ Step 2: ' + e.message); }
+  try {
+    const r3 = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=minimal'},
+      body: JSON.stringify({session_id:'diag_test',question_id:'MA-1',section:'MA',correct:true,attempts:1,answered_at:new Date().toISOString()})
+    });
+    steps.push((r3.status===201||r3.status===200) ? '✅ Step 3 — INSERT succeeded!' : '❌ Step 3 — INSERT failed: ' + await r3.text());
+  } catch(e) { steps.push('❌ Step 3: ' + e.message); }
+  steps.push('<br><b>🎉 Connection working!</b> Answer a question and click Refresh Results.');
+  el.innerHTML = steps.join('<br>');
+}
+
+/* ════════════════════════════════════════
+   SCREEN NAVIGATION
+════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goHome() { showScreen('screen-home'); updateDash(); renderHeatGrid(); }
+
+
+/* ════════════════════════════════════════
+   TAXONOMY HELPERS FOR GENERATED QUESTIONS
+════════════════════════════════════════ */
+
+// Map target_topic string → {strand, sub, dok} for generated questions
+function topicToTaxonomy(target_topic, section) {
+  if (!target_topic) return null;
+  const dokMatch = target_topic.match(/DoK\s*(\d)/i);
+  const dok = dokMatch ? parseInt(dokMatch[1]) : 2;
+  const topic = target_topic.replace(/\s*\(DoK\s*\d\)/i, '').trim();
+  const strandMap = {
+    'Fractions & Decimals':    'Numbers & Operations',
+    'Whole Number Arithmetic': 'Numbers & Operations',
+    'Ratios & Percentages':    'Numbers & Operations',
+    'Expressions & Equations': 'Algebraic Thinking',
+    'Patterns & Sequences':    'Algebraic Thinking',
+    '2D & 3D Shapes':          'Geometry',
+    'Coordinate Planes':       'Geometry',
+    'Perimeter & Area':        'Measurement',
+    'Units & Conversions':     'Measurement',
+    'Visual/Spatial Scaling':  'Measurement',
+    'Tables & Graphs':         'Data Analysis & Prob.',
+    'Mean, Median, Mode':      'Data Analysis & Prob.',
+    'Simple Probability':      'Data Analysis & Prob.',
+  };
+  const strand = strandMap[topic] || (section === 'MA' ? 'Numbers & Operations' : 'Algebraic Thinking');
+  return { strand, sub: topic || 'General', dok };
+}
+
+/* ════════════════════════════════════════
+   QA REVIEW
+════════════════════════════════════════ */
+let qaQuestions = [], qaIdx = 0;
+
+let qaFilter = 'all';
+
+function setQAFilter(filter) {
+  qaFilter = filter;
+  ['all','generated','user','manual'].forEach(f => {
+    const el = document.getElementById('qa-filter-' + f);
+    if (!el) return;
+    el.style.background = f === filter ? '#4c1d95' : 'white';
+    el.style.color      = f === filter ? 'white'   : '#4c1d95';
+  });
+  loadQAReview();
+}
+
+async function loadQAReview() {
+  const statusEl  = document.getElementById('qa-status');
+  const counterEl = document.getElementById('qa-counter');
+  const taxEl     = document.getElementById('qa-taxonomy');
+  const areaEl    = document.getElementById('qa-area');
+  const actionsEl = document.getElementById('qa-actions');
+  const navEl     = document.getElementById('qa-nav');
+  const doneEl    = document.getElementById('qa-done-msg');
+  const editEl    = document.getElementById('qa-edit-panel');
+
+  statusEl.textContent = '⏳ Loading questions…';
+  statusEl.style.display = 'block';
+  counterEl.style.display = 'none';
+  taxEl.style.display = 'none';
+  areaEl.innerHTML = '';
+  actionsEl.style.display = 'none';
+  navEl.style.display = 'none';
+  doneEl.style.display = 'none';
+  if (editEl) editEl.style.display = 'none';
+
+  try {
+    let allRows = [];
+
+    // Fetch from generated_questions (pending)
+    if (qaFilter === 'all' || qaFilter === 'generated') {
+      const r1 = await fetch(
+        SUPA_URL + '/rest/v1/generated_questions?status=eq.pending&select=*&order=generated_at.asc',
+        { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } }
+      );
+      if (r1.ok) {
+        const rows = await r1.json();
+        rows.forEach(r => { r._source = 'generated'; r._table = 'generated_questions'; });
+        allRows.push(...rows);
+      }
+    }
+
+    // Fetch from questions (active=false) — user and manual sources
+    if (qaFilter === 'all' || qaFilter === 'user' || qaFilter === 'manual') {
+      let url = SUPA_URL + '/rest/v1/questions?active=eq.false&select=*&order=question_id';
+      if (qaFilter === 'user')   url += '&source=eq.user';
+      if (qaFilter === 'manual') url += '&source=eq.manual';
+      const r2 = await fetch(url, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+      if (r2.ok) {
+        const rows = await r2.json();
+        rows.forEach(r => {
+          r._source      = r.source || 'manual';
+          r._table       = 'questions';
+          r.target_topic = r.sub ? `${r.sub} (DoK${r.dok})` : '';
+        });
+        allRows.push(...rows);
+      }
+    }
+
+    if (allRows.length === 0) {
+      statusEl.style.display = 'none';
+      doneEl.style.display = 'block';
+      return;
+    }
+    qaQuestions = allRows;
+    qaIdx = 0;
+    statusEl.style.display = 'none';
+    qaRender();
+  } catch(e) {
+    statusEl.textContent = '❌ Could not load: ' + e.message;
+  }
+}
+
+function qaGo(i) {
+  if (i < 0 || i >= qaQuestions.length) return;
+  qaIdx = i;
+  qaRender();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function qaRender() {
+  const row = qaQuestions[qaIdx];
+  if (!row) return;
+  const tax = topicToTaxonomy(row.target_topic, row.section);
+  const dokLabel = ['', 'DoK 1 — Recall', 'DoK 2 — Conceptual', 'DoK 3 — Analytical'][tax?.dok] || '';
+
+  const counterEl = document.getElementById('qa-counter');
+  counterEl.style.display = 'flex';
+  document.getElementById('qa-counter-text').textContent = `Question ${qaIdx + 1} of ${qaQuestions.length} pending`;
+  const badge = document.getElementById('qa-section-badge');
+  badge.textContent = row.section === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning';
+  badge.style.background = row.section === 'MA' ? '#dbeafe' : '#d1fae5';
+  badge.style.color = row.section === 'MA' ? '#1e40af' : '#065f46';
+
+  const taxEl = document.getElementById('qa-taxonomy');
+  taxEl.style.display = 'block';
+  taxEl.innerHTML = tax
+    ? `<b>🏷 Taxonomy</b> &nbsp;|&nbsp; <b>ID:</b> ${row.question_id} &nbsp;|&nbsp; <b>Strand:</b> ${tax.strand} &nbsp;|&nbsp; <b>Subtopic:</b> ${tax.sub} &nbsp;|&nbsp; <b>${dokLabel}</b>`
+    : `<b>🏷 ID:</b> ${row.question_id} &nbsp;|&nbsp; <b>Topic:</b> ${row.target_topic || 'Unknown'}`;
+
+  const opts = [row.opt_a, row.opt_b, row.opt_c, row.opt_d].map((o, i) => {
+    const isCorrect = i === row.correct_index;
+    return `<button class="opt${isCorrect ? ' correct-ans' : ''}" disabled style="cursor:default;">
+      <span class="badge">${['A','B','C','D'][i]}</span><span>${o}</span>
+    </button>`;
+  }).join('');
+
+  const expHtml = row.explanation
+    ? `<div class="feedback correct show"><div class="fb-title">📖 Explanation</div>${row.explanation}</div>`
+    : `<div class="feedback incorrect show"><div class="fb-title">⚠ No explanation provided</div></div>`;
+
+  document.getElementById('qa-area').innerHTML = `
+    <div class="q-card">
+      <div class="q-meta ${row.section.toLowerCase()}">${row.question_id}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+        <span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;">${row.strand || '—'}</span>
+        <span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;">${row.sub || '—'}</span>
+        <span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#fef9c3;color:#92400e;font-weight:600;">${row.dok ? 'DoK ' + row.dok : '—'}</span>
+      </div>
+      <div class="q-text">${formatText(row.text)}</div>
+      ${row.diag ? `<div class="q-diagram">${diagrams(row.diag)}</div>` : ''}
+      <div class="options">${opts}</div>
+      ${expHtml}
+    </div>`;
+
+  document.getElementById('qa-actions').style.display = 'flex';
+  const navEl = document.getElementById('qa-nav');
+  navEl.style.display = 'flex';
+  document.getElementById('qa-btn-prev').disabled = qaIdx === 0;
+  document.getElementById('qa-btn-next').disabled = qaIdx === qaQuestions.length - 1;
+}
+
+/* ════════════════════════════════════════
+   QA EDIT FUNCTIONS
+════════════════════════════════════════ */
+function qaStartEdit() {
+  const row = qaQuestions[qaIdx];
+  if (!row) return;
+
+  // Subtopic options per strand
+  const subOptions = {
+    'Numbers & Operations': ['Whole Number Arithmetic','Fractions & Decimals','Ratios & Percentages'],
+    'Algebraic Thinking':   ['Expressions & Equations','Patterns & Sequences'],
+    'Measurement':          ['Perimeter & Area','Units & Conversions','Visual/Spatial Scaling'],
+    'Geometry':             ['2D & 3D Shapes','Coordinate Planes'],
+    'Data Analysis & Prob.':['Mean, Median, Mode','Simple Probability','Tables & Graphs','Data Interpretation']
+  };
+
+  // Populate strand and subtopic dropdowns
+  const strandEl = document.getElementById('qa-edit-strand');
+  const subEl    = document.getElementById('qa-edit-sub');
+  const currentStrand = row.strand || 'Numbers & Operations';
+  const currentSub    = row.sub    || '';
+  const currentDok    = row.dok    || 2;
+
+  strandEl.value = currentStrand;
+
+  function populateSubs(strand, selectedSub) {
+    const opts = subOptions[strand] || [];
+    subEl.innerHTML = opts.map(s =>
+      `<option value="${s}" ${s === selectedSub ? 'selected' : ''}>${s}</option>`
+    ).join('');
+  }
+  populateSubs(currentStrand, currentSub);
+
+  // Update subtopics when strand changes
+  strandEl.onchange = () => populateSubs(strandEl.value, '');
+
+  document.getElementById('qa-edit-dok').value = String(currentDok);
+
+  // Populate edit fields from current row
+  document.getElementById('qa-edit-text').value    = row.text || '';
+  document.getElementById('qa-edit-a').value       = row.opt_a || '';
+  document.getElementById('qa-edit-b').value       = row.opt_b || '';
+  document.getElementById('qa-edit-c').value       = row.opt_c || '';
+  document.getElementById('qa-edit-d').value       = row.opt_d || '';
+  document.getElementById('qa-edit-correct').value = String(row.correct_index ?? 0);
+  document.getElementById('qa-edit-exp').value     = row.explanation || '';
+  // Show edit panel, hide action buttons
+  document.getElementById('qa-edit-panel').style.display = 'block';
+  document.getElementById('qa-actions').style.display    = 'none';
+  // Scroll edit panel into view
+  document.getElementById('qa-edit-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function qaCancelEdit() {
+  document.getElementById('qa-edit-panel').style.display = 'none';
+  document.getElementById('qa-actions').style.display    = 'flex';
+}
+
+async function qaSaveEdit() {
+  const row = qaQuestions[qaIdx];
+  if (!row) return;
+  const saveBtn = document.querySelector('#qa-edit-panel button:last-child');
+  saveBtn.textContent = '⏳ Saving…';
+  saveBtn.disabled = true;
+
+  const updates = {
+    text:          document.getElementById('qa-edit-text').value.trim(),
+    opt_a:         document.getElementById('qa-edit-a').value.trim(),
+    opt_b:         document.getElementById('qa-edit-b').value.trim(),
+    opt_c:         document.getElementById('qa-edit-c').value.trim(),
+    opt_d:         document.getElementById('qa-edit-d').value.trim(),
+    correct_index: parseInt(document.getElementById('qa-edit-correct').value),
+    explanation:   document.getElementById('qa-edit-exp').value.trim(),
+    strand:        document.getElementById('qa-edit-strand').value,
+    sub:           document.getElementById('qa-edit-sub').value,
+    dok:           parseInt(document.getElementById('qa-edit-dok').value),
+  };
+
+  try {
+    const table   = row._table === 'questions' ? 'questions' : 'generated_questions';
+    const idField = row._table === 'questions' ? `question_id=eq.${row.question_id}` : `id=eq.${row.id}`;
+    const res = await fetch(SUPA_URL + `/rest/v1/${table}?${idField}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(updates)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+    // Update local copy so re-render shows the edits
+    Object.assign(qaQuestions[qaIdx], updates);
+
+    // Close edit panel and re-render
+    document.getElementById('qa-edit-panel').style.display = 'none';
+    document.getElementById('qa-actions').style.display    = 'flex';
+    qaRender();
+  } catch(e) {
+    alert('❌ Could not save: ' + e.message);
+  } finally {
+    saveBtn.textContent = '💾 Save changes';
+    saveBtn.disabled = false;
+  }
+}
+
+async function qaDecide(decision) {
+  const row = qaQuestions[qaIdx];
+  if (!row) return;
+  const actionsEl = document.getElementById('qa-actions');
+  actionsEl.style.display = 'none';
+
+  try {
+    if (row._table === 'questions') {
+      // ── questions table: simply set active=true or leave as false ──
+      if (decision === 'approved') {
+        const res = await fetch(SUPA_URL + `/rest/v1/questions?question_id=eq.${row.question_id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ active: true })
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        // Add to local pool immediately
+        const newQ = { n: row.question_id, sec: row.section, text: row.text,
+          opts: [row.opt_a, row.opt_b, row.opt_c, row.opt_d], ans: row.correct_index, exp: row.explanation || '' };
+        if (row.diag) newQ.diag = row.diag;
+        if (row.strand) TAXONOMY[row.question_id] = { strand: row.strand, sub: row.sub, dok: row.dok };
+        ALL_QUESTIONS.push(newQ);
+        ALL_QUESTIONS.sort((a, b) => {
+          const [as, an] = [a.n.split('-')[0], parseInt(a.n.split('-')[1])||0];
+          const [bs, bn] = [b.n.split('-')[0], parseInt(b.n.split('-')[1])||0];
+          return as !== bs ? as.localeCompare(bs) : an - bn;
+        });
+        updateDash();
+      }
+      // Rejected: leave active=false, just remove from queue
+
+    } else {
+      // ── generated_questions table: INSERT into questions, PATCH status ──
+      let newQuestionId = row.question_id;
+      if (decision === 'approved') {
+        const idRes = await fetch(
+          SUPA_URL + `/rest/v1/questions?select=question_id&section=eq.${row.section}`,
+          { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } }
+        );
+        const existingIds = idRes.ok ? await idRes.json() : [];
+        const prefix = row.section === 'MA' ? 'MA-' : 'QR-';
+        const maxNum = existingIds
+          .map(r => parseInt(r.question_id.replace(prefix, '')))
+          .filter(n => !isNaN(n))
+          .reduce((a, b) => Math.max(a, b), 0);
+        newQuestionId = `${prefix}${maxNum + 1}`;
+        const tax = topicToTaxonomy(row.target_topic, row.section);
+        const insertRes = await fetch(SUPA_URL + '/rest/v1/questions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Prefer': 'return=minimal' },
+          body: JSON.stringify({
+            question_id: newQuestionId, section: row.section,
+            text: row.text, opt_a: row.opt_a, opt_b: row.opt_b, opt_c: row.opt_c, opt_d: row.opt_d,
+            correct_index: row.correct_index, explanation: row.explanation || '',
+            diag: null, strand: tax?.strand||null, sub: tax?.sub||null, dok: tax?.dok||null,
+            source: 'generated', active: true,
+          })
+        });
+        if (!insertRes.ok) throw new Error('Insert failed: HTTP ' + insertRes.status);
+        const newQ = { n: newQuestionId, sec: row.section, text: row.text,
+          opts: [row.opt_a, row.opt_b, row.opt_c, row.opt_d], ans: row.correct_index, exp: row.explanation||'' };
+        if (tax) TAXONOMY[newQuestionId] = tax;
+        ALL_QUESTIONS.push(newQ);
+        updateDash();
+      }
+      const patchBody = { status: decision === 'approved' ? 'promoted' : 'rejected' };
+      if (decision === 'approved') patchBody.question_id = newQuestionId;
+      const patchRes = await fetch(SUPA_URL + `/rest/v1/generated_questions?id=eq.${row.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Prefer': 'return=minimal' },
+        body: JSON.stringify(patchBody)
+      });
+      if (!patchRes.ok) throw new Error('Patch failed: HTTP ' + patchRes.status);
+    }
+
+    // Remove from pending list and advance
+    qaQuestions.splice(qaIdx, 1);
+    if (qaQuestions.length === 0) {
+      document.getElementById('qa-counter').style.display  = 'none';
+      document.getElementById('qa-taxonomy').style.display = 'none';
+      document.getElementById('qa-area').innerHTML         = '';
+      document.getElementById('qa-nav').style.display      = 'none';
+      actionsEl.style.display                              = 'none';
+      document.getElementById('qa-done-msg').style.display = 'block';
+      return;
+    }
+    if (qaIdx >= qaQuestions.length) qaIdx = qaQuestions.length - 1;
+    actionsEl.style.display = 'flex';
+    qaRender();
+  } catch(e) {
+    actionsEl.style.display = 'flex';
+    alert('❌ Could not save: ' + e.message);
+  }
+}
+
+
+/* ════════════════════════════════════════════
+   TAXONOMY — strand, subtopic, DoK per question
+   Update when new questions are added
+════════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   QUESTION BANK — fetch from Supabase
+   Converts Supabase rows → ALL_QUESTIONS shape
+   and populates TAXONOMY
+════════════════════════════════════════ */
+function setLoadState(pct, msg) {
+  document.getElementById('load-bar').style.width = pct + '%';
+  document.getElementById('load-msg').textContent = msg;
+}
+
+async function fetchQuestionBank() {
+  try {
+    setLoadState(20, 'Fetching questions…');
+
+    // Fetch all active questions from Supabase
+    const res = await fetch(
+      SUPA_URL + '/rest/v1/questions?active=eq.true&select=*',
+      { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } }
+    );
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = await res.json();
+
+    setLoadState(60, `Building question bank (${rows.length} questions)…`);
+
+    // Convert Supabase rows → ALL_QUESTIONS shape
+    ALL_QUESTIONS = rows.map(r => {
+      const q = {
+        n:   r.question_id,
+        sec: r.section,
+        text: r.text,
+        opts: [r.opt_a, r.opt_b, r.opt_c, r.opt_d],
+        ans:  r.correct_index,
+        exp:  r.explanation || '',
+      };
+      if (r.diag) q.diag = r.diag;
+      return q;
+    });
+
+    // Sort numerically by question number (MA-1, MA-2... not MA-1, MA-10, MA-11)
+    ALL_QUESTIONS.sort((a, b) => {
+      const [aSec, aNum] = [a.n.split('-')[0], parseInt(a.n.split('-')[1]) || 0];
+      const [bSec, bNum] = [b.n.split('-')[0], parseInt(b.n.split('-')[1]) || 0];
+      if (aSec !== bSec) return aSec.localeCompare(bSec);
+      return aNum - bNum;
+    });
+
+    // Populate TAXONOMY from Supabase rows
+    rows.forEach(r => {
+      if (r.strand && r.sub && r.dok) {
+        TAXONOMY[r.question_id] = { strand: r.strand, sub: r.sub, dok: r.dok };
+      }
+    });
+
+    setLoadState(90, 'Loading your progress…');
+
+    // Now run the rest of the init that depends on ALL_QUESTIONS
+    loadProgress();
+    updateDash();
+    renderHeatGrid();
+
+    setLoadState(100, 'Ready!');
+
+    // Small delay so user sees 100% briefly, then hide the banner and show home
+    await new Promise(r => setTimeout(r, 400));
+    document.getElementById('screen-loading').style.display = 'none';
+    showScreen('screen-home');
+
+  } catch(e) {
+    const banner = document.getElementById('screen-loading');
+    banner.style.background = '#dc2626';
+    document.getElementById('load-msg').textContent = '❌ ' + e.message + ' — check connection';
+    document.getElementById('load-bar').style.background = '#fca5a5';
+    console.error('fetchQuestionBank failed:', e);
+  }
+}
+
+
+
+const STRANDS = [
+  "Numbers & Operations",
+  "Algebraic Thinking",
+  "Geometry",
+  "Measurement",
+  "Data Analysis & Prob."
+];
+
+function computeHeatDataFromRows(rows) {
+  // Build heat data from Supabase rows — latest attempt per question
+  const data = {};
+  STRANDS.forEach(s => { data[s] = {1:{c:0,t:0}, 2:{c:0,t:0}, 3:{c:0,t:0}}; });
+  // Get latest result per question_id
+  const latest = {};
+  rows.forEach(r => { if (!latest[r.question_id]) latest[r.question_id] = r; });
+  Object.values(latest).forEach(r => {
+    const tx = TAXONOMY[r.question_id];
+    if (!tx) return;
+    data[tx.strand][tx.dok].t++;
+    if (r.correct) data[tx.strand][tx.dok].c++;
+  });
+  return data;
+}
+
+function applyHeatData(data) {
+  const el = document.getElementById('heat-grid-body');
+  if (!el) return;
+  el.innerHTML = STRANDS.map(s => {
+    const cells = [1,2,3].map(d => {
+      const {c,t} = data[s][d];
+      if (t === 0) return `<div class="hc"><div class="hcell hc-none">—</div></div>`;
+      const pct = Math.round(c/t*100);
+      const cls = pct >= 70 ? 'hc-strong' : pct >= 50 ? 'hc-ok' : 'hc-weak';
+      return `<div class="hc"><div class="hcell ${cls}">${pct}%<br><span style="font-size:10px;opacity:0.7;">${c}/${t}</span></div></div>`;
+    }).join('');
+    const shortName = s.replace('Numbers & Operations','Numbers & Ops').replace('Data Analysis & Prob.','Data & Prob.');
+    return `<div class="heat-row"><div class="hc">${shortName}</div>${cells}</div>`;
+  }).join('');
+}
+
+async function renderHeatGrid() {
+  const el = document.getElementById('heat-grid-body');
+  if (!el) return;
+  // Show loading state
+  el.innerHTML = `<div class="heat-row"><div class="hc" style="grid-column:span 4;color:var(--color-text-tertiary);font-size:12px;padding:14px;">Loading performance data…</div></div>`;
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=question_id,correct&order=answered_at.desc&limit=500', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = await res.json();
+    if (rows.length === 0) {
+      el.innerHTML = `<div class="heat-row"><div class="hc" style="grid-column:span 4;color:var(--color-text-tertiary);font-size:12px;padding:14px;">Answer some questions to see your performance map</div></div>`;
+      return;
+    }
+    applyHeatData(computeHeatDataFromRows(rows));
+  } catch(e) {
+    el.innerHTML = `<div class="heat-row"><div class="hc" style="grid-column:span 4;color:var(--color-text-tertiary);font-size:12px;padding:14px;">Could not load data — check connection</div></div>`;
+  }
+}
+
+// Initialise on load — fetchQuestionBank handles everything
+fetchQuestionBank();
+</script>
+</body>
+</html>
