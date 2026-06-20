@@ -141,6 +141,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 /* PARENT DASHBOARD */
 .ql-wrap{max-width:760px;margin:0 auto;padding:1.1rem 1rem 3rem;}
 </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
 <body>
 
@@ -1084,10 +1085,15 @@ function renderParentDash(rows) {
 
   // Render progress chart after DOM update
   if (sessionScores.length >= 2) {
-    setTimeout(() => {
+    function drawProgressChart(attempts) {
       const canvas = document.getElementById('pd-progress-chart');
-      if (!canvas || !window.Chart) return;
-      new Chart(canvas, {
+      if (!canvas) return;
+      if (!window.Chart) {
+        if (attempts > 20) return;
+        setTimeout(() => drawProgressChart(attempts + 1), 200);
+        return;
+      }
+      new window.Chart(canvas, {
         type: 'line',
         data: {
           labels: sessionScores.map(s => s.date),
@@ -1112,7 +1118,8 @@ function renderParentDash(rows) {
           }
         }
       });
-    }, 100);
+    }
+    drawProgressChart(0);
   }
 }
 
