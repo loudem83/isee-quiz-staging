@@ -558,40 +558,106 @@ function loadWorkout() {
   contentEl.innerHTML = html;
 }
 
-function startWorkout(safeStrand) {
+async function startWorkout(safeStrand) {
   const strand = decodeURIComponent(safeStrand);
+  const statusEl = document.getElementById('workout-status');
+  statusEl.textContent = 'Building your workout…';
 
-  // Get all questions for this strand
+  // ── 1. Fetch answer history for this student ──────────────────────────
+  let history = [];
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=question_id,correct,answered_at&order=answered_at.desc&limit=1000', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    if (res.ok) history = await res.json();
+  } catch(e) { /* proceed without history */ }
+
+  // ── 2. Build lookup: question_id → { lastSeen, correctCount, totalCount } ──
+  const histMap = {};
+  history.forEach(r => {
+    if (!histMap[r.question_id]) histMap[r.question_id] = { lastSeen: r.answered_at, correct: 0, total: 0 };
+    else if (r.answered_at > histMap[r.question_id].lastSeen) histMap[r.question_id].lastSeen = r.answered_at;
+    histMap[r.question_id].total++;
+    if (r.correct) histMap[r.question_id].correct++;
+  });
+
+  // ── 3. Build skill accuracy map for this strand ───────────────────────
+  const skillAcc = {};
+  ALL_QUESTIONS.forEach(q => {
+    const tax = TAXONOMY[q.n];
+    if (!tax || tax.strand !== strand || !tax.skill) return;
+    const h = histMap[q.n];
+    if (!h) return;
+    if (!skillAcc[tax.skill]) skillAcc[tax.skill] = { correct: 0, total: 0 };
+    skillAcc[tax.skill].correct += h.correct;
+    skillAcc[tax.skill].total  += h.total;
+  });
+
+  // ── 4. Score each question ────────────────────────────────────────────
+  const now = new Date();
+
+  function scoreQuestion(q) {
+    const tax  = TAXONOMY[q.n];
+    const h    = histMap[q.n];
+    const skill = tax?.skill;
+
+    // Skill weakness score (0=strong, 1=weak, 0.5=untested)
+    let skillScore = 0.5;
+    if (skill && skillAcc[skill] && skillAcc[skill].total > 0) {
+      const pct = skillAcc[skill].correct / skillAcc[skill].total;
+      skillScore = pct < 0.5  ? 1.0   // needs work
+                 : pct < 0.70 ? 0.75  // developing
+                 : 0.25;              // strong
+    }
+
+    // Recency score (0=seen recently, 1=never seen)
+    let recencyScore = 1.0;
+    if (h && h.lastSeen) {
+      const daysSince = (now - new Date(h.lastSeen)) / (1000 * 60 * 60 * 24);
+      recencyScore = Math.min(daysSince / 7, 1.0); // caps at 1 after 7 days
+    }
+
+    // Individual question accuracy penalty
+    let accuracyScore = 0.5;
+    if (h && h.total > 0) {
+      accuracyScore = 1 - (h.correct / h.total); // 1=always wrong, 0=always right
+    }
+
+    // Combined priority (higher = serve sooner)
+    return (skillScore * 0.4) + (recencyScore * 0.35) + (accuracyScore * 0.25);
+  }
+
+  // ── 5. Filter to strand, score, sort ─────────────────────────────────
   const pool = ALL_QUESTIONS.filter(q => {
     const tax = TAXONOMY[q.n];
     return tax && tax.strand === strand;
   });
-  if (pool.length === 0) { alert('No questions found for this topic.'); return; }
 
-  // Shuffle within each DoK level, then sort DoK 1 → 2 → 3, cap at 20
-  function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }
+  if (pool.length === 0) { statusEl.textContent = ''; alert('No questions found for this topic.'); return; }
 
-  const d1 = shuffle(pool.filter(q => TAXONOMY[q.n]?.dok === 1));
-  const d2 = shuffle(pool.filter(q => TAXONOMY[q.n]?.dok === 2));
-  const d3 = shuffle(pool.filter(q => TAXONOMY[q.n]?.dok === 3));
+  // Sort by priority descending, shuffle within ties
+  pool.forEach(q => { q._priority = scoreQuestion(q); });
+  pool.sort((a, b) => {
+    const diff = b._priority - a._priority;
+    if (Math.abs(diff) > 0.05) return diff;
+    return Math.random() - 0.5; // shuffle within similar priority
+  });
 
-  // Build ordered list, cap total at 20
-  // Allocate proportionally but always keep DoK order
-  const ordered = [...d1, ...d2, ...d3].slice(0, 20);
+  // Take top 20, then re-sort by DoK 1 → 2 → 3
+  const top20 = pool.slice(0, 20);
+  top20.sort((a, b) => {
+    const da = TAXONOMY[a.n]?.dok || 2;
+    const db = TAXONOMY[b.n]?.dok || 2;
+    return da - db;
+  });
 
-  if (ordered.length === 0) { alert('No questions found for this topic.'); return; }
-
+  // ── 6. Launch quiz ────────────────────────────────────────────────────
   const strandLabels = {'Whole Numbers':'Whole Numbers','Decimals, Fractions & Percentages':'Decimals, Fractions & Percentages','Algebraic Thinking':'Algebraic Concepts','Measurement':'Measurement','Geometry':'Geometry','Data Analysis & Prob.':'Data Analysis & Probability'};
 
   mode = 'workout';
-  curQs = ordered;
+  curQs = top20;
   cur = 0;
+  statusEl.textContent = '';
   document.getElementById('quiz-title').textContent = '🏋️ ' + (strandLabels[strand] || strand);
   document.getElementById('bar-fill').className = 'bar-fill all';
   showScreen('screen-quiz');
