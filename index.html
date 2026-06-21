@@ -90,7 +90,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .bar-fill.all{background:linear-gradient(90deg,#8b5cf6,#1a3a5c);}
 .bar-fill.workout{background:linear-gradient(90deg,#f59e0b,#ef4444);}
 
-/* ── Countdown overlay ── */
+/* POINTS & HINTS */
+.points-badge{display:flex;align-items:center;gap:5px;background:#fef9c3;color:#854d0e;border-radius:99px;padding:3px 10px;font-size:0.8rem;font-weight:600;cursor:default;}
+.points-badge .coin{font-size:1rem;}
+.hint-bar{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;min-height:32px;}
+.hint-btn{background:#fef9c3;color:#854d0e;border:1.5px solid #fde68a;border-radius:8px;padding:5px 14px;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all .2s;}
+.hint-btn:hover{background:#fde68a;}
+.hint-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.hint-used{font-size:0.75rem;color:#94a3b8;}
+@keyframes pointsPop{0%{transform:scale(1)}40%{transform:scale(1.3)}100%{transform:scale(1)}}
+.points-pop{animation:pointsPop .3s ease;}
+.hint-crossed{text-decoration:line-through;opacity:0.35;pointer-events:none;}
 #workout-countdown{position:fixed;inset:0;background:rgba(26,58,92,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;pointer-events:none;}
 #workout-countdown .cd-topic{font-size:1.1rem;font-weight:600;color:rgba(255,255,255,0.7);margin-bottom:1rem;letter-spacing:.04em;}
 #workout-countdown .cd-number{font-size:6rem;font-weight:700;color:white;line-height:1;animation:cdPop 0.4s ease;}
@@ -296,7 +306,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
       <div id="sync-indicator" class="sync-bar"></div>
       <div class="progress-top">
         <span id="prog-label">0 answered</span>
-        <span class="score-badge" id="score-badge">Score: 0/0</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="points-badge" id="points-badge" title="Earn 10 points per correct answer. Spend 50 for a hint!">
+            <span class="coin">🪙</span><span id="points-display">0</span> pts
+          </div>
+          <span class="score-badge" id="score-badge">Score: 0/0</span>
+        </div>
       </div>
       <div class="bar-track"><div class="bar-fill" id="bar-fill"></div></div>
     </div>
@@ -692,11 +707,12 @@ async function startWorkout(safeStrand) {
   const strandLabels = {'Whole Numbers':'Whole Numbers','Decimals, Fractions & Percentages':'Decimals, Fractions & Percentages','Algebraic Thinking':'Algebraic Concepts','Measurement':'Measurement','Geometry':'Geometry','Data Analysis & Prob.':'Data Analysis & Probability'};
   const label = strandLabels[strand] || strand;
 
-  // Clear answer state for these questions so they appear fresh
+  // Clear answer state and hints for these questions so they appear fresh
   top20.forEach(q => {
     const key = String(q.n);
     delete chosen[key];
     delete statuses[key];
+    delete hintedOptions[key];
   });
 
   // Reset workout state
@@ -835,6 +851,87 @@ function closeWorkoutEnd() {
   goHome();
 }
 
+
+/* ════════════════════════════════════════
+   POINTS & HINTS
+════════════════════════════════════════ */
+const POINTS_PER_CORRECT = 10;
+const HINT_COST          = 50;
+
+let userPoints    = 0;
+let hintedOptions = {}; // key → [crossed-off option indices]
+
+// Load points from Supabase on startup
+async function loadPoints() {
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/user_points?user_id=eq.default&select=points', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    if (!res.ok) return;
+    const rows = await res.json();
+    if (rows.length > 0) {
+      userPoints = rows[0].points;
+      refreshPointsBadge();
+    }
+  } catch(e) {}
+}
+
+// Save points to Supabase
+async function savePoints() {
+  try {
+    await fetch(SUPA_URL + '/rest/v1/user_points?user_id=eq.default', {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ points: userPoints, updated_at: new Date().toISOString() })
+    });
+  } catch(e) {}
+}
+
+function refreshPointsBadge() {
+  const el = document.getElementById('points-display');
+  if (el) el.textContent = userPoints;
+}
+
+function awardPoints(n) {
+  userPoints += n;
+  refreshPointsBadge();
+  // Animate the badge
+  const badge = document.getElementById('points-badge');
+  if (badge) {
+    badge.classList.remove('points-pop');
+    void badge.offsetWidth;
+    badge.classList.add('points-pop');
+    setTimeout(() => badge.classList.remove('points-pop'), 300);
+  }
+  savePoints();
+}
+
+function useHint(key) {
+  if (userPoints < HINT_COST) return;
+  const q = curQs[cur];
+  if (!q || String(q.n) !== key) return;
+  if (!hintedOptions[key]) hintedOptions[key] = [];
+  if (hintedOptions[key].length >= 2) return;
+
+  // Pick a random wrong answer that hasn't been crossed off yet
+  const available = [0,1,2,3].filter(i =>
+    i !== q.ans &&
+    !hintedOptions[key].includes(i)
+  );
+  if (available.length === 0) return;
+
+  const pick = available[Math.floor(Math.random() * available.length)];
+  hintedOptions[key].push(pick);
+
+  userPoints -= HINT_COST;
+  savePoints();
+  renderQ(); // re-render to show crossed-off option and updated points
+}
 
 /* ════════════════════════════════════════
    KEYBOARD NAVIGATION
@@ -994,7 +1091,7 @@ function startDrillSkill(safeKey, fromHome) {
   });
   if (pool.length === 0) { alert('No questions found for this skill.'); return; }
   // Clear answers so questions appear fresh
-  pool.forEach(q => { const k = String(q.n); delete chosen[k]; delete statuses[k]; });
+  pool.forEach(q => { const k = String(q.n); delete chosen[k]; delete statuses[k]; delete hintedOptions[k]; });
   mode = 'drill';
   curQs = pool;
   cur = 0;
@@ -1081,6 +1178,7 @@ function pick(idx) {
   chosen[key] = idx;
   const isCorrect = idx === q.ans;
   statuses[key] = isCorrect ? 'correct' : 'wrong';
+  if (isCorrect) awardPoints(POINTS_PER_CORRECT);
   saveProgress();
   renderQ(); updateDash();
   if (mode === 'workout') {
@@ -1161,17 +1259,35 @@ function renderQ() {
   const diag = q.diag ? `<div class="q-diagram">${diagrams(q.diag)}</div>` : '';
   const opts = q.opts.map((o, i) => {
     let c = 'opt';
+    const hinted = (hintedOptions[key] || []).includes(i);
     if (answered) {
       if (i === q.ans) c += ' correct-ans';
       else if (i === chosen[key]) c += ' wrong-sel';
     }
-    return `<button class="${c}" ${answered ? 'disabled' : ''} onclick="pick(${i})">
+    const crossedClass = hinted && !answered ? ' hint-crossed' : '';
+    return `<button class="${c}${crossedClass}" ${answered || hinted ? 'disabled' : ''} onclick="pick(${i})">
       <span class="badge">${['A','B','C','D'][i]}</span><span>${o}</span>
     </button>`;
   }).join('');
   const fb = answered ? `<div class="feedback ${chosen[key] === q.ans ? 'correct' : 'incorrect'} show">
     <div class="fb-title">${chosen[key] === q.ans ? '✓ Correct!' : '✗ Not quite.'}</div>${q.exp}
   </div>` : '';
+
+  // Hint bar
+  const hintsUsed = (hintedOptions[key] || []).length;
+  const canHint = !answered && hintsUsed < 2 && userPoints >= HINT_COST;
+  const isQA = document.getElementById('screen-qa') && document.getElementById('screen-qa').classList.contains('active');
+  const hintBarHtml = (!answered && mode !== 'qa' && !isQA) ? `
+    <div class="hint-bar">
+      <span class="hint-used">${hintsUsed > 0 ? `💡 ${hintsUsed}/2 hint${hintsUsed>1?'s':''} used` : ''}</span>
+      ${canHint
+        ? `<button class="hint-btn" onclick="useHint('${key}')">💡 Use hint <span style="opacity:0.7;font-size:0.75rem;">(−${HINT_COST} pts)</span></button>`
+        : hintsUsed >= 2
+          ? `<span class="hint-used">Max hints used</span>`
+          : `<span class="hint-used" title="Need ${HINT_COST} pts to use a hint">💡 Need ${HINT_COST} pts for hint</span>`
+      }
+    </div>` : '';
+
   const done = curQs.filter(q2 => chosen[String(q2.n)] != null).length;
   const corr = curQs.filter(q2 => statuses[String(q2.n)] === 'correct').length;
   document.getElementById('q-area').innerHTML = `
@@ -1183,10 +1299,12 @@ function renderQ() {
       <div style="margin-top:0.75rem;text-align:right;">
         <button onclick="pushToQA('${q.n}')" style="font-size:0.8rem;padding:5px 14px;border-radius:8px;border:1.5px solid #c4b5fd;background:#f5f3ff;color:#4c1d95;cursor:pointer;font-weight:600;">✏️ Push to QA</button>
       </div>
+      ${hintBarHtml}
     </div>`;
   document.getElementById('prog-label').textContent = `${done} of ${curQs.length} answered`;
   document.getElementById('score-badge').textContent = `Score: ${corr}/${done}`;
   document.getElementById('bar-fill').style.width = (done / curQs.length * 100) + '%';
+  document.getElementById('points-display').textContent = userPoints;
   document.getElementById('btn-prev').disabled = cur === 0;
   const isLast = cur === curQs.length - 1;
   document.getElementById('btn-next').disabled = isLast;
@@ -1581,7 +1699,7 @@ function pdOpenQuestion(questionId) {
   if (pool.length === 0) return;
   const startIdx = pool.findIndex(q => String(q.n) === questionId);
   // Clear answers so questions appear fresh
-  pool.forEach(q => { const k = String(q.n); delete chosen[k]; delete statuses[k]; });
+  pool.forEach(q => { const k = String(q.n); delete chosen[k]; delete statuses[k]; delete hintedOptions[k]; });
   mode = 'drill';
   curQs = pool;
   cur = Math.max(0, startIdx);
@@ -2105,6 +2223,7 @@ async function fetchQuestionBank() {
     loadProgress();
     updateDash();
     renderHeatGrid();
+    loadPoints();
 
     setLoadState(100, 'Ready!');
 
