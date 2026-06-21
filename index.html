@@ -1282,6 +1282,8 @@ function renderParentDash(rows) {
 
   // ── Skill performance ──────────────────────────────────────────────────
   const skillStats = {};
+  // Also store individual question results per skill for drill-down
+  const skillQuestions = {};
   latestVals.forEach(r => {
     const tax = TAXONOMY[r.question_id];
     if (!tax || !tax.skill) return;
@@ -1289,6 +1291,8 @@ function renderParentDash(rows) {
     if (!skillStats[key]) skillStats[key] = { strand: tax.strand, skill: tax.skill, correct: 0, total: 0 };
     skillStats[key].total++;
     if (r.correct) skillStats[key].correct++;
+    if (!skillQuestions[key]) skillQuestions[key] = [];
+    skillQuestions[key].push(r);
   });
 
   // ── DoK performance ────────────────────────────────────────────────────
@@ -1317,7 +1321,7 @@ function renderParentDash(rows) {
     return { bar:'#E24B4A', text:'#A32D2D' };
   }
 
-  // Build skill rows per strand
+  // Build skill rows per strand — now clickable
   function skillRows(strand) {
     return Object.values(skillStats)
       .filter(s => s.strand === strand)
@@ -1325,13 +1329,15 @@ function renderParentDash(rows) {
       .map(s => {
         const p = Math.round(s.correct/s.total*100);
         const col = scoreColor(p);
-        return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-top:0.5px solid #f1f5f9;">
-          <span style="font-size:0.75rem;color:#64748b;flex:0 0 200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.skill}</span>
-          <div style="flex:1;background:#f1f5f9;border-radius:3px;height:12px;overflow:hidden;">
+        const safeKey = encodeURIComponent((s.strand||'') + '|||' + s.skill);
+        return `<div onclick="pdShowSkillDrill('${safeKey}')" style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:0.5px solid #f1f5f9;cursor:pointer;">
+          <span style="font-size:0.75rem;color:#64748b;flex:0 0 180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.skill}</span>
+          <div style="flex:1;background:#f1f5f9;border-radius:3px;height:10px;overflow:hidden;">
             <div style="width:${p}%;height:100%;background:${col.bar};border-radius:3px;"></div>
           </div>
           <span style="font-size:0.75rem;font-weight:600;color:${col.text};flex:0 0 32px;text-align:right;">${p}%</span>
-          <span style="font-size:0.72rem;color:#94a3b8;flex:0 0 28px;text-align:right;">${s.total}q</span>
+          <span style="font-size:0.72rem;color:#94a3b8;flex:0 0 24px;text-align:right;">${s.total}q</span>
+          <span style="font-size:0.72rem;color:#94a3b8;">›</span>
         </div>`;
       }).join('');
   }
@@ -1364,49 +1370,20 @@ function renderParentDash(rows) {
     </div>`;
   }).join('');
 
-  // Session history table
-  const sessionRows = Object.keys(sessions).sort().reverse().slice(0,10).map(sid => {
-    const sr = sessions[sid];
-    const date = sid.slice(0,10);
-    const c = sr.filter(r => r.correct).length;
-    const t = sr.length;
-    const mac = sr.filter(r => r.section==='MA' && r.correct).length;
-    const mat = sr.filter(r => r.section==='MA').length;
-    const qrc = sr.filter(r => r.section==='QR' && r.correct).length;
-    const qrt = sr.filter(r => r.section==='QR').length;
-    return `<tr>
-      <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:0.85rem;">${date}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;font-weight:700;color:#1a3a5c;">${c}/${t}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;color:#1d4ed8;">${mat>0?mac+'/'+mat:'—'}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;color:#0f6e56;">${qrt>0?qrc+'/'+qrt:'—'}</td>
-    </tr>`;
-  }).join('');
-
-  function qRow(r) {
-    const ok = r.correct;
-    const q = ALL_QUESTIONS.find(q => String(q.n) === r.question_id);
-    const preview = q ? q.text.split('\n')[0].slice(0,55)+(q.text.length>55?'…':'') : r.question_id;
-    return `<tr>
-      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;font-size:0.8rem;font-weight:700;color:#64748b;white-space:nowrap;">${r.question_id}</td>
-      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;font-size:0.82rem;color:#334155;">${preview}</td>
-      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;text-align:center;">
-        <span style="background:${ok?'#d1fae5':'#fee2e2'};color:${ok?'#065f46':'#991b1b'};padding:3px 10px;border-radius:99px;font-size:0.75rem;font-weight:700;">${ok?'✓ Correct':'✗ Wrong'}</span>
-      </td>
-      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:0.82rem;color:#64748b;">${r.attempts}</td>
-    </tr>`;
-  }
-
-  const maRows = Object.values(latest).filter(r => r.section === 'MA').sort((a,b) => a.question_id.localeCompare(b.question_id, undefined, {numeric:true}));
-  const qrRows = Object.values(latest).filter(r => r.section === 'QR').sort((a,b) => a.question_id.localeCompare(b.question_id, undefined, {numeric:true}));
+  // Store skill questions for drill-down access
+  window._pdSkillQuestions = skillQuestions;
 
   document.getElementById('pd-content').innerHTML = `
     <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">Overview</div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem;">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem;">
       <div style="background:#f1f5f9;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#334155;">${totalAns}</div><div style="font-size:0.72rem;color:#94a3b8;margin-top:3px;">Questions answered</div></div>
       <div style="background:#d1fae5;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#065f46;">${pct}%</div><div style="font-size:0.72rem;color:#065f46;margin-top:3px;opacity:0.8;">Overall score</div></div>
       <div style="background:#f1f5f9;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#334155;">${sessionCount}</div><div style="font-size:0.72rem;color:#94a3b8;margin-top:3px;">Sessions</div></div>
-      <div style="background:#f1f5f9;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#334155;">${190 - totalAns}</div><div style="font-size:0.72rem;color:#94a3b8;margin-top:3px;">Questions remaining</div></div>
+      <div style="background:#f1f5f9;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#334155;">${Math.max(0, ALL_QUESTIONS.length - totalAns)}</div><div style="font-size:0.72rem;color:#94a3b8;margin-top:3px;">Remaining</div></div>
     </div>
+
+    <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">DoK breakdown</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem;">${dokCards}</div>
 
     ${sessionScores.length >= 2 ? `
     <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">Progress over time</div>
@@ -1416,42 +1393,29 @@ function renderParentDash(rows) {
       </div>
     </div>` : ''}
 
-    <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">Performance by skill</div>
+    <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">Performance by skill <span style="font-weight:400;text-transform:none;letter-spacing:0;">— click a skill to see questions</span></div>
     <div style="margin-bottom:1.25rem;">${strandBlocks || '<div style="color:#94a3b8;font-size:0.85rem;">No skill data yet — answer some questions first.</div>'}</div>
 
-    <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">DoK breakdown</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem;">${dokCards}</div>
+    <div id="pd-skill-drill" style="display:none;margin-bottom:1.25rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;" id="pd-drill-label"></div>
+        <button onclick="document.getElementById('pd-skill-drill').style.display='none'" style="font-size:0.75rem;color:#64748b;border:0.5px solid #e2e8f0;background:white;border-radius:6px;padding:3px 10px;cursor:pointer;">✕ Close</button>
+      </div>
+      <div style="font-size:0.8rem;color:#64748b;margin-bottom:8px;" id="pd-drill-summary"></div>
+      <div style="background:white;border-radius:12px;border:0.5px solid #e2e8f0;overflow:hidden;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead><tr style="background:#f8fafc;">
+            <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Q</th>
+            <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Question</th>
+            <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Result</th>
+            <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Attempts</th>
+          </tr></thead>
+          <tbody id="pd-drill-rows"></tbody>
+        </table>
+      </div>
+    </div>`;
 
-    <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">Recent sessions</div>
-    <div style="background:white;border-radius:12px;border:0.5px solid #e2e8f0;margin-bottom:1.25rem;overflow:hidden;">
-      <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;">
-        <th style="padding:10px 14px;text-align:left;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#94a3b8;">Date</th>
-        <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#94a3b8;">Total</th>
-        <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#1d4ed8;">MA</th>
-        <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#0f6e56;">QR</th>
-      </tr></thead><tbody>${sessionRows}</tbody></table>
-    </div>
-
-    ${maRows.length > 0 ? `<div style="background:white;border-radius:12px;border:0.5px solid #e2e8f0;margin-bottom:1.25rem;overflow:hidden;">
-      <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#1d4ed8;">Mathematics Achievement</div>
-      <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;">
-        <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Q</th>
-        <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Question</th>
-        <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Result</th>
-        <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Attempts</th>
-      </tr></thead><tbody>${maRows.map(qRow).join('')}</tbody></table>
-    </div>` : ''}
-    ${qrRows.length > 0 ? `<div style="background:white;border-radius:12px;border:0.5px solid #e2e8f0;margin-bottom:1.25rem;overflow:hidden;">
-      <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#0f6e56;">Quantitative Reasoning</div>
-      <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;">
-        <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Q</th>
-        <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Question</th>
-        <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Result</th>
-        <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Attempts</th>
-      </tr></thead><tbody>${qrRows.map(qRow).join('')}</tbody></table>
-    </div>` : ''}`;
-
-  // Render progress chart after DOM update
+  // Render progress chart
   if (sessionScores.length >= 2) {
     function drawProgressChart(attempts) {
       const canvas = document.getElementById('pd-progress-chart');
@@ -1489,6 +1453,39 @@ function renderParentDash(rows) {
     }
     drawProgressChart(0);
   }
+}
+
+function pdShowSkillDrill(safeKey) {
+  const key = decodeURIComponent(safeKey);
+  const [strand, skill] = key.split('|||');
+  const qs = (window._pdSkillQuestions || {})[key] || [];
+  if (qs.length === 0) return;
+
+  const correct = qs.filter(r => r.correct).length;
+  const pct = Math.round(correct / qs.length * 100);
+
+  document.getElementById('pd-drill-label').textContent = skill + ' — ' + pct + '% correct';
+  document.getElementById('pd-drill-summary').textContent =
+    correct + ' correct, ' + (qs.length - correct) + ' incorrect out of ' + qs.length + ' attempted';
+
+  const sorted = [...qs].sort((a,b) => a.question_id.localeCompare(b.question_id, undefined, {numeric:true}));
+  document.getElementById('pd-drill-rows').innerHTML = sorted.map(r => {
+    const q = ALL_QUESTIONS.find(q => String(q.n) === r.question_id);
+    const preview = q ? q.text.split('\n')[0].slice(0,60) + (q.text.length > 60 ? '…' : '') : r.question_id;
+    const ok = r.correct;
+    return `<tr>
+      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;font-size:0.8rem;font-weight:600;color:#64748b;white-space:nowrap;">${r.question_id}</td>
+      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;font-size:0.82rem;color:#334155;">${preview}</td>
+      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;text-align:center;">
+        <span style="background:${ok?'#d1fae5':'#fee2e2'};color:${ok?'#065f46':'#991b1b'};padding:3px 10px;border-radius:99px;font-size:0.75rem;font-weight:600;">${ok?'✓ Correct':'✗ Wrong'}</span>
+      </td>
+      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:0.82rem;color:#64748b;">${r.attempts}</td>
+    </tr>`;
+  }).join('');
+
+  const drillEl = document.getElementById('pd-skill-drill');
+  drillEl.style.display = 'block';
+  drillEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 /* ════════════════════════════════════════
