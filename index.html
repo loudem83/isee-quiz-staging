@@ -14,6 +14,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .top-bar h1{font-size:1.1rem;font-weight:600;}
 .back-btn{background:rgba(255,255,255,0.15);border:none;color:white;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;margin-left:auto;}
 .back-btn:hover{background:rgba(255,255,255,0.25);}
+.back-btn-prev{background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.8);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:0.82rem;font-weight:500;margin-left:auto;}
+.back-btn-prev:hover{background:rgba(255,255,255,0.18);}
+.top-bar-btns{display:flex;flex-direction:column;gap:4px;margin-left:auto;}
+
+/* ── Bravo overlay ── */
+#bravo-overlay{position:fixed;inset:0;background:rgba(26,58,92,0.93);z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+#bravo-overlay .br-emoji{font-size:6rem;animation:brPop 0.5s cubic-bezier(.17,.67,.48,1.4);}
+#bravo-overlay .br-title{font-size:2.5rem;font-weight:700;color:white;margin-top:1rem;animation:brFade 0.5s ease 0.2s both;}
+#bravo-overlay .br-sub{font-size:1.1rem;color:rgba(255,255,255,0.75);margin-top:0.5rem;animation:brFade 0.5s ease 0.4s both;}
+#bravo-overlay .br-stars{font-size:2rem;margin-top:1rem;animation:brFade 0.5s ease 0.6s both;}
+@keyframes brPop{0%{transform:scale(0);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+@keyframes brFade{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
 
 /* HOME */
 .home-hero{background:linear-gradient(135deg,#1a3a5c 0%,#0f6e56 100%);color:white;padding:3rem 1.5rem 2.5rem;text-align:center;}
@@ -274,7 +286,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 <div id="screen-quiz" class="screen">
   <div class="top-bar">
     <h1 id="quiz-title">Quiz</h1>
-    <button class="back-btn" onclick="goHome()">← Home</button>
+    <div class="top-bar-btns">
+      <button class="back-btn" onclick="goHome()">← Home</button>
+      <button class="back-btn-prev" id="quiz-back-btn" onclick="goBack()" style="display:none">↩ Back</button>
+    </div>
   </div>
   <div class="quiz-wrap">
     <div class="progress-wrap">
@@ -292,6 +307,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
     <div id="q-area"></div>
     <div class="q-nav">
       <button class="nav-btn" id="btn-prev" onclick="go(cur-1)">← Previous</button>
+      <button class="nav-btn" id="btn-finish" onclick="triggerBravo()" style="display:none;background:#0f6e56;color:white;border-color:#0f6e56;">Finish 😊</button>
       <button class="nav-btn primary" id="btn-next" onclick="go(cur+1)">Next →</button>
     </div>
   </div>
@@ -694,6 +710,7 @@ async function startWorkout(safeStrand) {
   statusEl.textContent = '';
   document.getElementById('quiz-title').textContent = '🏋️ ' + label;
   document.getElementById('bar-fill').className = 'bar-fill workout';
+  setLastScreen('screen-workout');
   showScreen('screen-quiz');
 
   // Show countdown then render first question
@@ -819,6 +836,59 @@ function closeWorkoutEnd() {
 }
 
 
+/* ════════════════════════════════════════
+   KEYBOARD NAVIGATION
+════════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  const quiz = document.getElementById('screen-quiz');
+  if (!quiz || !quiz.classList.contains('active')) return;
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'ArrowLeft')  go(cur - 1);
+  if (e.key === 'ArrowRight') go(cur + 1);
+});
+
+/* ════════════════════════════════════════
+   BACK NAVIGATION
+════════════════════════════════════════ */
+let lastScreen = null; // screen id to go back to
+
+function setLastScreen(screenId) {
+  lastScreen = screenId;
+  const btn = document.getElementById('quiz-back-btn');
+  if (btn) {
+    btn.style.display = screenId ? '' : 'none';
+    btn.textContent = '↩ ' + (screenId === 'screen-drill' ? 'Drill by Topic'
+                            : screenId === 'screen-workout' ? 'Workout'
+                            : 'Back');
+  }
+}
+
+function goBack() {
+  if (lastScreen) showScreen(lastScreen);
+  else goHome();
+}
+
+/* ════════════════════════════════════════
+   BRAVO ANIMATION
+════════════════════════════════════════ */
+function triggerBravo() {
+  const done  = curQs.filter(q => chosen[String(q.n)] != null).length;
+  const corr  = curQs.filter(q => statuses[String(q.n)] === 'correct').length;
+  const pct   = done ? Math.round(corr / done * 100) : 0;
+  const sub   = pct >= 90 ? 'Outstanding performance! 🏆'
+              : pct >= 70 ? `${corr} out of ${done} correct — well done!`
+              : pct >= 50 ? `${corr} out of ${done} correct — keep practising!`
+              : `${corr} out of ${done} correct — you\'re improving!`;
+  document.getElementById('bravo-sub').textContent = sub;
+  const stars = pct >= 90 ? '⭐ ⭐ ⭐' : pct >= 70 ? '⭐ ⭐' : '⭐';
+  document.getElementById('bravo-overlay').querySelector('.br-stars').textContent = stars;
+  document.getElementById('bravo-overlay').style.display = 'flex';
+  setTimeout(() => {
+    document.getElementById('bravo-overlay').style.display = 'none';
+    goHome();
+  }, 3200);
+}
+
 function loadDrill() {
   const statusEl  = document.getElementById('drill-status');
   const contentEl = document.getElementById('drill-content');
@@ -908,6 +978,7 @@ function startDrillStrand(safeStrand) {
   const labels = {'Whole Numbers':'Whole Numbers','Decimals, Fractions & Percentages':'Decimals, Fractions & Percentages','Algebraic Thinking':'Algebraic Concepts','Measurement':'Measurement','Geometry':'Geometry','Data Analysis & Prob.':'Data Analysis & Probability'};
   document.getElementById('quiz-title').textContent = labels[strand] || strand;
   document.getElementById('bar-fill').className = 'bar-fill all';
+  setLastScreen('screen-drill');
   showScreen('screen-quiz');
   renderQ();
 }
@@ -925,6 +996,7 @@ function startDrillSkill(safeKey) {
   cur = 0;
   document.getElementById('quiz-title').textContent = skill;
   document.getElementById('bar-fill').className = 'bar-fill all';
+  setLastScreen('screen-drill');
   showScreen('screen-quiz');
   renderQ();
 }
@@ -1112,7 +1184,10 @@ function renderQ() {
   document.getElementById('score-badge').textContent = `Score: ${corr}/${done}`;
   document.getElementById('bar-fill').style.width = (done / curQs.length * 100) + '%';
   document.getElementById('btn-prev').disabled = cur === 0;
-  document.getElementById('btn-next').disabled = cur === curQs.length - 1;
+  const isLast = cur === curQs.length - 1;
+  document.getElementById('btn-next').disabled = isLast;
+  document.getElementById('btn-next').style.display = isLast ? 'none' : '';
+  document.getElementById('btn-finish').style.display = isLast ? '' : 'none';
   renderTabs();
 }
 
@@ -1529,6 +1604,8 @@ function goHome() {
   document.getElementById('streak-badge').classList.remove('show');
   document.getElementById('milestone-banner').classList.remove('show');
   document.getElementById('workout-end').style.display = 'none';
+  document.getElementById('bravo-overlay').style.display = 'none';
+  setLastScreen(null);
   showScreen('screen-home'); updateDash();
 }
 
@@ -2098,6 +2175,13 @@ fetchQuestionBank();
   </div>
   <button class="we-btn" onclick="restartWorkout()">🏋️ Another Workout</button>
   <button class="we-btn sec" onclick="closeWorkoutEnd()">← Back to Home</button>
+</div>
+<!-- Bravo overlay -->
+<div id="bravo-overlay">
+  <div class="br-emoji">🎉</div>
+  <div class="br-title">Bravo!</div>
+  <div class="br-sub" id="bravo-sub">Great work!</div>
+  <div class="br-stars">⭐ ⭐ ⭐</div>
 </div>
 </body>
 </html>
