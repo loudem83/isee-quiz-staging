@@ -857,8 +857,10 @@ function setLastScreen(screenId) {
   const btn = document.getElementById('quiz-back-btn');
   if (btn) {
     btn.style.display = screenId ? '' : 'none';
-    btn.textContent = '↩ ' + (screenId === 'screen-drill' ? 'Drill by Topic'
+    btn.textContent = '↩ ' + (screenId === 'screen-drill'   ? 'Drill by Topic'
                             : screenId === 'screen-workout' ? 'Workout'
+                            : screenId === 'screen-pd'      ? 'Dashboard'
+                            : screenId === 'screen-home'    ? 'Home'
                             : 'Back');
   }
 }
@@ -1393,9 +1395,11 @@ function renderParentDash(rows) {
   const strandLabels = {'Whole Numbers':'Whole Numbers','Decimals, Fractions & Percentages':'Decimals, Fractions & Percentages','Algebraic Thinking':'Algebraic Concepts','Measurement':'Measurement','Geometry':'Geometry','Data Analysis & Prob.':'Data Analysis & Probability'};
 
   function scoreColor(p) {
-    if (p >= 70) return { bar:'#639922', text:'#3B6D11' };
-    if (p >= 50) return { bar:'#BA7517', text:'#854F0B' };
-    return { bar:'#E24B4A', text:'#A32D2D' };
+    if (p >= 85) return { bar:'#27500A', text:'#173404' };  // dark green
+    if (p >= 70) return { bar:'#639922', text:'#3B6D11' };  // mid green
+    if (p >= 55) return { bar:'#97C459', text:'#3B6D11' };  // light green
+    if (p >= 40) return { bar:'#EF9F27', text:'#633806' };  // yellow/amber
+    return       { bar:'#E24B4A', text:'#A32D2D' };          // red
   }
 
   // Build skill rows per strand — now clickable
@@ -1546,23 +1550,46 @@ function pdShowSkillDrill(safeKey) {
     correct + ' correct, ' + (qs.length - correct) + ' incorrect out of ' + qs.length + ' attempted';
 
   const sorted = [...qs].sort((a,b) => a.question_id.localeCompare(b.question_id, undefined, {numeric:true}));
+  // Store the full skill pool question ids for navigation in quiz
+  window._pdDrillPool = sorted.map(r => r.question_id);
+
   document.getElementById('pd-drill-rows').innerHTML = sorted.map(r => {
     const q = ALL_QUESTIONS.find(q => String(q.n) === r.question_id);
     const preview = q ? q.text.split('\n')[0].slice(0,60) + (q.text.length > 60 ? '…' : '') : r.question_id;
     const ok = r.correct;
-    return `<tr>
+    return `<tr onclick="pdOpenQuestion('${r.question_id}')" style="cursor:pointer;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
       <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;font-size:0.8rem;font-weight:600;color:#64748b;white-space:nowrap;">${r.question_id}</td>
       <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;font-size:0.82rem;color:#334155;">${preview}</td>
       <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;text-align:center;">
         <span style="background:${ok?'#d1fae5':'#fee2e2'};color:${ok?'#065f46':'#991b1b'};padding:3px 10px;border-radius:99px;font-size:0.75rem;font-weight:600;">${ok?'✓ Correct':'✗ Wrong'}</span>
       </td>
       <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:0.82rem;color:#64748b;">${r.attempts}</td>
+      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:0.8rem;color:#94a3b8;">›</td>
     </tr>`;
   }).join('');
 
   const drillEl = document.getElementById('pd-skill-drill');
   drillEl.style.display = 'block';
   drillEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function pdOpenQuestion(questionId) {
+  // Build pool from the current drill list, preserving order
+  const pool = (window._pdDrillPool || [questionId])
+    .map(id => ALL_QUESTIONS.find(q => String(q.n) === id))
+    .filter(Boolean);
+  if (pool.length === 0) return;
+  const startIdx = pool.findIndex(q => String(q.n) === questionId);
+  // Clear answers so questions appear fresh
+  pool.forEach(q => { const k = String(q.n); delete chosen[k]; delete statuses[k]; });
+  mode = 'drill';
+  curQs = pool;
+  cur = Math.max(0, startIdx);
+  document.getElementById('quiz-title').textContent = 'Review question';
+  document.getElementById('bar-fill').className = 'bar-fill all';
+  setLastScreen('screen-pd');
+  showScreen('screen-quiz');
+  renderQ();
 }
 
 /* ════════════════════════════════════════
