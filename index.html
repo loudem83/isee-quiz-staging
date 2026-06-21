@@ -220,69 +220,52 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 
 
     <div class="dash-section">
-      <div class="dash-title">📊 Dashboard</div>
-      <div class="stats-grid">
-        <div class="stat-card total"><div class="val" id="d-total">31</div><div class="lbl">Total Qs</div></div>
-        <div class="stat-card answered"><div class="val" id="d-answered">0</div><div class="lbl">Answered</div></div>
-        <div class="stat-card correct"><div class="val" id="d-correct">0</div><div class="lbl">Correct</div></div>
-        <div class="stat-card wrong"><div class="val" id="d-wrong">0</div><div class="lbl">Incorrect</div></div>
+      <div class="dash-title">📊 Progress snapshot</div>
+
+      <!-- 4 metric cards -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;">
+        <div style="background:#f1f5f9;border-radius:10px;padding:10px 6px;text-align:center;">
+          <div style="font-size:1.35rem;font-weight:500;color:#1a3a5c;line-height:1" id="snap-done">—</div>
+          <div style="font-size:10px;color:#94a3b8;margin-top:3px;">Done</div>
+        </div>
+        <div style="background:#f1f5f9;border-radius:10px;padding:10px 6px;text-align:center;">
+          <div style="font-size:1.35rem;font-weight:500;color:#1d4ed8;line-height:1" id="snap-score">—</div>
+          <div style="font-size:10px;color:#94a3b8;margin-top:3px;">Score</div>
+        </div>
+        <div style="background:#f1f5f9;border-radius:10px;padding:10px 6px;text-align:center;">
+          <div style="font-size:1.35rem;font-weight:500;color:#059669;line-height:1" id="snap-thisweek">—</div>
+          <div style="font-size:10px;color:#94a3b8;margin-top:3px;">This week</div>
+        </div>
+        <div style="background:#f1f5f9;border-radius:10px;padding:10px 6px;text-align:center;">
+          <div style="font-size:1.35rem;font-weight:500;color:#1a3a5c;line-height:1" id="snap-remaining">—</div>
+          <div style="font-size:10px;color:#94a3b8;margin-top:3px;">Remaining</div>
+        </div>
       </div>
-      <div class="mini-bar-wrap">
-        <div class="mini-bar-label"><span>Answered</span><span id="d-ans-pct">0%</span></div>
-        <div class="mini-bar-track"><div class="mini-bar-fill answered" id="bar-answered" style="width:0%"></div></div>
-        <div class="mini-bar-label"><span>Correct</span><span id="d-cor-pct">0%</span></div>
-        <div class="mini-bar-track"><div class="mini-bar-fill correct" id="bar-correct" style="width:0%"></div></div>
-        <div class="mini-bar-label"><span>Incorrect</span><span id="d-wrg-pct">0%</span></div>
-        <div class="mini-bar-track"><div class="mini-bar-fill wrong" id="bar-wrong" style="width:0%"></div></div>
+
+      <!-- Week comparison bars -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:7px;">
+        <div style="font-size:11px;font-weight:600;color:#64748b;width:68px;flex-shrink:0;">This week</div>
+        <div style="flex:1;background:#e2e8f0;border-radius:4px;height:10px;overflow:hidden;">
+          <div id="snap-bar-tw" style="height:100%;border-radius:4px;background:#1d4ed8;width:0%;transition:width .5s"></div>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:#1a3a5c;min-width:22px;text-align:right;" id="snap-tw-count">0</div>
+        <div style="font-size:11px;color:#1d4ed8;min-width:38px;text-align:right;" id="snap-tw-pct">—</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:600;color:#94a3b8;width:68px;flex-shrink:0;">Last week</div>
+        <div style="flex:1;background:#e2e8f0;border-radius:4px;height:10px;overflow:hidden;">
+          <div id="snap-bar-lw" style="height:100%;border-radius:4px;background:#93c5fd;width:0%;transition:width .5s"></div>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:#1a3a5c;min-width:22px;text-align:right;" id="snap-lw-count">0</div>
+        <div style="font-size:11px;color:#64748b;min-width:38px;text-align:right;" id="snap-lw-pct">—</div>
+      </div>
+
+      <!-- Boost section -->
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:8px;">💡 How to boost your score</div>
+      <div id="snap-boost">
+        <div style="font-size:0.82rem;color:#94a3b8;">Answer some questions to see your focus areas.</div>
       </div>
     </div>
-
-    <div class="dash-section">
-      <div class="dash-title">📘 By Section</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div style="background:#dbeafe;border-radius:10px;padding:12px;">
-          <div style="font-size:0.8rem;font-weight:700;color:#1e40af;margin-bottom:6px;">Mathematics Achievement</div>
-          <div style="font-size:0.82rem;color:#1e40af;">Questions: <b id="d-ma-range">MA-1 to MA-11</b></div>
-          <div style="font-size:0.82rem;color:#1e40af;">Answered: <b id="d-ma-ans">0</b> / <b id="d-ma-total">11</b></div>
-          <div style="font-size:0.82rem;color:#1e40af;">Correct: <b id="d-ma-cor">0</b></div>
-          <div style="font-size:0.82rem;color:#1e40af;">Wrong: <b id="d-ma-wrg">0</b></div>
-          <button class="reset-btn" onclick="resetSection('MA')">🔄 Reset MA answers</button>
-        </div>
-        <div style="background:#d1fae5;border-radius:10px;padding:12px;">
-          <div style="font-size:0.8rem;font-weight:700;color:#065f46;margin-bottom:6px;">Quantitative Reasoning</div>
-          <div style="font-size:0.82rem;color:#065f46;">Questions: <b id="d-qr-range">QR-1 to QR-20</b></div>
-          <div style="font-size:0.82rem;color:#065f46;">Answered: <b id="d-qr-ans">0</b> / <b id="d-qr-total">20</b></div>
-          <div style="font-size:0.82rem;color:#065f46;">Correct: <b id="d-qr-cor">0</b></div>
-          <div style="font-size:0.82rem;color:#065f46;">Wrong: <b id="d-qr-wrg">0</b></div>
-          <button class="reset-btn" onclick="resetSection('QR')">🔄 Reset QR answers</button>
-        </div>
-      </div>
-    </div>
-
-
-    <div class="dash-section">
-      <div class="dash-title">📊 Performance by strand &amp; difficulty</div>
-      <div class="heat-wrap">
-        <div class="heat-head">
-          <div class="hh">Strand</div>
-          <div class="hh">DoK 1<br><span style="font-weight:400;font-size:10px;">recall</span></div>
-          <div class="hh">DoK 2<br><span style="font-weight:400;font-size:10px;">conceptual</span></div>
-          <div class="hh">DoK 3<br><span style="font-weight:400;font-size:10px;">analytical</span></div>
-        </div>
-        <div id="heat-grid-body">
-          <div class="heat-row" style="grid-column:span 4;padding:14px;text-align:center;">
-            <div class="hc" style="grid-column:span 4;color:var(--color-text-tertiary);font-size:13px;">Answer some questions to see your performance map</div>
-          </div>
-        </div>
-      </div>
-      <div class="heat-legend">
-        <div class="hl"><div class="hl-dot" style="background:#639922"></div>Strong (70%+)</div>
-        <div class="hl"><div class="hl-dot" style="background:#BA7517"></div>Developing (50–69%)</div>
-        <div class="hl"><div class="hl-dot" style="background:#E24B4A"></div>Needs work (&lt;50%)</div>
-        <div class="hl"><div class="hl-dot" style="background:var(--color-border-tertiary)"></div>Not yet answered</div>
-      </div>
-    </div>
-
 
   </div>
 </div>
@@ -1152,58 +1135,115 @@ function resetSection(sec) {
    DASHBOARD
 ════════════════════════════════════════ */
 async function updateDash() {
-  // Total = hardcoded questions + approved generated questions
-  const allPool = ALL_QUESTIONS;
-  const total = allPool.length;
-  document.getElementById('d-total').textContent = total;
-  document.getElementById('ma-pill').textContent = allPool.filter(q=>q.sec==='MA').length + ' Questions';
-  document.getElementById('qr-pill').textContent = allPool.filter(q=>q.sec==='QR').length + ' Questions';
-  document.getElementById('d-ma-total').textContent = allPool.filter(q=>q.sec==='MA').length;
-  document.getElementById('d-qr-total').textContent = allPool.filter(q=>q.sec==='QR').length;
+  const total = ALL_QUESTIONS.length;
 
-  // Fetch latest results from Supabase
+  // Fetch full answer history
+  let rows = [];
   try {
-    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=question_id,section,correct&order=answered_at.desc&limit=500', {
+    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=question_id,correct,answered_at&order=answered_at.desc&limit=2000', {
       headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
     });
-    if (!res.ok) return;
-    const rows = await res.json();
+    if (res.ok) rows = await res.json();
+  } catch(e) { return; }
 
-    // Latest result per question
-    const latest = {};
-    rows.forEach(r => { if (!latest[r.question_id]) latest[r.question_id] = r; });
-    const latestVals = Object.values(latest);
+  // Latest result per question
+  const latest = {};
+  rows.forEach(r => { if (!latest[r.question_id]) latest[r.question_id] = r; });
+  const latestVals = Object.values(latest);
+  const done  = latestVals.length;
+  const corr  = latestVals.filter(r => r.correct).length;
+  const score = done ? Math.round(corr / done * 100) : null;
+  const remaining = Math.max(0, total - done);
 
-    const ans  = latestVals.length;
-    const corr = latestVals.filter(r => r.correct).length;
-    const wrg  = ans - corr;
+  // Week boundaries (Mon 00:00 local)
+  function weekStart(weeksAgo) {
+    const now = new Date();
+    const day = now.getDay(); // 0=Sun
+    const diffToMon = (day + 6) % 7; // days since last Mon
+    const mon = new Date(now);
+    mon.setDate(now.getDate() - diffToMon - (weeksAgo * 7));
+    mon.setHours(0,0,0,0);
+    return mon;
+  }
+  const thisWeekStart = weekStart(0);
+  const lastWeekStart = weekStart(1);
 
-    const maRows = latestVals.filter(r => r.section === 'MA');
-    const qrRows = latestVals.filter(r => r.section === 'QR');
-    const maAns  = maRows.length;
-    const maCor  = maRows.filter(r => r.correct).length;
-    const qrAns  = qrRows.length;
-    const qrCor  = qrRows.filter(r => r.correct).length;
+  // Count questions answered this week / last week (all attempts, not just latest)
+  const twRows = rows.filter(r => new Date(r.answered_at) >= thisWeekStart);
+  const lwRows = rows.filter(r => {
+    const d = new Date(r.answered_at);
+    return d >= lastWeekStart && d < thisWeekStart;
+  });
 
-    document.getElementById('d-answered').textContent = ans;
-    document.getElementById('d-correct').textContent  = corr;
-    document.getElementById('d-wrong').textContent    = wrg;
-    document.getElementById('d-ans-pct').textContent  = total ? Math.round(ans/total*100)+'%' : '0%';
-    document.getElementById('d-cor-pct').textContent  = ans ? Math.round(corr/ans*100)+'%' : '0%';
-    document.getElementById('d-wrg-pct').textContent  = ans ? Math.round(wrg/ans*100)+'%' : '0%';
-    document.getElementById('bar-answered').style.width = (total ? ans/total*100 : 0)+'%';
-    document.getElementById('bar-correct').style.width  = (ans ? corr/ans*100 : 0)+'%';
-    document.getElementById('bar-wrong').style.width    = (ans ? wrg/ans*100 : 0)+'%';
-    document.getElementById('d-ma-ans').textContent  = maAns;
-    document.getElementById('d-ma-cor').textContent  = maCor;
-    document.getElementById('d-ma-wrg').textContent  = maAns - maCor;
-    document.getElementById('d-ma-range').textContent = 'MA-1 to MA-' + allPool.filter(q=>q.sec==='MA' && /^MA-\d+$/.test(String(q.n))).length;
-    document.getElementById('d-qr-ans').textContent  = qrAns;
-    document.getElementById('d-qr-cor').textContent  = qrCor;
-    document.getElementById('d-qr-wrg').textContent  = qrAns - qrCor;
-    document.getElementById('d-qr-range').textContent = 'QR-1 to QR-' + allPool.filter(q=>q.sec==='QR' && /^QR-\d+$/.test(String(q.n))).length;
-  } catch(e) {
-    // Silently fail — stats will just show 0
+  // Unique questions per week
+  const twUniq = new Set(twRows.map(r => r.question_id));
+  const lwUniq = new Set(lwRows.map(r => r.question_id));
+  const twCount = twUniq.size;
+  const lwCount = lwUniq.size;
+
+  // Correct % per week
+  const twLatest = {};
+  twRows.forEach(r => { if (!twLatest[r.question_id]) twLatest[r.question_id] = r; });
+  const twCorr = Object.values(twLatest).filter(r => r.correct).length;
+  const twPct  = twCount ? Math.round(twCorr / twCount * 100) : null;
+
+  const lwLatest = {};
+  lwRows.forEach(r => { if (!lwLatest[r.question_id]) lwLatest[r.question_id] = r; });
+  const lwCorr = Object.values(lwLatest).filter(r => r.correct).length;
+  const lwPct  = lwCount ? Math.round(lwCorr / lwCount * 100) : null;
+
+  // Bar widths — scale relative to the larger of the two
+  const maxW = Math.max(twCount, lwCount, 1);
+  const twBarW = Math.round(twCount / maxW * 100);
+  const lwBarW = Math.round(lwCount / maxW * 100);
+
+  // Skill weakness — bottom 3 skills with at least 3 attempts
+  const skillMap = {};
+  latestVals.forEach(r => {
+    const tax = TAXONOMY[r.question_id];
+    if (!tax || !tax.skill) return;
+    if (!skillMap[tax.skill]) skillMap[tax.skill] = { c:0, t:0 };
+    skillMap[tax.skill].t++;
+    if (r.correct) skillMap[tax.skill].c++;
+  });
+  const weakSkills = Object.entries(skillMap)
+    .filter(([,v]) => v.t >= 3)
+    .map(([skill, v]) => ({ skill, pct: Math.round(v.c / v.t * 100) }))
+    .sort((a,b) => a.pct - b.pct)
+    .slice(0, 3);
+
+  // ── Update DOM ──────────────────────────────────────────────────────
+  document.getElementById('snap-done').textContent      = done;
+  document.getElementById('snap-score').textContent     = score !== null ? score + '%' : '—';
+  document.getElementById('snap-thisweek').textContent  = twCount;
+  document.getElementById('snap-remaining').textContent = remaining;
+
+  document.getElementById('snap-tw-count').textContent = twCount;
+  document.getElementById('snap-lw-count').textContent = lwCount;
+  document.getElementById('snap-tw-pct').textContent   = twPct !== null ? twPct + '% ✓' : '—';
+  document.getElementById('snap-lw-pct').textContent   = lwPct !== null ? lwPct + '% ✓' : '—';
+  document.getElementById('snap-bar-tw').style.width   = twBarW + '%';
+  document.getElementById('snap-bar-lw').style.width   = lwBarW + '%';
+
+  // Boost section
+  const boostEl = document.getElementById('snap-boost');
+  if (weakSkills.length === 0) {
+    boostEl.innerHTML = '<div style="font-size:0.82rem;color:#94a3b8;">Answer more questions to see your focus areas.</div>';
+  } else {
+    boostEl.innerHTML = weakSkills.map(s => {
+      const col = s.pct < 50 ? '#E24B4A' : '#BA7517';
+      const safeKey = encodeURIComponent('|||' + s.skill); // strand unknown, drill by skill only
+      // Find strand for this skill
+      const strandEntry = Object.values(TAXONOMY).find(t => t.skill === s.skill);
+      const strand = strandEntry ? strandEntry.strand : '';
+      const safeSkillKey = encodeURIComponent(strand + '|||' + s.skill);
+      return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-top:0.5px solid #f1f5f9;cursor:pointer;" onclick="startDrillSkill('${safeSkillKey}')">
+        <div style="width:8px;height:8px;border-radius:50%;background:${col};flex-shrink:0;"></div>
+        <div style="font-size:0.82rem;color:#334155;flex:1;">${s.skill}</div>
+        <div style="font-size:0.75rem;font-weight:600;color:${col};">${s.pct}%</div>
+        <div style="font-size:0.8rem;color:#94a3b8;">→</div>
+      </div>`;
+    }).join('');
   }
 }
 
@@ -1492,7 +1532,7 @@ function goHome() {
   document.getElementById('streak-badge').classList.remove('show');
   document.getElementById('milestone-banner').classList.remove('show');
   document.getElementById('workout-end').style.display = 'none';
-  showScreen('screen-home'); updateDash(); renderHeatGrid();
+  showScreen('screen-home'); updateDash();
 }
 
 
