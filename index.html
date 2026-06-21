@@ -983,7 +983,7 @@ function startDrillStrand(safeStrand) {
   renderQ();
 }
 
-function startDrillSkill(safeKey) {
+function startDrillSkill(safeKey, fromHome) {
   const key = decodeURIComponent(safeKey);
   const [strand, skill] = key.split('|||');
   const pool = ALL_QUESTIONS.filter(q => {
@@ -991,12 +991,14 @@ function startDrillSkill(safeKey) {
     return tax && tax.strand === strand && tax.skill === skill;
   });
   if (pool.length === 0) { alert('No questions found for this skill.'); return; }
+  // Clear answers so questions appear fresh
+  pool.forEach(q => { const k = String(q.n); delete chosen[k]; delete statuses[k]; });
   mode = 'drill';
   curQs = pool;
   cur = 0;
   document.getElementById('quiz-title').textContent = skill;
   document.getElementById('bar-fill').className = 'bar-fill all';
-  setLastScreen('screen-drill');
+  setLastScreen(fromHome ? 'screen-home' : 'screen-drill');
   showScreen('screen-quiz');
   renderQ();
 }
@@ -1312,7 +1314,7 @@ async function updateDash() {
       const strandEntry = Object.values(TAXONOMY).find(t => t.skill === s.skill);
       const strand = strandEntry ? strandEntry.strand : '';
       const safeSkillKey = encodeURIComponent(strand + '|||' + s.skill);
-      return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-top:0.5px solid #f1f5f9;cursor:pointer;" onclick="startDrillSkill('${safeSkillKey}')">
+      return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-top:0.5px solid #f1f5f9;cursor:pointer;" onclick="startDrillSkill('${safeSkillKey}', true)">
         <div style="width:8px;height:8px;border-radius:50%;background:${col};flex-shrink:0;"></div>
         <div style="font-size:0.82rem;color:#334155;flex:1;">${s.skill}</div>
         <div style="font-size:0.75rem;font-weight:600;color:${col};">${s.pct}%</div>
