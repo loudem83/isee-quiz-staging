@@ -4,10 +4,32 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>[STAGING] ISEE Maths Practice Quiz</title>
+<!-- Supabase JS client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1a1a2e;min-height:100vh;}
 .screen{display:none;min-height:100vh;}.screen.active{display:block;}
+
+/* LOGIN SCREEN */
+#screen-login{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1a3a5c 0%,#0f6e56 100%);}
+.login-card{background:white;border-radius:18px;padding:2.5rem 2rem;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.25);}
+.login-logo{text-align:center;margin-bottom:1.5rem;}
+.login-logo .emoji{font-size:3rem;}
+.login-logo h1{font-size:1.4rem;font-weight:700;color:#1a3a5c;margin-top:0.5rem;}
+.login-logo p{font-size:0.85rem;color:#64748b;margin-top:0.25rem;}
+.login-field{margin-bottom:1rem;}
+.login-field label{display:block;font-size:0.8rem;font-weight:600;color:#475569;margin-bottom:5px;}
+.login-field input{width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:0.95rem;color:#1a3a5c;outline:none;transition:border-color .2s;}
+.login-field input:focus{border-color:#1a3a5c;}
+.login-btn{width:100%;padding:12px;background:#1a3a5c;color:white;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.5rem;transition:background .2s;}
+.login-btn:hover{background:#0f2a48;}
+.login-btn:disabled{opacity:0.6;cursor:not-allowed;}
+.login-error{background:#fee2e2;color:#991b1b;border-radius:8px;padding:10px 14px;font-size:0.85rem;margin-top:0.75rem;display:none;}
+.login-user-info{display:flex;align-items:center;justify-content:space-between;background:#f0f4f9;border-radius:10px;padding:8px 14px;margin-bottom:1rem;}
+.login-user-info span{font-size:0.85rem;color:#475569;}
+.logout-btn{background:none;border:none;color:#64748b;font-size:0.8rem;cursor:pointer;text-decoration:underline;}
+
 
 /* TOP BAR */
 .top-bar{background:#1a3a5c;color:white;padding:1rem 1.5rem;display:flex;align-items:center;gap:12px;}
@@ -217,11 +239,44 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
   <span id="load-msg" style="font-weight:400;opacity:0.85;">Connecting…</span>
 </div>
 
+<!-- SCREEN 0: LOGIN -->
+<div id="screen-login" class="screen active">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="emoji">📐</div>
+      <h1>ISEE Maths Practice</h1>
+      <p>Sign in to continue</p>
+    </div>
+    <div id="login-user-bar" style="display:none">
+      <div class="login-user-info">
+        <span id="login-user-email"></span>
+        <button class="logout-btn" onclick="signOut()">Sign out</button>
+      </div>
+    </div>
+    <div id="login-form">
+      <div class="login-field">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email"/>
+      </div>
+      <div class="login-field">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter') doLogin()"/>
+      </div>
+      <button class="login-btn" id="login-btn" onclick="doLogin()">Sign in →</button>
+      <div class="login-error" id="login-error"></div>
+    </div>
+  </div>
+</div>
+
 <!-- SCREEN 1: HOME -->
 <div id="screen-home" class="screen">
   <div class="home-hero">
     <h2>🎓 ISEE Maths Practice Quiz</h2>
-    <p>Interactive practice for Mathematics Achievement &amp; Quantitative Reasoning</p>
+    <p id="home-user-greeting">Interactive practice for Mathematics Achievement &amp; Quantitative Reasoning</p>
+    <div style="margin-top:8px;">
+      <button onclick="signOut()" style="background:rgba(255,255,255,0.15);border:none;color:white;padding:4px 12px;border-radius:6px;font-size:0.78rem;cursor:pointer;">Sign out</button>
+    </div>
   </div>
   <div class="home-body">
     <div class="dash-section">
@@ -469,8 +524,93 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 /* ════════════════════════════════════════
    SUPABASE CONFIG
 ════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   SUPABASE AUTH
+════════════════════════════════════════ */
 const SUPA_URL = 'https://yajqvfwzhudghivzgijt.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhanF2Znd6aHVkZ2hpdnpnaWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNTA0MjUsImV4cCI6MjA5NjkyNjQyNX0.9jFDuKr-mL9gl_skZcP5THhnJNjs-8ogzG4zmV6fIyk';
+
+const supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+let currentUser = null;
+let authToken   = null;
+
+async function initAuth() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    authToken   = session.access_token;
+    onSignedIn();
+  } else {
+    showScreen('screen-login');
+  }
+  // Listen for auth changes (e.g. token refresh)
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      currentUser = session.user;
+      authToken   = session.access_token;
+    } else if (event === 'SIGNED_OUT') {
+      currentUser = null;
+      authToken   = null;
+    }
+  });
+}
+
+async function doLogin() {
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl    = document.getElementById('login-error');
+  const btn      = document.getElementById('login-btn');
+  errEl.style.display = 'none';
+  if (!email || !password) { showLoginError('Please enter your email and password.'); return; }
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  btn.disabled = false; btn.textContent = 'Sign in →';
+  if (error) { showLoginError(error.message); return; }
+  currentUser = data.user;
+  authToken   = data.session.access_token;
+  onSignedIn();
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function signOut() {
+  await supabase.auth.signOut();
+  currentUser = null; authToken = null;
+  // Reset app state
+  chosen = {}; statuses = {}; hintedOptions = {};
+  userPoints = 0;
+  ALL_QUESTIONS = [];
+  showScreen('screen-login');
+}
+
+function onSignedIn() {
+  // Update greeting
+  const email = currentUser.email || '';
+  const name  = currentUser.user_metadata?.display_name || email.split('@')[0];
+  const greet = document.getElementById('home-user-greeting');
+  if (greet) greet.textContent = `Welcome back, ${name} 👋`;
+  // Boot the app
+  fetchQuestionBank();
+}
+
+// Auth headers for all fetch calls
+function authHeaders() {
+  return {
+    'apikey':        SUPA_KEY,
+    'Authorization': 'Bearer ' + (authToken || SUPA_KEY),
+    'Content-Type':  'application/json'
+  };
+}
+
+// User ID for scoping data
+function userId() {
+  return currentUser ? currentUser.id : 'default';
+}
 
 async function supaInsert(row) {
   showSyncStatus('⏳ Saving…', '#92400e', '#fffbeb');
@@ -478,10 +618,7 @@ async function supaInsert(row) {
     const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPA_KEY,
-        'Authorization': 'Bearer ' + SUPA_KEY,
-        'Prefer': 'return=minimal'
+        ...authHeaders(), 'Prefer': 'return=minimal'
       },
       body: JSON.stringify(row)
     });
@@ -619,8 +756,8 @@ async function startWorkout(safeStrand) {
   // ── 1. Fetch answer history for this student ──────────────────────────
   let history = [];
   try {
-    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=question_id,correct,answered_at&order=answered_at.desc&limit=1000', {
-      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=question_id,correct,answered_at&user_id=eq.' + userId() + '&order=answered_at.desc&limit=1000', {
+      headers: authHeaders()
     });
     if (res.ok) history = await res.json();
   } catch(e) { /* proceed without history */ }
@@ -864,8 +1001,8 @@ let hintedOptions = {}; // key → [crossed-off option indices]
 // Load points from Supabase on startup
 async function loadPoints() {
   try {
-    const res = await fetch(SUPA_URL + '/rest/v1/user_points?user_id=eq.default&select=points', {
-      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    const res = await fetch(SUPA_URL + '/rest/v1/user_points?user_id=eq.' + userId() + '&select=points', {
+      headers: authHeaders()
     });
     if (!res.ok) return;
     const rows = await res.json();
@@ -879,13 +1016,10 @@ async function loadPoints() {
 // Save points to Supabase
 async function savePoints() {
   try {
-    await fetch(SUPA_URL + '/rest/v1/user_points?user_id=eq.default', {
+    await fetch(SUPA_URL + '/rest/v1/user_points?user_id=eq.' + userId() + '', {
       method: 'PATCH',
       headers: {
-        'apikey': SUPA_KEY,
-        'Authorization': 'Bearer ' + SUPA_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
+        ...authHeaders(), 'Prefer': 'return=minimal'
       },
       body: JSON.stringify({ points: userPoints, updated_at: new Date().toISOString() })
     });
@@ -1111,10 +1245,7 @@ async function pushToQA(questionId) {
   const res = await fetch(SUPA_URL + `/rest/v1/questions?question_id=eq.${questionId}`, {
     method: 'PATCH',
     headers: {
-      'Content-Type': 'application/json',
-      'apikey': SUPA_KEY,
-      'Authorization': 'Bearer ' + SUPA_KEY,
-      'Prefer': 'return=minimal'
+      ...authHeaders(), 'Prefer': 'return=minimal'
     },
     body: JSON.stringify({ active: false })
   });
@@ -1185,6 +1316,7 @@ function pick(idx) {
     workoutReaction(isCorrect);
   }
   supaInsert({
+    user_id:     userId(),
     session_id:  SESSION_ID,
     question_id: key,
     section:     q.sec,
@@ -1337,8 +1469,8 @@ async function updateDash() {
   // Fetch full answer history
   let rows = [];
   try {
-    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=question_id,correct,answered_at&order=answered_at.desc&limit=2000', {
-      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=question_id,correct,answered_at&user_id=eq.' + userId() + '&order=answered_at.desc&limit=2000', {
+      headers: authHeaders()
     });
     if (res.ok) rows = await res.json();
   } catch(e) { return; }
@@ -1450,8 +1582,8 @@ async function updateDash() {
 async function loadParentDash() {
   document.getElementById('pd-status').textContent = 'Loading results…';
   try {
-    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=*&order=answered_at.desc&limit=500',
-      { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=*&user_id=eq.' + userId() + '&order=answered_at.desc&limit=500',
+      { headers: authHeaders() });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const rows = await res.json();
     renderParentDash(rows);
@@ -1719,11 +1851,11 @@ async function runDiagnostic() {
   el.innerHTML = '⏳ Testing…';
   const steps = [];
   try {
-    const r1 = await fetch(SUPA_URL + '/rest/v1/', { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    const r1 = await fetch(SUPA_URL + '/rest/v1/', { headers: authHeaders() });
     steps.push('✅ Step 1 — Reached Supabase (HTTP ' + r1.status + ')');
   } catch(e) { steps.push('❌ Step 1 — Cannot reach Supabase: ' + e.message); el.innerHTML = steps.join('<br>'); return; }
   try {
-    const r2 = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?limit=1', { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    const r2 = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?limit=1', { headers: authHeaders() });
     steps.push(r2.ok ? '✅ Step 2 — Can READ table' : '❌ Step 2 — READ failed: ' + await r2.text());
   } catch(e) { steps.push('❌ Step 2: ' + e.message); }
   try {
@@ -1831,7 +1963,7 @@ async function loadQAReview() {
     if (qaFilter === 'all' || qaFilter === 'generated') {
       const r1 = await fetch(
         SUPA_URL + '/rest/v1/generated_questions?status=eq.pending&select=*&order=generated_at.asc',
-        { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } }
+        { headers: authHeaders() }
       );
       if (r1.ok) {
         const rows = await r1.json();
@@ -1845,7 +1977,7 @@ async function loadQAReview() {
       let url = SUPA_URL + '/rest/v1/questions?active=eq.false&select=*&order=question_id';
       if (qaFilter === 'user')   url += '&source=eq.user';
       if (qaFilter === 'manual') url += '&source=eq.manual';
-      const r2 = await fetch(url, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+      const r2 = await fetch(url, { headers: authHeaders() });
       if (r2.ok) {
         const rows = await r2.json();
         rows.forEach(r => {
@@ -2040,10 +2172,7 @@ async function qaSaveEdit() {
     const res = await fetch(SUPA_URL + `/rest/v1/${table}?${idField}`, {
       method: 'PATCH',
       headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPA_KEY,
-        'Authorization': 'Bearer ' + SUPA_KEY,
-        'Prefer': 'return=minimal'
+        ...authHeaders(), 'Prefer': 'return=minimal'
       },
       body: JSON.stringify(updates)
     });
@@ -2076,7 +2205,7 @@ async function qaDecide(decision) {
       if (decision === 'approved') {
         const res = await fetch(SUPA_URL + `/rest/v1/questions?question_id=eq.${row.question_id}`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Prefer': 'return=minimal' },
+          headers: { ...authHeaders(), 'Prefer': 'return=minimal' },
           body: JSON.stringify({ active: true })
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -2101,7 +2230,7 @@ async function qaDecide(decision) {
       if (decision === 'approved') {
         const idRes = await fetch(
           SUPA_URL + `/rest/v1/questions?select=question_id&section=eq.${row.section}`,
-          { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } }
+          { headers: authHeaders() }
         );
         const existingIds = idRes.ok ? await idRes.json() : [];
         const prefix = row.section === 'MA' ? 'MA-' : 'QR-';
@@ -2113,7 +2242,7 @@ async function qaDecide(decision) {
         const tax = topicToTaxonomy(row.target_topic, row.section);
         const insertRes = await fetch(SUPA_URL + '/rest/v1/questions', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Prefer': 'return=minimal' },
+          headers: { ...authHeaders(), 'Prefer': 'return=minimal' },
           body: JSON.stringify({
             question_id: newQuestionId, section: row.section,
             text: row.text, opt_a: row.opt_a, opt_b: row.opt_b, opt_c: row.opt_c, opt_d: row.opt_d,
@@ -2133,7 +2262,7 @@ async function qaDecide(decision) {
       if (decision === 'approved') patchBody.question_id = newQuestionId;
       const patchRes = await fetch(SUPA_URL + `/rest/v1/generated_questions?id=eq.${row.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Prefer': 'return=minimal' },
+        headers: { ...authHeaders(), 'Prefer': 'return=minimal' },
         body: JSON.stringify(patchBody)
       });
       if (!patchRes.ok) throw new Error('Patch failed: HTTP ' + patchRes.status);
@@ -2181,7 +2310,7 @@ async function fetchQuestionBank() {
     // Fetch all active questions from Supabase
     const res = await fetch(
       SUPA_URL + '/rest/v1/questions?active=eq.true&select=*',
-      { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } }
+      { headers: authHeaders() }
     );
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const rows = await res.json();
@@ -2289,8 +2418,8 @@ async function renderHeatGrid() {
   // Show loading state
   el.innerHTML = `<div class="heat-row"><div class="hc" style="grid-column:span 4;color:var(--color-text-tertiary);font-size:12px;padding:14px;">Loading performance data…</div></div>`;
   try {
-    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=question_id,correct&order=answered_at.desc&limit=500', {
-      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=question_id,correct&user_id=eq.' + userId() + '&order=answered_at.desc&limit=500', {
+      headers: authHeaders()
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const rows = await res.json();
@@ -2304,8 +2433,8 @@ async function renderHeatGrid() {
   }
 }
 
-// Initialise on load — fetchQuestionBank handles everything
-fetchQuestionBank();
+// Initialise on load — auth first, then questions
+initAuth();
 </script>
 <!-- Workout overlays -->
 <div id="workout-countdown" style="display:none"></div>
