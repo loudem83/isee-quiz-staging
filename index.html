@@ -698,9 +698,10 @@ window.launchTutorQA   = launchTutorQA;
 
 // Auth headers for all fetch calls
 function authHeaders() {
+  const token = authToken || SUPA_KEY;
   return {
     'apikey':        SUPA_KEY,
-    'Authorization': 'Bearer ' + (authToken || SUPA_KEY),
+    'Authorization': 'Bearer ' + token,
     'Content-Type':  'application/json'
   };
 }
@@ -1674,6 +1675,7 @@ async function updateDash() {
   // Fetch full answer history
   let rows = [];
   try {
+    console.log('authToken present:', !!authToken, 'length:', authToken?.length);
     console.log('authHeaders:', authHeaders());
     const dashUrl = SUPA_URL + '/rest/v1/' + R_STAGING + '?select=question_id,correct,answered_at&user_id=eq.' + userId() + '&order=answered_at.desc&limit=2000';
     console.log('updateDash full URL:', dashUrl);
@@ -2563,7 +2565,7 @@ async function fetchQuestionBank() {
 
     // Now run the rest of the init that depends on ALL_QUESTIONS
     loadProgress();
-    updateDash();
+    await updateDash();
     loadPoints();
 
     setLoadState(100, 'Ready!');
