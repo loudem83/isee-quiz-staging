@@ -581,7 +581,7 @@ const EXAM_CONFIG = {
   id:        'isee',
   q_table:   'questions',             // future: 'isee_questions'
   r_table:   'quiz_results',          // future: 'isee_quiz_results'
-  r_staging: 'quiz_results_staging',  // future: 'isee_quiz_results_staging'
+  r_staging: 'quiz_results',  // same as prod — user_id scoping handles separation
   label:     'ISEE Lower Level',
 };
 const Q_TABLE = EXAM_CONFIG.q_table;
