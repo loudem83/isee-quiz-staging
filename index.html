@@ -590,11 +590,13 @@ async function signOut() {
 }
 
 function onSignedIn() {
+  console.log('onSignedIn called, user:', currentUser?.email);
   // Update greeting
   const email = currentUser.email || '';
   const name  = currentUser.user_metadata?.display_name || email.split('@')[0];
   const greet = document.getElementById('home-user-greeting');
   if (greet) greet.textContent = `Welcome back, ${name} 👋`;
+  console.log('Starting fetchQuestionBank...');
   // Boot the app
   fetchQuestionBank();
 }
@@ -2309,6 +2311,7 @@ function setLoadState(pct, msg) {
 }
 
 async function fetchQuestionBank() {
+  console.log('fetchQuestionBank started, userId:', userId());
   // Show loading bar
   const loadEl = document.getElementById('screen-loading');
   if (loadEl) loadEl.style.display = 'flex';
