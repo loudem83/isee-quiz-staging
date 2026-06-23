@@ -1160,14 +1160,15 @@ let tutorStudentName = '';
 // Check user role from profiles table
 async function getUserRole() {
   try {
-    const res = await fetch(
-      SUPA_URL + '/rest/v1/profiles?id=eq.' + userId() + '&select=role,display_name',
-      { headers: authHeaders() }
-    );
-    if (!res.ok) return 'family';
+    const url = SUPA_URL + '/rest/v1/profiles?id=eq.' + userId() + '&select=role,display_name';
+    console.log('getUserRole URL:', url);
+    const res = await fetch(url, { headers: authHeaders() });
+    console.log('getUserRole status:', res.status);
+    if (!res.ok) return { role: 'family', display_name: null };
     const rows = await res.json();
+    console.log('getUserRole rows:', rows);
     return rows.length > 0 ? rows[0] : { role: 'family', display_name: null };
-  } catch(e) { return { role: 'family', display_name: null }; }
+  } catch(e) { console.error('getUserRole error:', e); return { role: 'family', display_name: null }; }
 }
 
 // Load tutor's students
