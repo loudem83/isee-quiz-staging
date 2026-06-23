@@ -2529,6 +2529,7 @@ async function fetchQuestionBank() {
     );
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const rows = await res.json();
+    console.log('Questions fetched:', rows.length);
 
     setLoadState(60, `Building question bank (${rows.length} questions)…`);
 
@@ -2572,6 +2573,7 @@ async function fetchQuestionBank() {
 
     // Small delay so user sees 100% briefly, then hide the banner and show home
     await new Promise(r => setTimeout(r, 400));
+    console.log('ALL_QUESTIONS count before home:', ALL_QUESTIONS.length);
     document.getElementById('screen-loading').style.display = 'none';
     showScreen('screen-home');
 
