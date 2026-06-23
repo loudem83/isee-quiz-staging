@@ -1675,16 +1675,11 @@ async function updateDash() {
   // Fetch full answer history
   let rows = [];
   try {
-    console.log('authToken present:', !!authToken, 'length:', authToken?.length);
-    console.log('authHeaders:', authHeaders());
     const dashUrl = SUPA_URL + '/rest/v1/' + R_STAGING + '?select=question_id,correct,answered_at&user_id=eq.' + userId() + '&order=answered_at.desc&limit=2000';
-    console.log('updateDash full URL:', dashUrl);
     const res = await fetch(dashUrl, {
       headers: authHeaders()
     });
-    console.log('updateDash status:', res.status, 'userId:', userId());
     if (res.ok) rows = await res.json();
-    console.log('updateDash rows:', rows.length);
   } catch(e) { console.error('updateDash error:', e); return; }
 
   // Latest result per question
@@ -2529,7 +2524,6 @@ async function fetchQuestionBank() {
     );
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const rows = await res.json();
-    console.log('Questions fetched:', rows.length);
 
     setLoadState(60, `Building question bank (${rows.length} questions)…`);
 
@@ -2573,7 +2567,6 @@ async function fetchQuestionBank() {
 
     // Small delay so user sees 100% briefly, then hide the banner and show home
     await new Promise(r => setTimeout(r, 400));
-    console.log('ALL_QUESTIONS count before home:', ALL_QUESTIONS.length);
     document.getElementById('screen-loading').style.display = 'none';
     showScreen('screen-home');
 
