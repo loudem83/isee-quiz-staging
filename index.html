@@ -478,11 +478,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
     <button class="back-btn" onclick="goHome()">← Home</button>
   </div>
   <div class="quiz-wrap">
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;align-items:center;">
       <button id="qa-filter-all"       onclick="setQAFilter('all')"       style="padding:5px 14px;border-radius:99px;border:1.5px solid #4c1d95;background:#4c1d95;color:white;font-size:0.8rem;font-weight:700;cursor:pointer;">All</button>
       <button id="qa-filter-generated" onclick="setQAFilter('generated')" style="padding:5px 14px;border-radius:99px;border:1.5px solid #c4b5fd;background:white;color:#4c1d95;font-size:0.8rem;font-weight:700;cursor:pointer;">Generated</button>
       <button id="qa-filter-user"      onclick="setQAFilter('user')"      style="padding:5px 14px;border-radius:99px;border:1.5px solid #c4b5fd;background:white;color:#4c1d95;font-size:0.8rem;font-weight:700;cursor:pointer;">User</button>
       <button id="qa-filter-manual"    onclick="setQAFilter('manual')"    style="padding:5px 14px;border-radius:99px;border:1.5px solid #c4b5fd;background:white;color:#4c1d95;font-size:0.8rem;font-weight:700;cursor:pointer;">Manual</button>
+      <button onclick="qaNewQuestion()" style="margin-left:auto;padding:6px 16px;border-radius:8px;border:none;background:#4c1d95;color:white;font-size:0.85rem;font-weight:700;cursor:pointer;">+ New Question</button>
     </div>
     <div id="qa-status" style="text-align:center;padding:2rem;color:#64748b;font-size:0.95rem;"></div>
     <div id="qa-counter" style="display:none;background:white;border-radius:12px;padding:0.9rem 1.25rem;margin-bottom:1rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;color:#64748b;">
@@ -2191,6 +2192,122 @@ function setQAFilter(filter) {
     el.style.color      = f === filter ? 'white'   : '#4c1d95';
   });
   loadQAReview();
+}
+
+function qaNewQuestion() {
+  // Hide review areas, show blank edit panel
+  document.getElementById('qa-area').innerHTML = '';
+  document.getElementById('qa-counter').style.display = 'none';
+  document.getElementById('qa-taxonomy').style.display = 'none';
+  document.getElementById('qa-actions').style.display = 'none';
+  document.getElementById('qa-done-msg').style.display = 'none';
+  document.getElementById('qa-status').textContent = '';
+
+  // Clear edit fields
+  document.getElementById('qa-edit-text').value = '';
+  document.getElementById('qa-edit-a').value = '';
+  document.getElementById('qa-edit-b').value = '';
+  document.getElementById('qa-edit-c').value = '';
+  document.getElementById('qa-edit-d').value = '';
+  document.getElementById('qa-edit-correct').value = '0';
+  document.getElementById('qa-edit-exp').value = '';
+  document.getElementById('qa-edit-strand').value = '';
+  document.getElementById('qa-edit-sub').value = '';
+  document.getElementById('qa-edit-dok').value = '1';
+  document.getElementById('qa-edit-skill').value = '';
+
+  // Change edit panel title and save button behaviour
+  const panel = document.getElementById('qa-edit-panel');
+  panel.querySelector('div').textContent = '➕ New Question';
+  panel.style.display = 'block';
+
+  // Override save button to insert new question
+  const saveBtn = panel.querySelector('button:last-child');
+  saveBtn.textContent = '💾 Save Question';
+  saveBtn.onclick = qaInsertNewQuestion;
+
+  // Override cancel to reload QA
+  const cancelBtn = panel.querySelector('button:first-child');
+  cancelBtn.onclick = () => {
+    panel.style.display = 'none';
+    panel.querySelector('div').textContent = '✏️ Edit Question';
+    saveBtn.onclick = qaSaveEdit;
+    cancelBtn.onclick = qaCancelEdit;
+    loadQAReview();
+  };
+}
+
+async function qaInsertNewQuestion() {
+  const saveBtn = document.getElementById('qa-edit-panel').querySelector('button:last-child');
+  saveBtn.textContent = '⏳ Saving…'; saveBtn.disabled = true;
+
+  const section = 'MA'; // default — could add a selector later
+  try {
+    // Get next question ID
+    const idRes = await fetch(
+      SUPA_URL + '/rest/v1/' + Q_TABLE + '?select=question_id&section=eq.' + section,
+      { headers: authHeaders() }
+    );
+    const existingIds = idRes.ok ? await idRes.json() : [];
+    const prefix = 'MA-';
+    const maxNum = existingIds
+      .map(r => parseInt(r.question_id.replace(prefix,'')))
+      .filter(n => !isNaN(n))
+      .reduce((a,b) => Math.max(a,b), 0);
+    const newId = prefix + (maxNum + 1);
+
+    const newQ = {
+      question_id:   newId,
+      section:       section,
+      text:          document.getElementById('qa-edit-text').value.trim(),
+      opt_a:         document.getElementById('qa-edit-a').value.trim(),
+      opt_b:         document.getElementById('qa-edit-b').value.trim(),
+      opt_c:         document.getElementById('qa-edit-c').value.trim(),
+      opt_d:         document.getElementById('qa-edit-d').value.trim(),
+      correct_index: parseInt(document.getElementById('qa-edit-correct').value),
+      explanation:   document.getElementById('qa-edit-exp').value.trim(),
+      strand:        document.getElementById('qa-edit-strand').value,
+      sub:           document.getElementById('qa-edit-sub').value,
+      dok:           parseInt(document.getElementById('qa-edit-dok').value),
+      skill:         document.getElementById('qa-edit-skill').value,
+      active:        true,
+      source:        'manual',
+      created_by:    currentUser ? currentUser.id : null,
+      assigned_to:   tutorMode && tutorStudentId ? tutorStudentId : null,
+    };
+
+    const res = await fetch(SUPA_URL + '/rest/v1/' + Q_TABLE, {
+      method: 'POST',
+      headers: { ...authHeaders(), 'Prefer': 'return=minimal' },
+      body: JSON.stringify(newQ)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+    // Add to local question bank
+    ALL_QUESTIONS.push({
+      n: newId, sec: section, text: newQ.text,
+      opts: [newQ.opt_a, newQ.opt_b, newQ.opt_c, newQ.opt_d],
+      ans: newQ.correct_index, exp: newQ.explanation,
+      assigned_to: newQ.assigned_to, created_by: newQ.created_by
+    });
+
+    alert(`✅ Question ${newId} created successfully!`);
+
+    // Reset panel and reload
+    const panel = document.getElementById('qa-edit-panel');
+    panel.style.display = 'none';
+    panel.querySelector('div').textContent = '✏️ Edit Question';
+    const sb = panel.querySelector('button:last-child');
+    sb.onclick = qaSaveEdit; sb.textContent = '💾 Save changes'; sb.disabled = false;
+    const cb = panel.querySelector('button:first-child');
+    cb.onclick = qaCancelEdit;
+    loadQAReview();
+  } catch(e) {
+    alert('❌ Could not save: ' + e.message);
+  } finally {
+    saveBtn.textContent = '💾 Save Question';
+    saveBtn.disabled = false;
+  }
 }
 
 async function loadQAReview() {
