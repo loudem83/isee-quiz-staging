@@ -535,6 +535,8 @@ const supaClient = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 let currentUser = null;
 let authToken   = null;
 
+let appBooted = false;
+
 async function initAuth() {
   const { data: { session } } = await supaClient.auth.getSession();
   if (session) {
@@ -544,14 +546,15 @@ async function initAuth() {
   } else {
     showScreen('screen-login');
   }
-  // Listen for auth changes (e.g. token refresh)
   supaClient.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN' && session) {
       currentUser = session.user;
       authToken   = session.access_token;
+      if (!appBooted) onSignedIn();
     } else if (event === 'SIGNED_OUT') {
       currentUser = null;
       authToken   = null;
+      appBooted   = false;
     }
   });
 }
@@ -590,6 +593,8 @@ async function signOut() {
 }
 
 function onSignedIn() {
+  if (appBooted) return;
+  appBooted = true;
   console.log('onSignedIn called, user:', currentUser?.email);
   // Update greeting
   const email = currentUser.email || '';
@@ -2362,7 +2367,6 @@ async function fetchQuestionBank() {
     // Now run the rest of the init that depends on ALL_QUESTIONS
     loadProgress();
     updateDash();
-    renderHeatGrid();
     loadPoints();
 
     setLoadState(100, 'Ready!');
