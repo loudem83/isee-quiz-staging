@@ -830,6 +830,23 @@ function loadWorkout() {
   statusEl.textContent = `${total} questions available`;
 
   let html = '<div class="drill-grid">';
+
+  // ── Tutor Questions card (only if assigned questions exist) ──
+  const assignedQs = ALL_QUESTIONS.filter(q => q.assigned_to === userId());
+  if (assignedQs.length > 0) {
+    html += `
+      <div class="drill-card" onclick="startTutorWorkout()" style="border-color:#7c3aed;background:linear-gradient(135deg,#f5f3ff,#ede9fe);grid-column:1/-1;">
+        <div class="dc-left">
+          <h4 style="color:#4c1d95;">📝 Tutor Questions</h4>
+          <p style="font-size:0.75rem;color:#7c3aed;margin-top:2px;">Assigned by your tutor</p>
+        </div>
+        <div class="dc-right">
+          <span class="dc-count" style="color:#4c1d95;">${assignedQs.length}</span>
+          <span class="dc-label" style="color:#7c3aed;">questions</span>
+        </div>
+      </div>`;
+  }
+
   strandOrder.filter(s => strandMap[s]).forEach(strand => {
     const count = Math.min(strandMap[strand], 20);
     html += `
@@ -1342,6 +1359,23 @@ function triggerBravo() {
     document.getElementById('bravo-overlay').style.display = 'none';
     goHome();
   }, 3200);
+}
+
+function startTutorWorkout() {
+  // Launch a drill with only questions assigned to this student
+  const assignedQs = ALL_QUESTIONS.filter(q => q.assigned_to === userId());
+  if (assignedQs.length === 0) {
+    alert('No tutor questions assigned yet.');
+    return;
+  }
+  curQs   = assignedQs.slice();
+  mode    = 'drill';
+  chosen  = {};
+  curIdx  = 0;
+  setLastScreen('screen-workout');
+  showScreen('screen-quiz');
+  renderQ();
+  updateDash();
 }
 
 function loadDrill() {
@@ -2550,12 +2584,14 @@ async function fetchQuestionBank() {
     // Convert Supabase rows → ALL_QUESTIONS shape
     ALL_QUESTIONS = rows.map(r => {
       const q = {
-        n:   r.question_id,
-        sec: r.section,
-        text: r.text,
-        opts: [r.opt_a, r.opt_b, r.opt_c, r.opt_d],
-        ans:  r.correct_index,
-        exp:  r.explanation || '',
+        n:           r.question_id,
+        sec:         r.section,
+        text:        r.text,
+        opts:        [r.opt_a, r.opt_b, r.opt_c, r.opt_d],
+        ans:         r.correct_index,
+        exp:         r.explanation || '',
+        assigned_to: r.assigned_to || null,
+        created_by:  r.created_by  || null,
       };
       if (r.diag) q.diag = r.diag;
       return q;
