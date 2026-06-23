@@ -574,6 +574,20 @@ const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 
 const supaClient = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
+/* ════════════════════════════════════════
+   EXAM CONFIG — swap these to add new subjects
+════════════════════════════════════════ */
+const EXAM_CONFIG = {
+  id:        'isee',
+  q_table:   'questions',             // future: 'isee_questions'
+  r_table:   'quiz_results',          // future: 'isee_quiz_results'
+  r_staging: 'quiz_results_staging',  // future: 'isee_quiz_results_staging'
+  label:     'ISEE Lower Level',
+};
+const Q_TABLE = EXAM_CONFIG.q_table;
+const R_TABLE = EXAM_CONFIG.r_table;
+const R_STAGING = EXAM_CONFIG.r_staging;
+
 let currentUser = null;
 let authToken   = null;
 
@@ -623,7 +637,6 @@ async function doLogin() {
   if (!email || !password) { showLoginError('Please enter your email and password.'); return; }
   btn.disabled = true; btn.textContent = 'Signing in…';
   const { data, error } = await supaClient.auth.signInWithPassword({ email, password });
-  console.log('Auth response:', { data, error });
   btn.disabled = false; btn.textContent = 'Sign in →';
   if (error) { showLoginError(error.message); return; }
   currentUser = data.user;
@@ -657,7 +670,6 @@ async function signOut() {
 async function onSignedIn() {
   if (appBooted) return;
   appBooted = true;
-  console.log('onSignedIn called, user:', currentUser?.email);
 
   // Check role
   const profile = await getUserRole();
@@ -675,7 +687,6 @@ async function onSignedIn() {
   const name  = profile.display_name || currentUser.user_metadata?.display_name || email.split('@')[0];
   const greet = document.getElementById('home-user-greeting');
   if (greet) greet.textContent = `Welcome back, ${name} 👋`;
-  console.log('Starting fetchQuestionBank...');
   fetchQuestionBank();
 }
 
@@ -698,7 +709,7 @@ function authHeaders() {
 async function supaInsert(row) {
   showSyncStatus('⏳ Saving…', '#92400e', '#fffbeb');
   try {
-    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging', {
+    const res = await fetch(SUPA_URL + '/rest/v1/' + R_STAGING + '', {
       method: 'POST',
       headers: {
         ...authHeaders(), 'Prefer': 'return=minimal'
@@ -839,7 +850,7 @@ async function startWorkout(safeStrand) {
   // ── 1. Fetch answer history for this student ──────────────────────────
   let history = [];
   try {
-    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=question_id,correct,answered_at&user_id=eq.' + userId() + '&order=answered_at.desc&limit=1000', {
+    const res = await fetch(SUPA_URL + '/rest/v1/' + R_STAGING + '?select=question_id,correct,answered_at&user_id=eq.' + userId() + '&order=answered_at.desc&limit=1000', {
       headers: authHeaders()
     });
     if (res.ok) history = await res.json();
@@ -1161,12 +1172,9 @@ let tutorStudentName = '';
 async function getUserRole() {
   try {
     const url = SUPA_URL + '/rest/v1/profiles?id=eq.' + userId() + '&select=role,display_name';
-    console.log('getUserRole URL:', url);
     const res = await fetch(url, { headers: authHeaders() });
-    console.log('getUserRole status:', res.status);
     if (!res.ok) return { role: 'family', display_name: null };
     const rows = await res.json();
-    console.log('getUserRole rows:', rows);
     return rows.length > 0 ? rows[0] : { role: 'family', display_name: null };
   } catch(e) { console.error('getUserRole error:', e); return { role: 'family', display_name: null }; }
 }
@@ -1200,7 +1208,7 @@ async function loadTutorStudents() {
     const cards = await Promise.all(profiles.map(async p => {
       try {
         const sr = await fetch(
-          SUPA_URL + '/rest/v1/quiz_results?user_id=eq.' + p.id + '&select=correct&limit=500',
+          SUPA_URL + '/rest/v1/' + R_TABLE + '?user_id=eq.' + p.id + '&select=correct&limit=500',
           { headers: authHeaders() }
         );
         const results = await sr.json();
@@ -1439,7 +1447,7 @@ function startDrillSkill(safeKey, fromHome) {
 async function pushToQA(questionId) {
   if (!confirm(`Push "${questionId}" to QA for editing?\n\nIt will be temporarily removed from the live quiz until approved.`)) return;
 
-  const res = await fetch(SUPA_URL + `/rest/v1/questions?question_id=eq.${questionId}`, {
+  const res = await fetch(SUPA_URL + `/rest/v1/' + Q_TABLE + '?question_id=eq.${questionId}`, {
     method: 'PATCH',
     headers: {
       ...authHeaders(), 'Prefer': 'return=minimal'
@@ -1666,7 +1674,7 @@ async function updateDash() {
   // Fetch full answer history
   let rows = [];
   try {
-    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=question_id,correct,answered_at&user_id=eq.' + userId() + '&order=answered_at.desc&limit=2000', {
+    const res = await fetch(SUPA_URL + '/rest/v1/' + R_STAGING + '?select=question_id,correct,answered_at&user_id=eq.' + userId() + '&order=answered_at.desc&limit=2000', {
       headers: authHeaders()
     });
     if (res.ok) rows = await res.json();
@@ -1779,7 +1787,7 @@ async function updateDash() {
 async function loadParentDash() {
   document.getElementById('pd-status').textContent = 'Loading results…';
   try {
-    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=*&user_id=eq.' + userId() + '&order=answered_at.desc&limit=500',
+    const res = await fetch(SUPA_URL + '/rest/v1/' + R_STAGING + '?select=*&user_id=eq.' + userId() + '&order=answered_at.desc&limit=500',
       { headers: authHeaders() });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const rows = await res.json();
@@ -2052,11 +2060,11 @@ async function runDiagnostic() {
     steps.push('✅ Step 1 — Reached Supabase (HTTP ' + r1.status + ')');
   } catch(e) { steps.push('❌ Step 1 — Cannot reach Supabase: ' + e.message); el.innerHTML = steps.join('<br>'); return; }
   try {
-    const r2 = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?limit=1', { headers: authHeaders() });
+    const r2 = await fetch(SUPA_URL + '/rest/v1/' + R_STAGING + '?limit=1', { headers: authHeaders() });
     steps.push(r2.ok ? '✅ Step 2 — Can READ table' : '❌ Step 2 — READ failed: ' + await r2.text());
   } catch(e) { steps.push('❌ Step 2: ' + e.message); }
   try {
-    const r3 = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging', {
+    const r3 = await fetch(SUPA_URL + '/rest/v1/' + R_STAGING + '', {
       method: 'POST',
       headers: {'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=minimal'},
       body: JSON.stringify({session_id:'diag_test',question_id:'MA-1',section:'MA',correct:true,attempts:1,answered_at:new Date().toISOString()})
@@ -2171,7 +2179,7 @@ async function loadQAReview() {
 
     // Fetch from questions (active=false) — user and manual sources
     if (qaFilter === 'all' || qaFilter === 'user' || qaFilter === 'manual') {
-      let url = SUPA_URL + '/rest/v1/questions?active=eq.false&select=*&order=question_id';
+      let url = SUPA_URL + '/rest/v1/' + Q_TABLE + '?active=eq.false&select=*&order=question_id';
       if (qaFilter === 'user')   url += '&source=eq.user';
       if (qaFilter === 'manual') url += '&source=eq.manual';
       const r2 = await fetch(url, { headers: authHeaders() });
@@ -2400,7 +2408,7 @@ async function qaDecide(decision) {
     if (row._table === 'questions') {
       // ── questions table: simply set active=true or leave as false ──
       if (decision === 'approved') {
-        const res = await fetch(SUPA_URL + `/rest/v1/questions?question_id=eq.${row.question_id}`, {
+        const res = await fetch(SUPA_URL + `/rest/v1/' + Q_TABLE + '?question_id=eq.${row.question_id}`, {
           method: 'PATCH',
           headers: { ...authHeaders(), 'Prefer': 'return=minimal' },
           body: JSON.stringify({ active: true })
@@ -2426,7 +2434,7 @@ async function qaDecide(decision) {
       let newQuestionId = row.question_id;
       if (decision === 'approved') {
         const idRes = await fetch(
-          SUPA_URL + `/rest/v1/questions?select=question_id&section=eq.${row.section}`,
+          SUPA_URL + `/rest/v1/' + Q_TABLE + '?select=question_id&section=eq.${row.section}`,
           { headers: authHeaders() }
         );
         const existingIds = idRes.ok ? await idRes.json() : [];
@@ -2437,7 +2445,7 @@ async function qaDecide(decision) {
           .reduce((a, b) => Math.max(a, b), 0);
         newQuestionId = `${prefix}${maxNum + 1}`;
         const tax = topicToTaxonomy(row.target_topic, row.section);
-        const insertRes = await fetch(SUPA_URL + '/rest/v1/questions', {
+        const insertRes = await fetch(SUPA_URL + '/rest/v1/' + Q_TABLE + '', {
           method: 'POST',
           headers: { ...authHeaders(), 'Prefer': 'return=minimal' },
           body: JSON.stringify({
@@ -2501,7 +2509,6 @@ function setLoadState(pct, msg) {
 }
 
 async function fetchQuestionBank() {
-  console.log('fetchQuestionBank started, userId:', userId());
   // Show loading bar
   const loadEl = document.getElementById('screen-loading');
   if (loadEl) loadEl.style.display = 'flex';
@@ -2510,7 +2517,7 @@ async function fetchQuestionBank() {
 
     // Fetch all active questions from Supabase
     const res = await fetch(
-      SUPA_URL + '/rest/v1/questions?active=eq.true&select=*',
+      SUPA_URL + '/rest/v1/' + Q_TABLE + '?active=eq.true&select=*',
       { headers: authHeaders() }
     );
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -2618,7 +2625,7 @@ async function renderHeatGrid() {
   // Show loading state
   el.innerHTML = `<div class="heat-row"><div class="hc" style="grid-column:span 4;color:var(--color-text-tertiary);font-size:12px;padding:14px;">Loading performance data…</div></div>`;
   try {
-    const res = await fetch(SUPA_URL + '/rest/v1/quiz_results_staging?select=question_id,correct&user_id=eq.' + userId() + '&order=answered_at.desc&limit=500', {
+    const res = await fetch(SUPA_URL + '/rest/v1/' + R_STAGING + '?select=question_id,correct&user_id=eq.' + userId() + '&order=answered_at.desc&limit=500', {
       headers: authHeaders()
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
