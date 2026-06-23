@@ -565,6 +565,7 @@ async function doLogin() {
   if (!email || !password) { showLoginError('Please enter your email and password.'); return; }
   btn.disabled = true; btn.textContent = 'Signing in…';
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  console.log('Auth response:', { data, error });
   btn.disabled = false; btn.textContent = 'Sign in →';
   if (error) { showLoginError(error.message); return; }
   currentUser = data.user;
