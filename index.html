@@ -1189,9 +1189,9 @@ async function loadTutorStudents() {
     const studentIds = links.map(l => l.student_id);
 
     // Get profiles for each student
-    const ids = studentIds.map(id => `id=eq.${id}`).join(',');
+    const ids = studentIds.join(',');
     const res2 = await fetch(
-      SUPA_URL + '/rest/v1/profiles?or=(' + ids + ')&select=id,display_name',
+      SUPA_URL + '/rest/v1/profiles?id=in.(' + ids + ')&select=id,display_name',
       { headers: authHeaders() }
     );
     const profiles = await res2.json();
