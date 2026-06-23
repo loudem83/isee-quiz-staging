@@ -301,7 +301,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
     <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid #e2e8f0;">
       <div class="tutor-label">Tutor tools</div>
       <button class="all-btn" onclick="launchTutorQA()" style="border-color:#c4b5fd;color:#4c1d95;background:#f5f3ff;">
-        🔬 QA Review — Create &amp; Review Questions
+        ✏️ Question Studio — Create &amp; Review Questions
       </button>
     </div>
   </div>
@@ -1260,9 +1260,12 @@ function exitTutorSession() {
   showScreen('screen-tutor');
 }
 
-// Tutor QA — launch QA review
+// Tutor QA — launch Question Studio
 function launchTutorQA() {
   tutorMode = false; // QA acts on global questions
+  // Rename screen title for tutors
+  const qaTitle = document.querySelector('#screen-qa .top-bar h1');
+  if (qaTitle) qaTitle.textContent = '✏️ Question Studio';
   showScreen('screen-qa');
   loadQAReview();
 }
@@ -2371,6 +2374,7 @@ async function qaSaveEdit() {
     sub:           document.getElementById('qa-edit-sub').value,
     dok:           parseInt(document.getElementById('qa-edit-dok').value),
     skill:         document.getElementById('qa-edit-skill').value,
+    created_by:    currentUser ? currentUser.id : null,
   };
 
   try {
@@ -2456,6 +2460,7 @@ async function qaDecide(decision) {
             correct_index: row.correct_index, explanation: row.explanation || '',
             diag: null, strand: tax?.strand||null, sub: tax?.sub||null, dok: tax?.dok||null,
             source: 'generated', active: true,
+            created_by: currentUser ? currentUser.id : null,
           })
         });
         if (!insertRes.ok) throw new Error('Insert failed: HTTP ' + insertRes.status);
