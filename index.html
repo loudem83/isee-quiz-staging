@@ -248,10 +248,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
       <h1>I see it</h1>
       <p>ISEE Maths Practice — Sign in to continue</p>
     </div>
-    <div id="login-user-bar" style="display:none">
-      <div class="login-user-info">
-        <span id="login-user-email"></span>
-        <button class="logout-btn" onclick="signOut()">Sign out</button>
+    <div id="login-user-bar" style="display:none;margin-bottom:1rem;">
+      <div style="background:#f0f4f9;border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:0.85rem;color:#475569;">Signed in as <strong id="login-user-email"></strong></span>
+        <button onclick="signOut()" style="background:none;border:1px solid #cbd5e1;color:#64748b;font-size:0.78rem;padding:3px 10px;border-radius:6px;cursor:pointer;">Switch account</button>
       </div>
     </div>
     <div id="login-form">
@@ -543,7 +543,15 @@ async function initAuth() {
   if (session) {
     currentUser = session.user;
     authToken   = session.access_token;
-    onSignedIn();
+    // Show who's logged in on the login screen with option to continue or switch
+    const bar = document.getElementById('login-user-bar');
+    const emailEl = document.getElementById('login-user-email');
+    if (bar) bar.style.display = 'block';
+    if (emailEl) emailEl.textContent = session.user.email;
+    // Auto-proceed after short delay (user can switch account if needed)
+    document.getElementById('login-btn').textContent = 'Continue as ' + session.user.email.split('@')[0] + ' →';
+    document.getElementById('login-btn').onclick = onSignedIn;
+    showScreen('screen-login');
   } else {
     showScreen('screen-login');
   }
@@ -556,6 +564,11 @@ async function initAuth() {
       currentUser = null;
       authToken   = null;
       appBooted   = false;
+      // Reset button
+      document.getElementById('login-btn').textContent = 'Sign in →';
+      document.getElementById('login-btn').onclick = doLogin;
+      document.getElementById('login-user-bar').style.display = 'none';
+      showScreen('screen-login');
     }
   });
 }
@@ -585,11 +598,18 @@ function showLoginError(msg) {
 
 async function signOut() {
   await supaClient.auth.signOut();
-  currentUser = null; authToken = null;
-  // Reset app state
-  chosen = {}; statuses = {}; hintedOptions = {};
+  currentUser = null; authToken = null; appBooted = false;
+  // Reset app state — clear objects in place (they're const)
+  Object.keys(chosen).forEach(k => delete chosen[k]);
+  Object.keys(statuses).forEach(k => delete statuses[k]);
+  Object.keys(hintedOptions).forEach(k => delete hintedOptions[k]);
   userPoints = 0;
   ALL_QUESTIONS = [];
+  // Reset login button
+  const btn = document.getElementById('login-btn');
+  if (btn) { btn.textContent = 'Sign in →'; btn.onclick = doLogin; }
+  const bar = document.getElementById('login-user-bar');
+  if (bar) bar.style.display = 'none';
   showScreen('screen-login');
 }
 
