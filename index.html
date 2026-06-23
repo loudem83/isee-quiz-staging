@@ -1674,6 +1674,7 @@ async function updateDash() {
   // Fetch full answer history
   let rows = [];
   try {
+    console.log('authHeaders:', authHeaders());
     const dashUrl = SUPA_URL + '/rest/v1/' + R_STAGING + '?select=question_id,correct,answered_at&user_id=eq.' + userId() + '&order=answered_at.desc&limit=2000';
     console.log('updateDash full URL:', dashUrl);
     const res = await fetch(dashUrl, {
