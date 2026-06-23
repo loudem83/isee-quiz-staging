@@ -231,7 +231,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 <div style="background:#f59e0b;color:#1a1a2e;text-align:center;padding:8px;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;">STAGING — test data only</div>
 
 <!-- LOADING SCREEN -->
-<div id="screen-loading" class="screen active" style="position:fixed;top:0;left:0;right:0;z-index:999;background:#6366f1;color:white;text-align:center;padding:8px;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;display:flex;align-items:center;justify-content:center;gap:12px;">
+<div id="screen-loading" class="screen" style="display:none;position:fixed;top:0;left:0;right:0;z-index:999;background:#6366f1;color:white;text-align:center;padding:8px;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;align-items:center;justify-content:center;gap:12px;">
   <span>📚 Loading question bank…</span>
   <div style="width:120px;height:4px;background:rgba(255,255,255,0.3);border-radius:99px;overflow:hidden;">
     <div id="load-bar" style="height:100%;width:0%;background:white;border-radius:99px;transition:width 0.4s ease;"></div>
@@ -244,8 +244,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
   <div class="login-card">
     <div class="login-logo">
       <div class="emoji">📐</div>
-      <h1>ISEE Maths Practice</h1>
-      <p>Sign in to continue</p>
+      <h1>I see it</h1>
+      <p>ISEE Maths Practice — Sign in to continue</p>
     </div>
     <div id="login-user-bar" style="display:none">
       <div class="login-user-info">
@@ -2304,6 +2304,9 @@ function setLoadState(pct, msg) {
 }
 
 async function fetchQuestionBank() {
+  // Show loading bar
+  const loadEl = document.getElementById('screen-loading');
+  if (loadEl) loadEl.style.display = 'flex';
   try {
     setLoadState(20, 'Fetching questions…');
 
