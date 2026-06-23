@@ -299,10 +299,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
       <div style="color:#94a3b8;font-size:0.9rem;padding:1rem 0;">Loading students…</div>
     </div>
     <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid #e2e8f0;">
-      <div class="tutor-label">Tutor tools</div>
-      <button class="all-btn" onclick="launchTutorQA()" style="border-color:#c4b5fd;color:#4c1d95;background:#f5f3ff;">
-        ✏️ Question Studio — Create &amp; Review Questions
-      </button>
     </div>
   </div>
 </div>
@@ -332,8 +328,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
       <button class="all-btn" onclick="showScreen('screen-pd');loadParentDash();" style="border-color:#f59e0b;color:#92400e;background:#fffbeb;">
         👨&#x200D;👦 Parent Dashboard — View All Results
       </button>
-      <button class="all-btn" onclick="showScreen('screen-qa');loadQAReview();" style="border-color:#c4b5fd;color:#4c1d95;background:#f5f3ff;">
+      <button id="home-qa-btn" class="all-btn" onclick="showScreen('screen-qa');loadQAReview();" style="border-color:#c4b5fd;color:#4c1d95;background:#f5f3ff;">
         🔬 QA Review — Generated Questions
+      </button>
+      <button id="home-studio-btn" class="all-btn" onclick="launchTutorQA()" style="display:none;border-color:#c4b5fd;color:#4c1d95;background:#f5f3ff;">
+        ✏️ Question Studio — Create questions for this student
       </button>
     </div>
 
@@ -676,11 +675,17 @@ async function onSignedIn() {
   const role = profile.role || 'family';
 
   if (role === 'tutor') {
-    // Tutor — show student picker
+    // Tutor — show student picker, hide QA button on home screen
+    const qaBtn = document.getElementById('home-qa-btn');
+    if (qaBtn) qaBtn.style.display = 'none';
     showScreen('screen-tutor');
     loadTutorStudents();
     return;
   }
+
+  // Family — show QA button (admin use), boot app
+  const qaBtn = document.getElementById('home-qa-btn');
+  if (qaBtn) qaBtn.style.display = '';
 
   // Family — update greeting and boot app
   const email = currentUser.email || '';
@@ -1242,6 +1247,11 @@ function enterTutorSession(studentId, studentName) {
   // Show banner
   document.getElementById('tutor-session-banner').style.display = 'flex';
   document.getElementById('tutor-viewing-name').textContent = studentName;
+  // Show Question Studio, hide QA button
+  const studioBtn = document.getElementById('home-studio-btn');
+  const qaBtn     = document.getElementById('home-qa-btn');
+  if (studioBtn) studioBtn.style.display = '';
+  if (qaBtn)     qaBtn.style.display = 'none';
   // Boot app scoped to student
   appBooted = false;
   fetchQuestionBank();
@@ -1257,6 +1267,9 @@ function exitTutorSession() {
   Object.keys(chosen).forEach(k => delete chosen[k]);
   Object.keys(statuses).forEach(k => delete statuses[k]);
   document.getElementById('tutor-session-banner').style.display = 'none';
+  // Hide Question Studio button
+  const studioBtn = document.getElementById('home-studio-btn');
+  if (studioBtn) studioBtn.style.display = 'none';
   showScreen('screen-tutor');
 }
 
@@ -2375,6 +2388,7 @@ async function qaSaveEdit() {
     dok:           parseInt(document.getElementById('qa-edit-dok').value),
     skill:         document.getElementById('qa-edit-skill').value,
     created_by:    currentUser ? currentUser.id : null,
+    assigned_to:   tutorMode && tutorStudentId ? tutorStudentId : null,
   };
 
   try {
@@ -2461,6 +2475,7 @@ async function qaDecide(decision) {
             diag: null, strand: tax?.strand||null, sub: tax?.sub||null, dok: tax?.dok||null,
             source: 'generated', active: true,
             created_by: currentUser ? currentUser.id : null,
+            assigned_to: tutorMode && tutorStudentId ? tutorStudentId : null,
           })
         });
         if (!insertRes.ok) throw new Error('Insert failed: HTTP ' + insertRes.status);
