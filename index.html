@@ -1677,8 +1677,10 @@ async function updateDash() {
     const res = await fetch(SUPA_URL + '/rest/v1/' + R_STAGING + '?select=question_id,correct,answered_at&user_id=eq.' + userId() + '&order=answered_at.desc&limit=2000', {
       headers: authHeaders()
     });
+    console.log('updateDash status:', res.status, 'userId:', userId());
     if (res.ok) rows = await res.json();
-  } catch(e) { return; }
+    console.log('updateDash rows:', rows.length);
+  } catch(e) { console.error('updateDash error:', e); return; }
 
   // Latest result per question
   const latest = {};
