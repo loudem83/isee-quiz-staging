@@ -530,13 +530,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 const SUPA_URL = 'https://yajqvfwzhudghivzgijt.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhanF2Znd6aHVkZ2hpdnpnaWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNTA0MjUsImV4cCI6MjA5NjkyNjQyNX0.9jFDuKr-mL9gl_skZcP5THhnJNjs-8ogzG4zmV6fIyk';
 
-const supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+const supaClient = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
 let currentUser = null;
 let authToken   = null;
 
 async function initAuth() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supaClient.auth.getSession();
   if (session) {
     currentUser = session.user;
     authToken   = session.access_token;
@@ -545,7 +545,7 @@ async function initAuth() {
     showScreen('screen-login');
   }
   // Listen for auth changes (e.g. token refresh)
-  supabase.auth.onAuthStateChange((event, session) => {
+  supaClient.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN' && session) {
       currentUser = session.user;
       authToken   = session.access_token;
@@ -564,7 +564,7 @@ async function doLogin() {
   errEl.style.display = 'none';
   if (!email || !password) { showLoginError('Please enter your email and password.'); return; }
   btn.disabled = true; btn.textContent = 'Signing in…';
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supaClient.auth.signInWithPassword({ email, password });
   console.log('Auth response:', { data, error });
   btn.disabled = false; btn.textContent = 'Sign in →';
   if (error) { showLoginError(error.message); return; }
@@ -580,7 +580,7 @@ function showLoginError(msg) {
 }
 
 async function signOut() {
-  await supabase.auth.signOut();
+  await supaClient.auth.signOut();
   currentUser = null; authToken = null;
   // Reset app state
   chosen = {}; statuses = {}; hintedOptions = {};
