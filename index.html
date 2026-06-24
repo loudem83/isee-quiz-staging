@@ -1910,6 +1910,14 @@ async function updateDash() {
   const firstCorr = firstVals.filter(r => r.correct).length;
   const firstScore = done ? Math.round(firstCorr / done * 100) : null;
   const firstWrong = done - firstCorr;
+  console.log('First attempt debug:', {
+    totalRows: rows.length,
+    uniqueQs: done,
+    firstCorr,
+    firstWrong,
+    firstScore,
+    sampleFirst: firstVals.slice(0,3).map(r => ({q: r.question_id, correct: r.correct, at: r.answered_at}))
+  });
 
   // Week boundaries (Mon 00:00 local)
   function weekStart(weeksAgo) {
