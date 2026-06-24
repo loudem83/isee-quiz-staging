@@ -1953,18 +1953,18 @@ async function updateDash() {
   const twBarW = Math.round(twCount / maxW * 100);
   const lwBarW = Math.round(lwCount / maxW * 100);
 
-  // Skill weakness — bottom 3 skills with at least 3 attempts
-  const skillMap = {};
-  latestVals.forEach(r => {
+  // Skill weakness — based on first-attempt score, bottom 3 skills with at least 2 attempts
+  const skillMapFirst = {};
+  firstVals.forEach(r => {
     const tax = TAXONOMY[r.question_id];
     if (!tax || !tax.skill) return;
-    if (!skillMap[tax.skill]) skillMap[tax.skill] = { c:0, t:0 };
-    skillMap[tax.skill].t++;
-    if (r.correct) skillMap[tax.skill].c++;
+    if (!skillMapFirst[tax.skill]) skillMapFirst[tax.skill] = { c:0, t:0, strand: tax.strand };
+    skillMapFirst[tax.skill].t++;
+    if (r.correct) skillMapFirst[tax.skill].c++;
   });
-  const weakSkills = Object.entries(skillMap)
-    .filter(([,v]) => v.t >= 3)
-    .map(([skill, v]) => ({ skill, pct: Math.round(v.c / v.t * 100) }))
+  const weakSkills = Object.entries(skillMapFirst)
+    .filter(([,v]) => v.t >= 2)
+    .map(([skill, v]) => ({ skill, pct: Math.round(v.c / v.t * 100), strand: v.strand }))
     .sort((a,b) => a.pct - b.pct)
     .slice(0, 3);
 
@@ -1988,16 +1988,12 @@ async function updateDash() {
     boostEl.innerHTML = '<div style="font-size:0.82rem;color:#94a3b8;">Answer more questions to see your focus areas.</div>';
   } else {
     boostEl.innerHTML = weakSkills.map(s => {
-      const col = s.pct < 50 ? '#E24B4A' : '#BA7517';
-      const safeKey = encodeURIComponent('|||' + s.skill); // strand unknown, drill by skill only
-      // Find strand for this skill
-      const strandEntry = Object.values(TAXONOMY).find(t => t.skill === s.skill);
-      const strand = strandEntry ? strandEntry.strand : '';
-      const safeSkillKey = encodeURIComponent(strand + '|||' + s.skill);
+      const col = s.pct < 50 ? '#E24B4A' : s.pct < 80 ? '#BA7517' : '#639922';
+      const safeSkillKey = encodeURIComponent((s.strand||'') + '|||' + s.skill);
       return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-top:0.5px solid #f1f5f9;cursor:pointer;" onclick="startDrillSkill('${safeSkillKey}', true)">
         <div style="width:8px;height:8px;border-radius:50%;background:${col};flex-shrink:0;"></div>
         <div style="font-size:0.82rem;color:#334155;flex:1;">${s.skill}</div>
-        <div style="font-size:0.75rem;font-weight:600;color:${col};">${s.pct}%</div>
+        <div style="font-size:0.75rem;font-weight:600;color:${col};">${s.pct}% 1st attempt</div>
         <div style="font-size:0.8rem;color:#94a3b8;">→</div>
       </div>`;
     }).join('');
