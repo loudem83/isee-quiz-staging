@@ -497,6 +497,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
     <!-- Edit panel — hidden until ✏️ Edit is clicked -->
     <div id="qa-edit-panel" style="display:none;background:#f8fafc;border:1.5px solid #94a3b8;border-radius:12px;padding:1.1rem;margin-top:0.75rem;">
       <div style="font-size:0.85rem;font-weight:700;color:#334155;margin-bottom:0.9rem;">✏️ Edit Question</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <div style="flex:1">
+          <label style="font-size:0.78rem;color:#64748b;font-weight:600;">Section</label>
+          <select id="qa-edit-section" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;">
+            <option value="MA">MA — Mathematics Achievement</option>
+            <option value="QR">QR — Quantitative Reasoning</option>
+          </select>
+        </div>
+      </div>
       <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Question text</label>
       <textarea id="qa-edit-text" rows="3" style="width:100%;margin:4px 0 10px;padding:8px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.9rem;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
@@ -516,7 +525,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
           <div>
             <label style="font-size:0.78rem;color:#64748b;font-weight:600;">Strand</label>
-            <select id="qa-edit-strand" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;">
+            <select id="qa-edit-strand" onchange="qaOnStrandChange()" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;">
               <option value="Whole Numbers">Whole Numbers</option>
               <option value="Decimals, Fractions & Percentages">Decimals, Fractions &amp; Percentages</option>
               <option value="Algebraic Thinking">Algebraic Concepts</option>
@@ -657,17 +666,23 @@ function showLoginError(msg) {
 async function signOut() {
   await supaClient.auth.signOut();
   currentUser = null; authToken = null; appBooted = false;
-  // Reset app state — clear objects in place (they're const)
+  // Reset tutor state
+  tutorMode = false; tutorStudentId = null; tutorStudentName = '';
+  // Reset app state
   Object.keys(chosen).forEach(k => delete chosen[k]);
   Object.keys(statuses).forEach(k => delete statuses[k]);
   Object.keys(hintedOptions).forEach(k => delete hintedOptions[k]);
   userPoints = 0;
   ALL_QUESTIONS = [];
-  // Reset login button
+  // Reset UI
   const btn = document.getElementById('login-btn');
   if (btn) { btn.textContent = 'Sign in →'; btn.onclick = doLogin; }
   const bar = document.getElementById('login-user-bar');
   if (bar) bar.style.display = 'none';
+  const banner = document.getElementById('tutor-session-banner');
+  if (banner) banner.style.display = 'none';
+  const studioBtn = document.getElementById('home-studio-btn');
+  if (studioBtn) studioBtn.style.display = 'none';
   showScreen('screen-login');
 }
 
@@ -2219,10 +2234,11 @@ function qaNewQuestion() {
   document.getElementById('qa-edit-d').value = '';
   document.getElementById('qa-edit-correct').value = '0';
   document.getElementById('qa-edit-exp').value = '';
-  document.getElementById('qa-edit-strand').value = '';
-  document.getElementById('qa-edit-sub').value = '';
+  if (document.getElementById('qa-edit-section')) document.getElementById('qa-edit-section').value = 'MA';
+  document.getElementById('qa-edit-strand').value = 'Whole Numbers';
   document.getElementById('qa-edit-dok').value = '1';
   document.getElementById('qa-edit-skill').value = '';
+  qaOnStrandChange(); // populate sub and skill for default strand
 
   // Change edit panel title and save button behaviour
   const panel = document.getElementById('qa-edit-panel');
@@ -2249,7 +2265,7 @@ async function qaInsertNewQuestion() {
   const saveBtn = document.getElementById('qa-edit-panel').querySelector('button:last-child');
   saveBtn.textContent = '⏳ Saving…'; saveBtn.disabled = true;
 
-  const section = 'MA'; // default — could add a selector later
+  const section = document.getElementById('qa-edit-section')?.value || 'MA';
   try {
     // Get next question ID
     const idRes = await fetch(
@@ -2257,7 +2273,7 @@ async function qaInsertNewQuestion() {
       { headers: authHeaders() }
     );
     const existingIds = idRes.ok ? await idRes.json() : [];
-    const prefix = 'MA-';
+    const prefix = section + '-';
     const maxNum = existingIds
       .map(r => parseInt(r.question_id.replace(prefix,'')))
       .filter(n => !isNaN(n))
@@ -2301,7 +2317,10 @@ async function qaInsertNewQuestion() {
 
     alert(`✅ Question ${newId} created successfully!`);
 
-    // Reset panel and reload
+    // Reload question bank so new question appears in workout
+    await fetchQuestionBank();
+
+    // Reset panel
     const panel = document.getElementById('qa-edit-panel');
     panel.style.display = 'none';
     panel.querySelector('div').textContent = '✏️ Edit Question';
@@ -2452,24 +2471,8 @@ function qaStartEdit() {
   if (!row) return;
 
   // Skill options per strand
-  const skillOptions = {
-    'Whole Numbers':                     ['Adding & Subtracting Integers','Multiplying & Dividing Integers','Order of Operations','Place Value & Standard Form','Factors, Multiples & Divisibility','Prime & Composite Numbers','Remainder Problems','Whole Number Word Problems'],
-    'Decimals, Fractions & Percentages': ['Adding & Subtracting Decimals','Multiplying & Dividing Decimals','Adding & Subtracting Fractions & Mixed Numbers','Comparing & Ordering Fractions & Decimals','Converting Between Fractions, Decimals & Percents','Fraction & Percent of a Quantity','Estimating with Fractions & Decimals','Ratio & Proportion Word Problems'],
-    'Algebraic Thinking':                ['Numerical & Shape Patterns','Input/Output & Function Tables','Writing & Translating Expressions','Solving 1-Variable Equations','Solving Multi-Step & Symbol Equations','Linear Relationships & Word Problems'],
-    'Measurement':                       ['Perimeter of Polygons','Area of Rectangles, Squares & Triangles','Area & Perimeter of Composite Figures','Volume of Solids','Missing Side given Area or Perimeter','Unit Conversions & Time','Angles in Triangles & Polygons'],
-    'Geometry':                          ['Identifying & Classifying Shapes','Symmetry, Transformations & Views of 3D','Coordinate Planes'],
-    'Data Analysis & Prob.':             ['Reading Tables & Graphs','Mean, Median & Mode','Simple Probability','Data Interpretation & Inference'],
-  };
-
-  // Sub options per strand (6 broad strands)
-  const subOptions = {
-    'Whole Numbers':                     ['Whole Numbers'],
-    'Decimals, Fractions & Percentages': ['Decimals, Fractions & Percentages'],
-    'Algebraic Thinking':                ['Algebraic Concepts'],
-    'Measurement':                       ['Measurement'],
-    'Geometry':                          ['Geometry'],
-    'Data Analysis & Prob.':             ['Data Analysis & Probability'],
-  };
+  const skillOptions = QA_SKILL_OPTIONS;
+  const subOptions   = QA_SUB_OPTIONS;
 
   // Populate strand and subtopic dropdowns
   const strandEl = document.getElementById('qa-edit-strand');
@@ -2675,8 +2678,36 @@ async function qaDecide(decision) {
 }
 
 
-/* ════════════════════════════════════════════
-   TAXONOMY — strand, subtopic, DoK per question
+/* ════════════════════════════════════════
+   QA TAXONOMY OPTIONS (global)
+════════════════════════════════════════ */
+const QA_SKILL_OPTIONS = {
+  'Whole Numbers':                     ['Adding & Subtracting Integers','Multiplying & Dividing Integers','Order of Operations','Place Value & Standard Form','Factors, Multiples & Divisibility','Prime & Composite Numbers','Remainder Problems','Whole Number Word Problems'],
+  'Decimals, Fractions & Percentages': ['Adding & Subtracting Decimals','Multiplying & Dividing Decimals','Adding & Subtracting Fractions & Mixed Numbers','Comparing & Ordering Fractions & Decimals','Converting Between Fractions, Decimals & Percents','Fraction & Percent of a Quantity','Estimating with Fractions & Decimals','Ratio & Proportion Word Problems'],
+  'Algebraic Thinking':                ['Numerical & Shape Patterns','Input/Output & Function Tables','Writing & Translating Expressions','Solving 1-Variable Equations','Solving Multi-Step & Symbol Equations','Linear Relationships & Word Problems'],
+  'Measurement':                       ['Perimeter of Polygons','Area of Rectangles, Squares & Triangles','Area & Perimeter of Composite Figures','Volume of Solids','Missing Side given Area or Perimeter','Unit Conversions & Time','Angles in Triangles & Polygons'],
+  'Geometry':                          ['Identifying & Classifying Shapes','Symmetry, Transformations & Views of 3D','Coordinate Planes'],
+  'Data Analysis & Prob.':             ['Reading Tables & Graphs','Mean, Median & Mode','Simple Probability','Data Interpretation & Inference'],
+};
+const QA_SUB_OPTIONS = {
+  'Whole Numbers':                     ['Whole Numbers'],
+  'Decimals, Fractions & Percentages': ['Decimals, Fractions & Percentages'],
+  'Algebraic Thinking':                ['Algebraic Concepts'],
+  'Measurement':                       ['Measurement'],
+  'Geometry':                          ['Geometry'],
+  'Data Analysis & Prob.':             ['Data Analysis & Probability'],
+};
+
+function qaOnStrandChange() {
+  const strand  = document.getElementById('qa-edit-strand').value;
+  const subEl   = document.getElementById('qa-edit-sub');
+  const skillEl = document.getElementById('qa-edit-skill');
+  subEl.innerHTML   = (QA_SUB_OPTIONS[strand]   || []).map(s => `<option value="${s}">${s}</option>`).join('');
+  skillEl.innerHTML = (QA_SKILL_OPTIONS[strand] || []).map(s => `<option value="${s}">${s}</option>`).join('');
+}
+
+// Expose globally
+window.qaOnStrandChange = qaOnStrandChange; — strand, subtopic, DoK per question
    Update when new questions are added
 ════════════════════════════════════════════ */
 /* ════════════════════════════════════════
