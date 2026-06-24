@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ISEE Maths Practice Quiz</title>
+<title>[STAGING] ISEE Maths Practice Quiz</title>
 <!-- Supabase JS client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
@@ -246,7 +246,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 </head>
 <body>
 
-
+<div id="staging-banner" style="background:#f59e0b;color:#1a1a2e;text-align:center;padding:8px;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;">STAGING — test data only</div>
 
 <!-- LOADING SCREEN -->
 <div id="screen-loading" class="screen" style="display:none;position:fixed;top:0;left:0;right:0;z-index:999;background:#6366f1;color:white;text-align:center;padding:8px;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;align-items:center;justify-content:center;gap:12px;">
@@ -327,6 +327,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
       </button>
       <button class="all-btn" onclick="showScreen('screen-pd');loadParentDash();" style="border-color:#f59e0b;color:#92400e;background:#fffbeb;">
         👨&#x200D;👦 Parent Dashboard — View All Results
+      </button>
+      <button id="home-qa-btn" class="all-btn" onclick="showScreen('screen-qa');loadQAReview();" style="border-color:#c4b5fd;color:#4c1d95;background:#f5f3ff;">
+        🔬 QA Review — Generated Questions
       </button>
       <button id="home-studio-btn" class="all-btn" onclick="launchTutorQA()" style="display:none;border-color:#c4b5fd;color:#4c1d95;background:#f5f3ff;">
         ✏️ Question Studio — Create questions for this student
@@ -1802,7 +1805,7 @@ function renderQ() {
   // Hint bar
   const hintsUsed = (hintedOptions[key] || []).length;
   const canHint = !answered && hintsUsed < 2 && userPoints >= HINT_COST;
-  const isQA = false;
+  const isQA = document.getElementById('screen-qa') && document.getElementById('screen-qa').classList.contains('active');
   const hintBarHtml = (!answered && mode !== 'qa' && !isQA) ? `
     <div class="hint-bar">
       <span class="hint-used">${hintsUsed > 0 ? `💡 ${hintsUsed}/2 hint${hintsUsed>1?'s':''} used` : ''}</span>
@@ -1822,6 +1825,9 @@ function renderQ() {
       ${(()=>{ const tax = TAXONOMY[q.n]; return tax ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;"><span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;">${tax.strand}</span><span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#fef9c3;color:#92400e;font-weight:600;">DoK ${tax.dok}</span>${tax.skill ? `<span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f0fdf4;color:#065f46;font-weight:600;">${tax.skill}</span>` : ''}</div>` : ''; })()}
       <div class="q-text">${formatText(q.text)}</div>${diag}
       <div class="options">${opts}</div>${fb}
+      <div style="margin-top:0.75rem;text-align:right;">
+        <button onclick="pushToQA('${q.n}')" style="font-size:0.8rem;padding:5px 14px;border-radius:8px;border:1.5px solid #c4b5fd;background:#f5f3ff;color:#4c1d95;cursor:pointer;font-weight:600;">✏️ Push to QA</button>
+      </div>
       ${hintBarHtml}
     </div>`;
   document.getElementById('prog-label').textContent = `${done} of ${curQs.length} answered`;
