@@ -600,7 +600,8 @@ const R_STAGING = EXAM_CONFIG.r_staging;
 let currentUser = null;
 let authToken   = null;
 
-let appBooted = false;
+let appBooted  = false;  // true once user has authenticated and been routed
+let tutorBooted = false; // true once tutor has entered the app
 
 async function initAuth() {
   const { data: { session } } = await supaClient.auth.getSession();
@@ -623,15 +624,13 @@ async function initAuth() {
     if (event === 'SIGNED_IN' && session) {
       currentUser = session.user;
       authToken   = session.access_token;
-      // Only route if not already in the app (prevents re-routing on tab focus/token refresh)
+      // Only route on first sign-in — never re-route on tab focus
       if (!appBooted) onSignedIn();
     } else if (event === 'TOKEN_REFRESHED' && session) {
-      // Just update the token silently — don't re-route
       authToken = session.access_token;
     } else if (event === 'SIGNED_OUT') {
-      currentUser = null;
-      authToken   = null;
-      appBooted   = false;
+      currentUser = null; authToken = null;
+      appBooted = false; tutorBooted = false;
       const btn = document.getElementById('login-btn');
       if (btn) { btn.textContent = 'Sign in →'; btn.onclick = doLogin; }
       const bar = document.getElementById('login-user-bar');
@@ -688,7 +687,7 @@ async function signOut() {
 
 async function onSignedIn() {
   if (appBooted) return;
-  appBooted = true;
+  appBooted = true; // Set immediately — blocks any re-entry from SIGNED_IN events
 
   // Check role
   const profile = await getUserRole();
@@ -720,10 +719,14 @@ async function onSignedIn() {
 }
 
 // Expose auth functions to global scope for inline handlers
-window.doLogin          = doLogin;
-window.signOut          = signOut;
-window.exitTutorSession = exitTutorSession;
-window.launchTutorQA   = launchTutorQA;
+window.doLogin            = doLogin;
+window.signOut            = signOut;
+window.exitTutorSession   = exitTutorSession;
+window.enterTutorSession  = enterTutorSession;
+window.launchTutorQA      = launchTutorQA;
+window.startTutorWorkout  = startTutorWorkout;
+window.qaOnStrandChange   = qaOnStrandChange;
+window.qaNewQuestion      = qaNewQuestion;
 
 // Auth headers for all fetch calls
 function authHeaders() {
@@ -1282,8 +1285,8 @@ async function loadTutorStudents() {
 
 // Enter tutor session for a specific student
 function enterTutorSession(studentId, studentName) {
-  tutorMode       = true;
-  tutorStudentId  = studentId;
+  tutorMode        = true;
+  tutorStudentId   = studentId;
   tutorStudentName = studentName;
   // Show banner
   document.getElementById('tutor-session-banner').style.display = 'flex';
@@ -1293,22 +1296,20 @@ function enterTutorSession(studentId, studentName) {
   const qaBtn     = document.getElementById('home-qa-btn');
   if (studioBtn) studioBtn.style.display = '';
   if (qaBtn)     qaBtn.style.display = 'none';
-  // Boot app scoped to student
-  appBooted = false;
+  // Reload question bank scoped to student — don't reset appBooted
+  ALL_QUESTIONS = [];
   fetchQuestionBank();
 }
 
 // Exit tutor session back to student picker
 function exitTutorSession() {
-  tutorMode       = false;
-  tutorStudentId  = null;
+  tutorMode        = false;
+  tutorStudentId   = null;
   tutorStudentName = '';
-  appBooted       = false;
-  ALL_QUESTIONS   = [];
+  ALL_QUESTIONS    = [];
   Object.keys(chosen).forEach(k => delete chosen[k]);
   Object.keys(statuses).forEach(k => delete statuses[k]);
   document.getElementById('tutor-session-banner').style.display = 'none';
-  // Hide Question Studio button
   const studioBtn = document.getElementById('home-studio-btn');
   if (studioBtn) studioBtn.style.display = 'none';
   showScreen('screen-tutor');
@@ -1316,8 +1317,7 @@ function exitTutorSession() {
 
 // Tutor QA — launch Question Studio
 function launchTutorQA() {
-  tutorMode = false; // QA acts on global questions
-  // Rename screen title for tutors
+  // Keep tutorMode and tutorStudentId so assigned_to gets set on new questions
   const qaTitle = document.querySelector('#screen-qa .top-bar h1');
   if (qaTitle) qaTitle.textContent = '✏️ Question Studio';
   showScreen('screen-qa');
@@ -1386,16 +1386,17 @@ function triggerBravo() {
 }
 
 function startTutorWorkout() {
-  // Launch a drill with only questions assigned to this student
-  const assignedQs = ALL_QUESTIONS.filter(q => q.assigned_to === userId());
+  const uid = userId();
+  const assignedQs = ALL_QUESTIONS.filter(q => q.assigned_to === uid);
+  console.log('startTutorWorkout: userId=', uid, 'assigned=', assignedQs.length, 'total=', ALL_QUESTIONS.length);
   if (assignedQs.length === 0) {
     alert('No tutor questions assigned yet.');
     return;
   }
-  curQs   = assignedQs.slice();
-  mode    = 'drill';
-  chosen  = {};
-  curIdx  = 0;
+  curQs  = assignedQs.slice();
+  mode   = 'drill';
+  cur    = 0;
+  Object.keys(chosen).forEach(k => delete chosen[k]);
   setLastScreen('screen-workout');
   showScreen('screen-quiz');
   renderQ();
@@ -2708,7 +2709,9 @@ function qaOnStrandChange() {
 
 // Expose globally
 window.qaOnStrandChange = qaOnStrandChange;
-   Update when new questions are added
+
+/* ════════════════════════════════════════════
+   TAXONOMY — Update when new questions are added
 ════════════════════════════════════════════ */
 /* ════════════════════════════════════════
    QUESTION BANK — fetch from Supabase
