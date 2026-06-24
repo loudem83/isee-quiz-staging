@@ -971,12 +971,18 @@ async function startAssessment() {
   const now = new Date();
   const strandOrder = ['Whole Numbers','Decimals, Fractions & Percentages','Algebraic Thinking','Measurement','Geometry','Data Analysis & Prob.'];
 
+  const oneDayAgo = new Date(now - 1000*60*60*24);
+
   // Pick ~3-4 questions per strand, favouring DoK 1, prioritise unseen
   const selected = [];
   strandOrder.forEach(strand => {
     const pool = ALL_QUESTIONS.filter(q => {
       const tax = TAXONOMY[q.n];
-      return tax && tax.strand === strand;
+      if (!tax || tax.strand !== strand) return false;
+      // Hard exclude questions seen in last 24 hours
+      const h = histMap[q.n];
+      if (h && new Date(h.lastSeen) > oneDayAgo) return false;
+      return true;
     });
     // Score: unseen + DoK 1 first
     pool.forEach(q => {
