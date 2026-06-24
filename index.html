@@ -2029,18 +2029,20 @@ function renderParentDash(rows) {
   const pct = rows.length ? Math.round(totalCor/rows.length*100) : 0;
   const sessionCount = Object.keys(sessions).length;
 
-  // ── Skill performance ──────────────────────────────────────────────────
+  // ── Skill performance — use all rows (consistent with overall score) ──
   const skillStats = {};
   const skillQuestions = {};
-  latestVals.forEach(r => {
+  rows.forEach(r => {
     const tax = TAXONOMY[r.question_id];
     if (!tax || !tax.skill) return;
     const key = (tax.strand||'') + '|||' + tax.skill;
     if (!skillStats[key]) skillStats[key] = { strand: tax.strand, skill: tax.skill, correct: 0, total: 0 };
     skillStats[key].total++;
     if (r.correct) skillStats[key].correct++;
+    // For drill-down still use latest per question
     if (!skillQuestions[key]) skillQuestions[key] = [];
-    skillQuestions[key].push(r);
+    const existing = skillQuestions[key].find(q => q.question_id === r.question_id);
+    if (!existing) skillQuestions[key].push(r);
   });
 
   // ── DoK performance ────────────────────────────────────────────────────
