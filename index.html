@@ -353,19 +353,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
     <div class="dash-section">
       <div class="dash-title">📊 Progress snapshot</div>
 
-      <!-- 6 metric cards -->
-      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px;">
+      <!-- 5 metric cards -->
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px;">
         <div style="background:#f1f5f9;border-radius:10px;padding:10px 6px;text-align:center;">
           <div style="font-size:1.35rem;font-weight:500;color:#1a3a5c;line-height:1" id="snap-done">—</div>
           <div style="font-size:10px;color:#94a3b8;margin-top:3px;">Done</div>
         </div>
         <div style="background:#eaf3de;border-radius:10px;padding:10px 6px;text-align:center;">
           <div style="font-size:1.35rem;font-weight:500;color:#27500a;line-height:1" id="snap-score">—</div>
-          <div style="font-size:10px;color:#639922;margin-top:3px;">Mastery</div>
-        </div>
-        <div style="background:#e6f1fb;border-radius:10px;padding:10px 6px;text-align:center;">
-          <div style="font-size:1.35rem;font-weight:500;color:#0c447c;line-height:1" id="snap-first">—</div>
-          <div style="font-size:10px;color:#185fa5;margin-top:3px;">1st attempt</div>
+          <div style="font-size:10px;color:#639922;margin-top:3px;">% Correct</div>
         </div>
         <div style="background:#f1f5f9;border-radius:10px;padding:10px 6px;text-align:center;">
           <div style="font-size:1.35rem;font-weight:500;color:#059669;line-height:1" id="snap-thisweek">—</div>
@@ -1387,12 +1383,16 @@ async function loadTutorStudents() {
     const cards = await Promise.all(profiles.map(async p => {
       try {
         const sr = await fetch(
-          SUPA_URL + '/rest/v1/' + R_TABLE + '?user_id=eq.' + p.id + '&select=correct&limit=500',
+          SUPA_URL + '/rest/v1/' + R_TABLE + '?user_id=eq.' + p.id + '&select=question_id,correct,answered_at&order=answered_at.desc&limit=500',
           { headers: authHeaders() }
         );
         const results = await sr.json();
-        const total = results.length;
-        const correct = results.filter(r => r.correct).length;
+        // Latest per question (mastery score)
+        const latest = {};
+        results.forEach(r => { if (!latest[r.question_id]) latest[r.question_id] = r; });
+        const latestVals = Object.values(latest);
+        const total = latestVals.length;
+        const correct = latestVals.filter(r => r.correct).length;
         const pct = total ? Math.round(correct/total*100) : null;
         return { ...p, total, pct };
       } catch(e) { return { ...p, total: 0, pct: null }; }
@@ -1403,7 +1403,7 @@ async function loadTutorStudents() {
         <div class="student-avatar">👤</div>
         <div class="student-info">
           <div class="student-name">${s.display_name || 'Student'}</div>
-          <div class="student-stats">${s.total} questions answered${s.pct !== null ? ' · ' + s.pct + '% correct' : ''}</div>
+          <div class="student-stats">${s.total} questions answered${s.pct !== null ? ' · ' + s.pct + '% mastery' : ''}</div>
         </div>
         <div class="student-arrow">›</div>
       </div>`).join('');
@@ -1894,30 +1894,19 @@ async function updateDash() {
     if (res.ok) rows = await res.json();
   } catch(e) { console.error('updateDash error:', e); return; }
 
-  // Latest result per question (mastery)
+  // Score = total correct / total answers (includes retries)
+  const totalAnswers = rows.length;
+  const totalCorrect = rows.filter(r => r.correct).length;
+  const score = totalAnswers ? Math.round(totalCorrect / totalAnswers * 100) : null;
+  // Latest per question for done/remaining counts
   const latest = {};
   rows.forEach(r => { if (!latest[r.question_id]) latest[r.question_id] = r; });
   const latestVals = Object.values(latest);
   const done  = latestVals.length;
   const corr  = latestVals.filter(r => r.correct).length;
-  const score = done ? Math.round(corr / done * 100) : null;
   const remaining = Math.max(0, total - done);
 
-  // First attempt score — earliest answer per question
-  const earliest = {};
-  [...rows].reverse().forEach(r => { earliest[r.question_id] = r; });
-  const firstVals = Object.values(earliest);
-  const firstCorr = firstVals.filter(r => r.correct).length;
-  const firstScore = done ? Math.round(firstCorr / done * 100) : null;
-  const firstWrong = done - firstCorr;
-  console.log('First attempt debug:', {
-    totalRows: rows.length,
-    uniqueQs: done,
-    firstCorr,
-    firstWrong,
-    firstScore,
-    sampleFirst: firstVals.slice(0,3).map(r => ({q: r.question_id, correct: r.correct, at: r.answered_at}))
-  });
+
 
   // Week boundaries (Mon 00:00 local)
   function weekStart(weeksAgo) {
@@ -1961,16 +1950,16 @@ async function updateDash() {
   const twBarW = Math.round(twCount / maxW * 100);
   const lwBarW = Math.round(lwCount / maxW * 100);
 
-  // Skill weakness — based on first-attempt score, bottom 3 skills with at least 2 attempts
-  const skillMapFirst = {};
-  firstVals.forEach(r => {
+  // Skill weakness — based on raw correct/total per skill
+  const skillMapWeak = {};
+  rows.forEach(r => {
     const tax = TAXONOMY[r.question_id];
     if (!tax || !tax.skill) return;
-    if (!skillMapFirst[tax.skill]) skillMapFirst[tax.skill] = { c:0, t:0, strand: tax.strand };
-    skillMapFirst[tax.skill].t++;
-    if (r.correct) skillMapFirst[tax.skill].c++;
+    if (!skillMapWeak[tax.skill]) skillMapWeak[tax.skill] = { c:0, t:0, strand: tax.strand };
+    skillMapWeak[tax.skill].t++;
+    if (r.correct) skillMapWeak[tax.skill].c++;
   });
-  const weakSkills = Object.entries(skillMapFirst)
+  const weakSkills = Object.entries(skillMapWeak)
     .filter(([,v]) => v.t >= 2)
     .map(([skill, v]) => ({ skill, pct: Math.round(v.c / v.t * 100), strand: v.strand }))
     .sort((a,b) => a.pct - b.pct)
@@ -1979,7 +1968,6 @@ async function updateDash() {
   // ── Update DOM ──────────────────────────────────────────────────────
   document.getElementById('snap-done').textContent      = done;
   document.getElementById('snap-score').textContent     = score !== null ? score + '%' : '—';
-  document.getElementById('snap-first').textContent     = firstScore !== null ? firstScore + '%' : '—';
   document.getElementById('snap-thisweek').textContent  = twCount;
   document.getElementById('snap-remaining').textContent = remaining;
 
@@ -2037,20 +2025,12 @@ function renderParentDash(rows) {
   rows.forEach(r => { if (!latest[r.question_id]) latest[r.question_id] = r; });
   const latestVals = Object.values(latest);
   const totalAns = latestVals.length;
-  const totalCor = latestVals.filter(r => r.correct).length;
-  const pct = totalAns ? Math.round(totalCor/totalAns*100) : 0;
+  const totalCor = rows.filter(r => r.correct).length;
+  const pct = rows.length ? Math.round(totalCor/rows.length*100) : 0;
   const sessionCount = Object.keys(sessions).length;
-
-  // First attempt score
-  const earliestPD = {};
-  [...rows].reverse().forEach(r => { earliestPD[r.question_id] = r; });
-  const firstCorPD = Object.values(earliestPD).filter(r => r.correct).length;
-  const firstPct = totalAns ? Math.round(firstCorPD/totalAns*100) : 0;
-  const firstWrongPD = totalAns - firstCorPD;
 
   // ── Skill performance ──────────────────────────────────────────────────
   const skillStats = {};
-  const skillStatsFirst = {}; // first attempt per skill
   const skillQuestions = {};
   latestVals.forEach(r => {
     const tax = TAXONOMY[r.question_id];
@@ -2061,15 +2041,6 @@ function renderParentDash(rows) {
     if (r.correct) skillStats[key].correct++;
     if (!skillQuestions[key]) skillQuestions[key] = [];
     skillQuestions[key].push(r);
-  });
-  // First attempt per skill
-  Object.values(earliestPD).forEach(r => {
-    const tax = TAXONOMY[r.question_id];
-    if (!tax || !tax.skill) return;
-    const key = (tax.strand||'') + '|||' + tax.skill;
-    if (!skillStatsFirst[key]) skillStatsFirst[key] = { correct: 0, total: 0 };
-    skillStatsFirst[key].total++;
-    if (r.correct) skillStatsFirst[key].correct++;
   });
 
   // ── DoK performance ────────────────────────────────────────────────────
@@ -2109,18 +2080,13 @@ function renderParentDash(rows) {
         const p = Math.round(s.correct/s.total*100);
         const col = scoreColor(p);
         const safeKey = encodeURIComponent((s.strand||'') + '|||' + s.skill);
-        const fKey = (s.strand||'') + '|||' + s.skill;
-        const fs = skillStatsFirst[fKey];
-        const fp = fs ? Math.round(fs.correct/fs.total*100) : p;
         return `<div onclick="pdShowSkillDrill('${safeKey}')" style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:0.5px solid #f1f5f9;cursor:pointer;">
-          <span style="font-size:0.75rem;color:#64748b;flex:0 0 160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.skill}</span>
-          <div style="flex:1;position:relative;height:10px;background:#f1f5f9;border-radius:3px;overflow:hidden;">
-            <div style="position:absolute;top:0;left:0;width:${p}%;height:100%;background:${col.bar};border-radius:3px;opacity:0.9;"></div>
-            <div style="position:absolute;top:0;left:0;width:${fp}%;height:100%;background:#85b7eb;border-radius:3px;opacity:0.7;"></div>
+          <span style="font-size:0.75rem;color:#64748b;flex:0 0 180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.skill}</span>
+          <div style="flex:1;background:#f1f5f9;border-radius:3px;height:10px;overflow:hidden;">
+            <div style="width:${p}%;height:100%;background:${col.bar};border-radius:3px;"></div>
           </div>
-          <span style="font-size:0.72rem;font-weight:500;color:${col.text};flex:0 0 30px;text-align:right;">${p}%</span>
-          <span style="font-size:0.72rem;color:#185fa5;flex:0 0 28px;text-align:right;">${fp}%</span>
-          <span style="font-size:0.72rem;color:#94a3b8;flex:0 0 20px;text-align:right;">${s.total}q</span>
+          <span style="font-size:0.75rem;font-weight:600;color:${col.text};flex:0 0 32px;text-align:right;">${p}%</span>
+          <span style="font-size:0.72rem;color:#94a3b8;flex:0 0 24px;text-align:right;">${s.total}q</span>
           <span style="font-size:0.72rem;color:#94a3b8;">›</span>
         </div>`;
       }).join('');
@@ -2161,9 +2127,9 @@ function renderParentDash(rows) {
     <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">Overview</div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem;">
       <div style="background:#f1f5f9;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#334155;">${totalAns}</div><div style="font-size:0.72rem;color:#94a3b8;margin-top:3px;">Questions answered</div></div>
-      <div style="background:#eaf3de;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#27500a;">${pct}%</div><div style="font-size:0.72rem;color:#3b6d11;margin-top:3px;">Mastery score</div><div style="font-size:0.68rem;color:#639922;margin-top:2px;">Eventually correct</div></div>
-      <div style="background:#e6f1fb;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#0c447c;">${firstPct}%</div><div style="font-size:0.72rem;color:#185fa5;margin-top:3px;">First attempt</div><div style="font-size:0.68rem;color:#378add;margin-top:2px;">${firstWrongPD > 0 ? firstWrongPD + ' needed extra tries' : 'Perfect first time!'}</div></div>
+      <div style="background:#eaf3de;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#27500a;">${pct}%</div><div style="font-size:0.72rem;color:#3b6d11;margin-top:3px;">% Correct</div><div style="font-size:0.68rem;color:#639922;margin-top:2px;">incl. retries</div></div>
       <div style="background:#f1f5f9;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#334155;">${sessionCount}</div><div style="font-size:0.72rem;color:#94a3b8;margin-top:3px;">Sessions</div></div>
+      <div style="background:#f1f5f9;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#334155;">${Math.max(0, ALL_QUESTIONS.length - totalAns)}</div><div style="font-size:0.72rem;color:#94a3b8;margin-top:3px;">Remaining</div></div>
     </div>
 
     <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">DoK breakdown</div>
@@ -2177,11 +2143,7 @@ function renderParentDash(rows) {
       </div>
     </div>` : ''}
 
-    <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:6px;">Performance by skill <span style="font-weight:400;text-transform:none;letter-spacing:0;">— click a skill to see questions</span></div>
-    <div style="display:flex;gap:14px;margin-bottom:10px;font-size:11px;color:#64748b;">
-      <span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#97c459;"></span>Mastery</span>
-      <span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#85b7eb;opacity:0.8;"></span>First attempt</span>
-    </div>
+    <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">Performance by skill <span style="font-weight:400;text-transform:none;letter-spacing:0;">— click a skill to see questions</span></div>
     <div style="margin-bottom:1.25rem;">${strandBlocks || '<div style="color:#94a3b8;font-size:0.85rem;">No skill data yet — answer some questions first.</div>'}</div>
 
     <div id="pd-skill-drill" style="display:none;margin-bottom:1.25rem;">
