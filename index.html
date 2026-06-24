@@ -999,6 +999,8 @@ async function startAssessment() {
   mode   = 'drill';
   cur    = 0;
   Object.keys(chosen).forEach(k => delete chosen[k]);
+  Object.keys(statuses).forEach(k => delete statuses[k]);
+  Object.keys(hintedOptions).forEach(k => delete hintedOptions[k]);
   setLastScreen('screen-workout');
   document.getElementById('quiz-title').textContent = (window.currentChildName || '') + (window.currentChildName ? "'s " : '') + 'Assessment';
   statusEl.textContent = '';
@@ -1526,6 +1528,8 @@ function startTutorWorkout() {
   mode   = 'drill';
   cur    = 0;
   Object.keys(chosen).forEach(k => delete chosen[k]);
+  Object.keys(statuses).forEach(k => delete statuses[k]);
+  Object.keys(hintedOptions).forEach(k => delete hintedOptions[k]);
   setLastScreen('screen-workout');
   showScreen('screen-quiz');
   renderQ();
