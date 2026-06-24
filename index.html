@@ -1387,13 +1387,12 @@ async function loadTutorStudents() {
           { headers: authHeaders() }
         );
         const results = await sr.json();
-        // Latest per question (mastery score)
+        // Latest per question for count, raw correct/total for score
         const latest = {};
         results.forEach(r => { if (!latest[r.question_id]) latest[r.question_id] = r; });
-        const latestVals = Object.values(latest);
-        const total = latestVals.length;
-        const correct = latestVals.filter(r => r.correct).length;
-        const pct = total ? Math.round(correct/total*100) : null;
+        const total = Object.keys(latest).length;
+        const correct = results.filter(r => r.correct).length;
+        const pct = results.length ? Math.round(correct/results.length*100) : null;
         return { ...p, total, pct };
       } catch(e) { return { ...p, total: 0, pct: null }; }
     }));
@@ -1403,7 +1402,7 @@ async function loadTutorStudents() {
         <div class="student-avatar">👤</div>
         <div class="student-info">
           <div class="student-name">${s.display_name || 'Student'}</div>
-          <div class="student-stats">${s.total} questions answered${s.pct !== null ? ' · ' + s.pct + '% mastery' : ''}</div>
+          <div class="student-stats">${s.total} questions answered${s.pct !== null ? ' · ' + s.pct + '% correct' : ''}</div>
         </div>
         <div class="student-arrow">›</div>
       </div>`).join('');
