@@ -740,6 +740,12 @@ function authHeaders() {
 
 
 async function supaInsert(row) {
+  // Don't write results when tutor is previewing student session
+  if (tutorMode && tutorStudentId) {
+    showSyncStatus('👁 Tutor view — results not saved', '#4c1d95', '#f5f3ff');
+    setTimeout(() => showSyncStatus('','',''), 2500);
+    return;
+  }
   showSyncStatus('⏳ Saving…', '#92400e', '#fffbeb');
   try {
     const res = await fetch(SUPA_URL + '/rest/v1/' + R_STAGING + '', {
@@ -1317,11 +1323,17 @@ function exitTutorSession() {
 
 // Tutor QA — launch Question Studio
 function launchTutorQA() {
-  // Keep tutorMode and tutorStudentId so assigned_to gets set on new questions
   const qaTitle = document.querySelector('#screen-qa .top-bar h1');
   if (qaTitle) qaTitle.textContent = '✏️ Question Studio';
+  // Hide filter bar — tutors don't need the review queue
+  const filterBar = document.querySelector('#screen-qa .quiz-wrap > div:first-child');
+  if (filterBar) filterBar.style.display = (tutorMode || tutorStudentId) ? 'none' : '';
   showScreen('screen-qa');
-  loadQAReview();
+  if (tutorMode || tutorStudentId) {
+    qaNewQuestion();
+  } else {
+    loadQAReview();
+  }
 }
 
 // Override userId() to return student ID when in tutor session
@@ -2258,7 +2270,12 @@ function qaNewQuestion() {
     panel.querySelector('div').textContent = '✏️ Edit Question';
     saveBtn.onclick = qaSaveEdit;
     cancelBtn.onclick = qaCancelEdit;
-    loadQAReview();
+    // Tutors go back to home screen, admins reload QA queue
+    if (tutorStudentId) {
+      showScreen('screen-home');
+    } else {
+      loadQAReview();
+    }
   };
 }
 
@@ -2329,7 +2346,13 @@ async function qaInsertNewQuestion() {
     sb.onclick = qaSaveEdit; sb.textContent = '💾 Save changes'; sb.disabled = false;
     const cb = panel.querySelector('button:first-child');
     cb.onclick = qaCancelEdit;
-    loadQAReview();
+
+    // Tutors go back to home, admins reload QA
+    if (tutorStudentId) {
+      showScreen('screen-home');
+    } else {
+      loadQAReview();
+    }
   } catch(e) {
     alert('❌ Could not save: ' + e.message);
   } finally {
