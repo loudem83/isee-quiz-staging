@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>[STAGING] ISEE Maths Practice Quiz</title>
+<title>ISEE Maths Practice Quiz</title>
 <!-- Supabase JS client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
@@ -246,7 +246,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 </head>
 <body>
 
-<div id="staging-banner" style="background:#f59e0b;color:#1a1a2e;text-align:center;padding:8px;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;">STAGING — test data only</div>
+
 
 <!-- LOADING SCREEN -->
 <div id="screen-loading" class="screen" style="display:none;position:fixed;top:0;left:0;right:0;z-index:999;background:#6366f1;color:white;text-align:center;padding:8px;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;align-items:center;justify-content:center;gap:12px;">
@@ -328,14 +328,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
       <button class="all-btn" onclick="showScreen('screen-pd');loadParentDash();" style="border-color:#f59e0b;color:#92400e;background:#fffbeb;">
         👨&#x200D;👦 Parent Dashboard — View All Results
       </button>
-      <button id="home-qa-btn" class="all-btn" onclick="showScreen('screen-qa');loadQAReview();" style="border-color:#c4b5fd;color:#4c1d95;background:#f5f3ff;">
-        🔬 QA Review — Generated Questions
-      </button>
       <button id="home-studio-btn" class="all-btn" onclick="launchTutorQA()" style="display:none;border-color:#c4b5fd;color:#4c1d95;background:#f5f3ff;">
         ✏️ Question Studio — Create questions for this student
       </button>
     </div>
 
+    <!-- How it works — hint mechanics explainer -->
+    <div class="dash-section" id="how-it-works" style="background:#fffbeb;border:1px solid #fde68a;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="dash-title" style="margin:0;">💡 How it works</div>
+        <button onclick="document.getElementById('how-it-works').style.display='none';localStorage.setItem('hiw_dismissed','1');" style="background:none;border:none;color:#94a3b8;font-size:1.1rem;cursor:pointer;">✕</button>
+      </div>
+      <div style="font-size:0.84rem;color:#92400e;line-height:1.7;">
+        <div style="margin-bottom:6px;">🪙 <strong>Earn 10 points</strong> for every correct answer</div>
+        <div style="margin-bottom:6px;">💡 <strong>Spend 50 points</strong> on a hint — it crosses off one wrong answer</div>
+        <div style="margin-bottom:6px;">🎯 <strong>Max 2 hints</strong> per question — use them wisely!</div>
+        <div>📈 The app <strong>adapts to your weak spots</strong> — questions you struggle with come back more often</div>
+      </div>
+    </div>
 
     <div class="dash-section">
       <div class="dash-title">📊 Progress snapshot</div>
@@ -740,8 +750,15 @@ window.exitTutorSession   = exitTutorSession;
 window.enterTutorSession  = enterTutorSession;
 window.launchTutorQA      = launchTutorQA;
 window.startTutorWorkout  = startTutorWorkout;
+window.startAssessment    = startAssessment;
 window.qaOnStrandChange   = qaOnStrandChange;
 window.qaNewQuestion      = qaNewQuestion;
+
+// Hide "how it works" if user already dismissed it
+if (localStorage.getItem('hiw_dismissed')) {
+  const el = document.getElementById('how-it-works');
+  if (el) el.style.display = 'none';
+}
 
 // Auth headers for all fetch calls
 function authHeaders() {
@@ -879,7 +896,18 @@ function loadWorkout() {
 
   let html = '<div class="drill-grid">';
 
-  // ── Tutor Questions card (only if assigned questions exist) ──
+  // ── Assessment card — always first ──
+  html += `
+    <div class="drill-card" onclick="startAssessment()" style="border-color:#1d4ed8;background:linear-gradient(135deg,#eff6ff,#dbeafe);grid-column:1/-1;">
+      <div class="dc-left">
+        <h4 style="color:#1e40af;">🎯 Quick Assessment</h4>
+        <p style="font-size:0.75rem;color:#3b82f6;margin-top:2px;">20 mixed questions across all topics · Start here!</p>
+      </div>
+      <div class="dc-right">
+        <span class="dc-count" style="color:#1e40af;">20</span>
+        <span class="dc-label" style="color:#3b82f6;">questions</span>
+      </div>
+    </div>`;
   const assignedQs = ALL_QUESTIONS.filter(q => q.assigned_to === userId());
   if (assignedQs.length > 0) {
     html += `
@@ -911,6 +939,64 @@ function loadWorkout() {
   });
   html += '</div>';
   contentEl.innerHTML = html;
+}
+
+async function startAssessment() {
+  const statusEl = document.getElementById('workout-status');
+  statusEl.textContent = 'Building your assessment…';
+
+  // Fetch history
+  let history = [];
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/' + R_STAGING + '?select=question_id,correct,answered_at&user_id=eq.' + userId() + '&order=answered_at.desc&limit=1000', { headers: authHeaders() });
+    if (res.ok) history = await res.json();
+  } catch(e) {}
+
+  const histMap = {};
+  history.forEach(r => {
+    if (!histMap[r.question_id]) histMap[r.question_id] = { lastSeen: r.answered_at, correct: 0, total: 0 };
+    else if (r.answered_at > histMap[r.question_id].lastSeen) histMap[r.question_id].lastSeen = r.answered_at;
+    histMap[r.question_id].total++;
+    if (r.correct) histMap[r.question_id].correct++;
+  });
+
+  const now = new Date();
+  const strandOrder = ['Whole Numbers','Decimals, Fractions & Percentages','Algebraic Thinking','Measurement','Geometry','Data Analysis & Prob.'];
+
+  // Pick ~3-4 questions per strand, favouring DoK 1, prioritise unseen
+  const selected = [];
+  strandOrder.forEach(strand => {
+    const pool = ALL_QUESTIONS.filter(q => {
+      const tax = TAXONOMY[q.n];
+      return tax && tax.strand === strand;
+    });
+    // Score: unseen + DoK 1 first
+    pool.forEach(q => {
+      const h = histMap[q.n];
+      const dok = TAXONOMY[q.n]?.dok || 2;
+      const unseen = h ? 0 : 1;
+      const recency = h ? Math.min((now - new Date(h.lastSeen)) / (1000*60*60*24*7), 1) : 1;
+      q._priority = (unseen * 0.5) + (recency * 0.3) + ((3 - dok) / 2 * 0.2);
+    });
+    pool.sort((a, b) => b._priority - a._priority || Math.random() - 0.5);
+    selected.push(...pool.slice(0, 4)); // up to 4 per strand
+  });
+
+  // Cap at 20, shuffle order across strands
+  const assessment = selected.slice(0, 20).sort(() => Math.random() - 0.5);
+
+  if (assessment.length === 0) { statusEl.textContent = ''; alert('No questions available.'); return; }
+
+  curQs  = assessment;
+  mode   = 'drill';
+  cur    = 0;
+  Object.keys(chosen).forEach(k => delete chosen[k]);
+  setLastScreen('screen-workout');
+  document.getElementById('quiz-title').textContent = (window.currentChildName || '') + (window.currentChildName ? "'s " : '') + 'Assessment';
+  statusEl.textContent = '';
+  showScreen('screen-quiz');
+  renderQ();
+  updateDash();
 }
 
 async function startWorkout(safeStrand) {
@@ -1716,7 +1802,7 @@ function renderQ() {
   // Hint bar
   const hintsUsed = (hintedOptions[key] || []).length;
   const canHint = !answered && hintsUsed < 2 && userPoints >= HINT_COST;
-  const isQA = document.getElementById('screen-qa') && document.getElementById('screen-qa').classList.contains('active');
+  const isQA = false;
   const hintBarHtml = (!answered && mode !== 'qa' && !isQA) ? `
     <div class="hint-bar">
       <span class="hint-used">${hintsUsed > 0 ? `💡 ${hintsUsed}/2 hint${hintsUsed>1?'s':''} used` : ''}</span>
@@ -1736,9 +1822,6 @@ function renderQ() {
       ${(()=>{ const tax = TAXONOMY[q.n]; return tax ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;"><span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;">${tax.strand}</span><span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#fef9c3;color:#92400e;font-weight:600;">DoK ${tax.dok}</span>${tax.skill ? `<span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f0fdf4;color:#065f46;font-weight:600;">${tax.skill}</span>` : ''}</div>` : ''; })()}
       <div class="q-text">${formatText(q.text)}</div>${diag}
       <div class="options">${opts}</div>${fb}
-      <div style="margin-top:0.75rem;text-align:right;">
-        <button onclick="pushToQA('${q.n}')" style="font-size:0.8rem;padding:5px 14px;border-radius:8px;border:1.5px solid #c4b5fd;background:#f5f3ff;color:#4c1d95;cursor:pointer;font-weight:600;">✏️ Push to QA</button>
-      </div>
       ${hintBarHtml}
     </div>`;
   document.getElementById('prog-label').textContent = `${done} of ${curQs.length} answered`;
