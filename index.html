@@ -246,7 +246,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 </head>
 <body>
 
-<div style="background:#f59e0b;color:#1a1a2e;text-align:center;padding:8px;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;">STAGING — test data only</div>
+<div id="staging-banner" style="background:#f59e0b;color:#1a1a2e;text-align:center;padding:8px;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;">STAGING — test data only</div>
 
 <!-- LOADING SCREEN -->
 <div id="screen-loading" class="screen" style="display:none;position:fixed;top:0;left:0;right:0;z-index:999;background:#6366f1;color:white;text-align:center;padding:8px;font-size:0.82rem;font-weight:700;letter-spacing:0.05em;align-items:center;justify-content:center;gap:12px;">
@@ -614,15 +614,19 @@ async function initAuth() {
     if (event === 'SIGNED_IN' && session) {
       currentUser = session.user;
       authToken   = session.access_token;
+      // Only route if not already in the app (prevents re-routing on tab focus/token refresh)
       if (!appBooted) onSignedIn();
+    } else if (event === 'TOKEN_REFRESHED' && session) {
+      // Just update the token silently — don't re-route
+      authToken = session.access_token;
     } else if (event === 'SIGNED_OUT') {
       currentUser = null;
       authToken   = null;
       appBooted   = false;
-      // Reset button
-      document.getElementById('login-btn').textContent = 'Sign in →';
-      document.getElementById('login-btn').onclick = doLogin;
-      document.getElementById('login-user-bar').style.display = 'none';
+      const btn = document.getElementById('login-btn');
+      if (btn) { btn.textContent = 'Sign in →'; btn.onclick = doLogin; }
+      const bar = document.getElementById('login-user-bar');
+      if (bar) bar.style.display = 'none';
       showScreen('screen-login');
     }
   });
@@ -684,9 +688,13 @@ async function onSignedIn() {
     return;
   }
 
-  // Family — show QA button (admin use), boot app
-  const qaBtn = document.getElementById('home-qa-btn');
-  if (qaBtn) qaBtn.style.display = '';
+  // Family — boot app, hide all tutor UI elements
+  const qaBtn     = document.getElementById('home-qa-btn');
+  const studioBtn = document.getElementById('home-studio-btn');
+  const banner    = document.getElementById('tutor-session-banner');
+  if (qaBtn)     qaBtn.style.display     = '';
+  if (studioBtn) studioBtn.style.display = 'none';
+  if (banner)    banner.style.display    = 'none';
 
   // Family — update greeting and boot app
   const email = currentUser.email || '';
