@@ -2045,9 +2045,9 @@ function renderParentDash(rows) {
     if (!existing) skillQuestions[key].push(r);
   });
 
-  // ── DoK performance ────────────────────────────────────────────────────
+  // ── DoK performance — use all rows (consistent with overall score) ──
   const dokStats = { 1:{c:0,t:0}, 2:{c:0,t:0}, 3:{c:0,t:0} };
-  latestVals.forEach(r => {
+  rows.forEach(r => {
     const tax = TAXONOMY[r.question_id];
     if (!tax || !tax.dok) return;
     dokStats[tax.dok].t++;
