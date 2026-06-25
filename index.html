@@ -935,8 +935,8 @@ function loadWorkout() {
     return;
   }
 
-  const strandOrder = ['Whole Numbers','Decimals, Fractions & Percentages','Algebraic Thinking','Measurement','Geometry','Data Analysis & Prob.'];
-  const strandLabels = {'Whole Numbers':'Whole Numbers','Decimals, Fractions & Percentages':'Decimals, Fractions & Percentages','Algebraic Thinking':'Algebraic Concepts','Measurement':'Measurement','Geometry':'Geometry','Data Analysis & Prob.':'Data Analysis & Probability'};
+  const strandOrder = QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower'];
+  const strandLabels = Object.fromEntries((QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower']).map(s => [s, s]));
 
   const total = Object.values(strandMap).reduce((s,c) => s+c, 0);
   statusEl.textContent = `${total} questions available`;
@@ -1008,7 +1008,7 @@ async function startAssessment() {
   });
 
   const now = new Date();
-  const strandOrder = ['Whole Numbers','Decimals, Fractions & Percentages','Algebraic Thinking','Measurement','Geometry','Data Analysis & Prob.'];
+  const strandOrder = QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower'];
 
   const oneDayAgo = new Date(now - 1000*60*60*24);
 
@@ -1147,7 +1147,7 @@ async function startWorkout(safeStrand) {
     return da - db;
   });
 
-  const strandLabels = {'Whole Numbers':'Whole Numbers','Decimals, Fractions & Percentages':'Decimals, Fractions & Percentages','Algebraic Thinking':'Algebraic Concepts','Measurement':'Measurement','Geometry':'Geometry','Data Analysis & Prob.':'Data Analysis & Probability'};
+  const strandLabels = Object.fromEntries((QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower']).map(s => [s, s]));
   const label = strandLabels[strand] || strand;
 
   // Clear answer state and hints for these questions so they appear fresh
@@ -1614,15 +1614,8 @@ function loadDrill() {
     return;
   }
 
-  const strandOrder = ['Whole Numbers','Decimals, Fractions & Percentages','Algebraic Thinking','Measurement','Geometry','Data Analysis & Prob.'];
-  const strandLabels = {
-    'Whole Numbers': 'Whole Numbers',
-    'Decimals, Fractions & Percentages': 'Decimals, Fractions & Percentages',
-    'Algebraic Thinking': 'Algebraic Concepts',
-    'Measurement': 'Measurement',
-    'Geometry': 'Geometry',
-    'Data Analysis & Prob.': 'Data Analysis & Probability',
-  };
+  const strandOrder = QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower'];
+  const strandLabels = Object.fromEntries((QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower']).map(s => [s, s]));
 
   const total = Object.values(strandMap).reduce((s,c) => s+c, 0);
   statusEl.textContent = `${total} questions across ${Object.keys(strandMap).length} topics`;
@@ -1670,7 +1663,7 @@ function startDrillStrand(safeStrand) {
   mode = 'drill';
   curQs = pool;
   cur = 0;
-  const labels = {'Whole Numbers':'Whole Numbers','Decimals, Fractions & Percentages':'Decimals, Fractions & Percentages','Algebraic Thinking':'Algebraic Concepts','Measurement':'Measurement','Geometry':'Geometry','Data Analysis & Prob.':'Data Analysis & Probability'};
+  const labels = Object.fromEntries((QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower']).map(s => [s, s]));
   document.getElementById('quiz-title').textContent = labels[strand] || strand;
   document.getElementById('bar-fill').className = 'bar-fill all';
   setLastScreen('screen-drill');
@@ -2107,8 +2100,8 @@ function renderParentDash(rows) {
   });
 
   // ── Strand grouping ────────────────────────────────────────────────────
-  const strandOrder = ['Whole Numbers','Decimals, Fractions & Percentages','Algebraic Thinking','Measurement','Geometry','Data Analysis & Prob.'];
-  const strandLabels = {'Whole Numbers':'Whole Numbers','Decimals, Fractions & Percentages':'Decimals, Fractions & Percentages','Algebraic Thinking':'Algebraic Concepts','Measurement':'Measurement','Geometry':'Geometry','Data Analysis & Prob.':'Data Analysis & Probability'};
+  const strandOrder = QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower'];
+  const strandLabels = Object.fromEntries((QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower']).map(s => [s, s]));
 
   function scoreColor(p) {
     if (p >= 85) return { bar:'#27500A', text:'#173404' };  // dark green
