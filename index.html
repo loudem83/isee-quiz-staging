@@ -1709,7 +1709,7 @@ function startDrillSkill(safeKey, fromHome) {
 async function pushToQA(questionId) {
   if (!confirm(`Push "${questionId}" to QA for editing?\n\nIt will be temporarily removed from the live quiz until approved.`)) return;
 
-  const res = await fetch(SUPA_URL + `/rest/v1/' + Q_TABLE + '?question_id=eq.${questionId}`, {
+  const res = await fetch(SUPA_URL + '/rest/v1/' + Q_TABLE + '?question_id=eq.' + questionId, {
     method: 'PATCH',
     headers: {
       ...authHeaders(), 'Prefer': 'return=minimal'
@@ -2791,17 +2791,17 @@ async function qaDecide(decision) {
     if (row._table === 'questions') {
       // ── questions table: simply set active=true or leave as false ──
       if (decision === 'approved') {
-        const res = await fetch(SUPA_URL + `/rest/v1/' + Q_TABLE + '?question_id=eq.${row.question_id}`, {
+        const res = await fetch(SUPA_URL + '/rest/v1/' + Q_TABLE + '?question_id=eq.' + row.question_id, {
           method: 'PATCH',
           headers: { ...authHeaders(), 'Prefer': 'return=minimal' },
           body: JSON.stringify({ active: true })
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        // Add to local pool immediately
         const newQ = { n: row.question_id, sec: row.section, text: row.text,
-          opts: [row.opt_a, row.opt_b, row.opt_c, row.opt_d], ans: row.correct_index, exp: row.explanation || '' };
+          opts: [row.opt_a, row.opt_b, row.opt_c, row.opt_d], ans: row.correct_index, exp: row.explanation || '',
+          assigned_to: row.assigned_to || null, created_by: row.created_by || null };
         if (row.diag) newQ.diag = row.diag;
-        if (row.strand) TAXONOMY[row.question_id] = { strand: row.strand, sub: row.sub, dok: row.dok, skill: row.skill || null };
+        if (row.strand) TAXONOMY[row.question_id] = { strand: row.strand, dok: row.dok, skill: row.skill || null };
         ALL_QUESTIONS.push(newQ);
         ALL_QUESTIONS.sort((a, b) => {
           const [as, an] = [a.n.split('-')[0], parseInt(a.n.split('-')[1])||0];
@@ -2817,7 +2817,7 @@ async function qaDecide(decision) {
       let newQuestionId = row.question_id;
       if (decision === 'approved') {
         const idRes = await fetch(
-          SUPA_URL + `/rest/v1/' + Q_TABLE + '?select=question_id&section=eq.${row.section}`,
+          SUPA_URL + '/rest/v1/' + Q_TABLE + '?select=question_id&section=eq.' + row.section,
           { headers: authHeaders() }
         );
         const existingIds = idRes.ok ? await idRes.json() : [];
