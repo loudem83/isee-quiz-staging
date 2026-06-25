@@ -524,6 +524,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
           <select id="qa-edit-section" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;">
             <option value="MA">MA — Mathematics Achievement</option>
             <option value="QR">QR — Quantitative Reasoning</option>
+            <option value="GR">GR — Grammaire</option>
+            <option value="VO">VO — Vocabulaire</option>
+            <option value="CO">CO — Compréhension</option>
+            <option value="EX">EX — Expression</option>
           </select>
         </div>
       </div>
@@ -546,14 +550,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
           <div>
             <label style="font-size:0.78rem;color:#64748b;font-weight:600;">Strand</label>
-            <select id="qa-edit-strand" onchange="qaOnStrandChange()" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;">
-              <option value="Whole Numbers">Whole Numbers</option>
-              <option value="Decimals, Fractions & Percentages">Decimals, Fractions &amp; Percentages</option>
-              <option value="Algebraic Thinking">Algebraic Concepts</option>
-              <option value="Measurement">Measurement</option>
-              <option value="Geometry">Geometry</option>
-              <option value="Data Analysis & Prob.">Data Analysis &amp; Probability</option>
-            </select>
+            <select id="qa-edit-strand" onchange="qaOnStrandChange()" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;"></select>
           </div>
           <div>
             <label style="font-size:0.78rem;color:#64748b;font-weight:600;">DoK</label>
@@ -564,8 +561,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
             </select>
           </div>
         </div>
-        <label style="font-size:0.78rem;color:#64748b;font-weight:600;">Subtopic</label>
-        <select id="qa-edit-sub" style="width:100%;margin-top:3px;margin-bottom:8px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;"></select>
         <label style="font-size:0.78rem;color:#64748b;font-weight:600;">Skill</label>
         <select id="qa-edit-skill" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;margin-bottom:0;"></select>
       </div>
@@ -2424,11 +2419,10 @@ function qaNewQuestion() {
   document.getElementById('qa-edit-d').value = '';
   document.getElementById('qa-edit-correct').value = '0';
   document.getElementById('qa-edit-exp').value = '';
-  if (document.getElementById('qa-edit-section')) document.getElementById('qa-edit-section').value = 'MA';
-  document.getElementById('qa-edit-strand').value = 'Whole Numbers';
+  if (document.getElementById('qa-edit-section')) document.getElementById('qa-edit-section').value = currentCurriculum === 'french_cm1' ? 'GR' : 'MA';
   document.getElementById('qa-edit-dok').value = '1';
   document.getElementById('qa-edit-skill').value = '';
-  qaOnStrandChange(); // populate sub and skill for default strand
+  qaPopulateStrands(''); // populate strands for current curriculum
 
   // Change edit panel title and save button behaviour
   const panel = document.getElementById('qa-edit-panel');
@@ -2670,40 +2664,16 @@ function qaStartEdit() {
   const row = qaQuestions[qaIdx];
   if (!row) return;
 
-  // Skill options per strand
-  const skillOptions = QA_SKILL_OPTIONS;
-  const subOptions   = QA_SUB_OPTIONS;
-
-  // Populate strand and subtopic dropdowns
-  const strandEl = document.getElementById('qa-edit-strand');
-  // sub column removed
-  const skillEl  = document.getElementById('qa-edit-skill');
-  const currentStrand = row.strand || 'Whole Numbers';
-  const currentSub    = row.sub    || '';
+  // Populate strand and skill dropdowns
+  const currentStrand = row.strand || '';
   const currentDok    = row.dok    || 2;
   const currentSkill  = row.skill  || '';
 
-  strandEl.value = currentStrand;
-
-  function populateSubs(strand, selectedSub) {
-    // sub column removed — no-op
-  }
-
-  function populateSkills(strand, selectedSkill) {
-    const opts = skillOptions[strand] || [];
-    skillEl.innerHTML = opts.map(s =>
-      `<option value="${s}" ${s === selectedSkill ? 'selected' : ''}>${s}</option>`
-    ).join('');
-  }
-
-  populateSubs(currentStrand, currentSub);
-  populateSkills(currentStrand, currentSkill);
-
-  // Update subtopics and skills when strand changes
-  strandEl.onchange = () => {
-    populateSubs(strandEl.value, '');
-    populateSkills(strandEl.value, '');
-  };
+  // Populate strands for current curriculum and select correct one
+  qaPopulateStrands(currentStrand);
+  // Select correct skill
+  const skillEl = document.getElementById('qa-edit-skill');
+  if (skillEl) skillEl.value = currentSkill;
 
   document.getElementById('qa-edit-dok').value = String(currentDok);
 
@@ -2878,32 +2848,43 @@ async function qaDecide(decision) {
    QA TAXONOMY OPTIONS (global)
 ════════════════════════════════════════ */
 const QA_SKILL_OPTIONS = {
+  // ISEE Lower Level
   'Whole Numbers':                     ['Adding & Subtracting Integers','Multiplying & Dividing Integers','Order of Operations','Place Value & Standard Form','Factors, Multiples & Divisibility','Prime & Composite Numbers','Remainder Problems','Whole Number Word Problems'],
   'Decimals, Fractions & Percentages': ['Adding & Subtracting Decimals','Multiplying & Dividing Decimals','Adding & Subtracting Fractions & Mixed Numbers','Comparing & Ordering Fractions & Decimals','Converting Between Fractions, Decimals & Percents','Fraction & Percent of a Quantity','Estimating with Fractions & Decimals','Ratio & Proportion Word Problems'],
-  'Algebraic Thinking':                ['Numerical & Shape Patterns','Input/Output & Function Tables','Writing & Translating Expressions','Solving 1-Variable Equations','Solving Multi-Step & Symbol Equations','Linear Relationships & Word Problems'],
+  'Algebraic Thinking':                ['Numerical & Shape Patterns','Input/Output & Function Tables','Writing & Translating Expressions','Solving 1-Variable Equations','Solving Multi-Step & Symbol Equations','Linear Relationships & Word Problems','Patterns & Sequences'],
   'Measurement':                       ['Perimeter of Polygons','Area of Rectangles, Squares & Triangles','Area & Perimeter of Composite Figures','Volume of Solids','Missing Side given Area or Perimeter','Unit Conversions & Time','Angles in Triangles & Polygons'],
   'Geometry':                          ['Identifying & Classifying Shapes','Symmetry, Transformations & Views of 3D','Coordinate Planes'],
-  'Data Analysis & Prob.':             ['Reading Tables & Graphs','Mean, Median & Mode','Simple Probability','Data Interpretation & Inference'],
+  'Data Analysis & Prob.':             ['Reading Tables & Graphs','Mean, Median & Mode','Simple Probability','Data Interpretation & Inference','Interpreting Data & Graphs'],
+  // French CM1
+  'Conjugaison':   ['Présent de l\'indicatif','Passé composé','Imparfait','Futur simple','Impératif','Verbes irréguliers'],
+  'Grammaire':     ['Nature des mots','Fonction des mots','Types de phrases','Accord sujet-verbe','Accord adjectif','Pronoms'],
+  'Vocabulaire':   ['Synonymes','Antonymes','Familles de mots','Préfixes et suffixes','Sens des mots en contexte'],
+  'Orthographe':   ['Homophones grammaticaux','Accords en genre et nombre','Lettres muettes','Ponctuation','Majuscules'],
+  'Compréhension': ['Idée principale','Inférence et déduction','Vocabulaire en contexte','Résumé','Questions littérales'],
+  'Expression':    ['Construction de phrases','Connecteurs logiques','Types de textes','Cohérence du texte'],
 };
-const QA_SUB_OPTIONS = {
-  'Whole Numbers':                     ['Whole Numbers'],
-  'Decimals, Fractions & Percentages': ['Decimals, Fractions & Percentages'],
-  'Algebraic Thinking':                ['Algebraic Concepts'],
-  'Measurement':                       ['Measurement'],
-  'Geometry':                          ['Geometry'],
-  'Data Analysis & Prob.':             ['Data Analysis & Probability'],
+
+const QA_STRANDS_BY_CURRICULUM = {
+  'isee_lower': ['Whole Numbers','Decimals, Fractions & Percentages','Algebraic Thinking','Measurement','Geometry','Data Analysis & Prob.'],
+  'french_cm1': ['Conjugaison','Grammaire','Vocabulaire','Orthographe','Compréhension','Expression'],
 };
+
+function qaPopulateStrands(selectedStrand) {
+  const strandEl = document.getElementById('qa-edit-strand');
+  const strands = QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower'];
+  strandEl.innerHTML = strands.map(s => `<option value="${s}" ${s === selectedStrand ? 'selected' : ''}>${s}</option>`).join('');
+  qaOnStrandChange();
+}
 
 function qaOnStrandChange() {
   const strand  = document.getElementById('qa-edit-strand').value;
-  // sub column removed
   const skillEl = document.getElementById('qa-edit-skill');
-  // sub column removed
   skillEl.innerHTML = (QA_SKILL_OPTIONS[strand] || []).map(s => `<option value="${s}">${s}</option>`).join('');
 }
 
 // Expose globally
-window.qaOnStrandChange = qaOnStrandChange;
+window.qaOnStrandChange   = qaOnStrandChange;
+window.qaPopulateStrands  = qaPopulateStrands;
 
 /* ════════════════════════════════════════════
    TAXONOMY — Update when new questions are added
