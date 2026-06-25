@@ -2386,7 +2386,7 @@ function topicToTaxonomy(target_topic, section) {
     'Simple Probability':      'Data Analysis & Prob.',
   };
   const strand = strandMap[topic] || (section === 'MA' ? 'Numbers & Operations' : 'Algebraic Thinking');
-  return { strand, sub: topic || 'General', dok };
+  return { strand, dok };
 }
 
 /* ════════════════════════════════════════
@@ -2486,7 +2486,6 @@ async function qaInsertNewQuestion() {
       correct_index: parseInt(document.getElementById('qa-edit-correct').value),
       explanation:   document.getElementById('qa-edit-exp').value.trim(),
       strand:        document.getElementById('qa-edit-strand').value,
-      sub:           document.getElementById('qa-edit-sub').value,
       dok:           parseInt(document.getElementById('qa-edit-dok').value),
       skill:         document.getElementById('qa-edit-skill').value,
       active:        true,
@@ -2677,7 +2676,7 @@ function qaStartEdit() {
 
   // Populate strand and subtopic dropdowns
   const strandEl = document.getElementById('qa-edit-strand');
-  const subEl    = document.getElementById('qa-edit-sub');
+  // sub column removed
   const skillEl  = document.getElementById('qa-edit-skill');
   const currentStrand = row.strand || 'Whole Numbers';
   const currentSub    = row.sub    || '';
@@ -2687,10 +2686,7 @@ function qaStartEdit() {
   strandEl.value = currentStrand;
 
   function populateSubs(strand, selectedSub) {
-    const opts = subOptions[strand] || [];
-    subEl.innerHTML = opts.map(s =>
-      `<option value="${s}" ${s === selectedSub ? 'selected' : ''}>${s}</option>`
-    ).join('');
+    // sub column removed — no-op
   }
 
   function populateSkills(strand, selectedSkill) {
@@ -2747,7 +2743,6 @@ async function qaSaveEdit() {
     correct_index: parseInt(document.getElementById('qa-edit-correct').value),
     explanation:   document.getElementById('qa-edit-exp').value.trim(),
     strand:        document.getElementById('qa-edit-strand').value,
-    sub:           document.getElementById('qa-edit-sub').value,
     dok:           parseInt(document.getElementById('qa-edit-dok').value),
     skill:         document.getElementById('qa-edit-skill').value,
     created_by:    currentUser ? currentUser.id : null,
@@ -2755,9 +2750,9 @@ async function qaSaveEdit() {
   };
 
   try {
-    const table   = row._table === 'questions' ? 'questions' : 'generated_questions';
-    const idField = row._table === 'questions' ? `question_id=eq.${row.question_id}` : `id=eq.${row.id}`;
-    const res = await fetch(SUPA_URL + `/rest/v1/${table}?${idField}`, {
+    const table   = row._table === 'questions' ? Q_TABLE : 'generated_questions';
+    const idField = row._table === 'questions' ? 'question_id=eq.' + row.question_id : 'id=eq.' + row.id;
+    const res = await fetch(SUPA_URL + '/rest/v1/' + table + '?' + idField, {
       method: 'PATCH',
       headers: {
         ...authHeaders(), 'Prefer': 'return=minimal'
@@ -2835,7 +2830,7 @@ async function qaDecide(decision) {
             question_id: newQuestionId, section: row.section,
             text: row.text, opt_a: row.opt_a, opt_b: row.opt_b, opt_c: row.opt_c, opt_d: row.opt_d,
             correct_index: row.correct_index, explanation: row.explanation || '',
-            diag: null, strand: tax?.strand||null, sub: tax?.sub||null, dok: tax?.dok||null,
+            diag: null, strand: tax?.strand||null, dok: tax?.dok||null,
             source: 'generated', active: true,
             created_by: currentUser ? currentUser.id : null,
             assigned_to: tutorMode && tutorStudentId ? tutorStudentId : null,
@@ -2901,9 +2896,9 @@ const QA_SUB_OPTIONS = {
 
 function qaOnStrandChange() {
   const strand  = document.getElementById('qa-edit-strand').value;
-  const subEl   = document.getElementById('qa-edit-sub');
+  // sub column removed
   const skillEl = document.getElementById('qa-edit-skill');
-  subEl.innerHTML   = (QA_SUB_OPTIONS[strand]   || []).map(s => `<option value="${s}">${s}</option>`).join('');
+  // sub column removed
   skillEl.innerHTML = (QA_SKILL_OPTIONS[strand] || []).map(s => `<option value="${s}">${s}</option>`).join('');
 }
 
