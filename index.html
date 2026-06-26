@@ -2560,9 +2560,9 @@ async function loadQAReview() {
       }
     }
 
-    // Fetch from questions (active=false) — user and manual sources
+    // Fetch from questions (active=false) — filtered by current curriculum
     if (qaFilter === 'all' || qaFilter === 'user' || qaFilter === 'manual') {
-      let url = SUPA_URL + '/rest/v1/' + Q_TABLE + '?active=eq.false&select=*&order=question_id';
+      let url = SUPA_URL + '/rest/v1/' + Q_TABLE + '?active=eq.false&curriculum=eq.' + currentCurriculum + '&select=*&order=question_id';
       if (qaFilter === 'user')   url += '&source=eq.user';
       if (qaFilter === 'manual') url += '&source=eq.manual';
       const r2 = await fetch(url, { headers: authHeaders() });
