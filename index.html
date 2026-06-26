@@ -2919,7 +2919,6 @@ async function fetchQuestionBank() {
     const rows = await res.json();
 
     setLoadState(60, `Building question bank (${rows.length} questions)…`);
-    console.log('fetchQuestionBank:', currentCurriculum, rows.length, 'rows returned');
 
     // Convert Supabase rows → ALL_QUESTIONS shape
     ALL_QUESTIONS = rows.map(r => {
@@ -2947,8 +2946,8 @@ async function fetchQuestionBank() {
 
     // Populate TAXONOMY from Supabase rows
     rows.forEach(r => {
-      if (r.strand && r.sub && r.dok) {
-        TAXONOMY[r.question_id] = { strand: r.strand, sub: r.sub, dok: r.dok, skill: r.skill || null };
+      if (r.strand && r.dok) {
+        TAXONOMY[r.question_id] = { strand: r.strand, dok: r.dok, skill: r.skill || null };
       }
     });
 
