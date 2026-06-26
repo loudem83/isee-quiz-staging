@@ -2747,7 +2747,6 @@ async function qaDecide(decision) {
 
   try {
     if (row._table === 'questions') {
-      // ── questions table: simply set active=true or leave as false ──
       if (decision === 'approved') {
         const res = await fetch(SUPA_URL + '/rest/v1/' + Q_TABLE + '?question_id=eq.' + row.question_id, {
           method: 'PATCH',
@@ -2767,8 +2766,13 @@ async function qaDecide(decision) {
           return as !== bs ? as.localeCompare(bs) : an - bn;
         });
         updateDash();
+      } else {
+        // Rejected — delete from questions table so it doesn't reappear
+        await fetch(SUPA_URL + '/rest/v1/' + Q_TABLE + '?question_id=eq.' + row.question_id, {
+          method: 'DELETE',
+          headers: { ...authHeaders(), 'Prefer': 'return=minimal' }
+        });
       }
-      // Rejected: leave active=false, just remove from queue
 
     } else {
       // ── generated_questions table: INSERT into questions, PATCH status ──
