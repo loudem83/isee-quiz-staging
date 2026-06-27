@@ -651,7 +651,8 @@ function updateCurriculumUI() {
   });
 }
 
-let currentUser = null;
+const ADMIN_UUID = '388dbcdf-8f2a-4f0c-86ad-8e9c11e43e57'; // ldemerli@amazon.co.uk
+function isAdmin() { return currentUser?.id === ADMIN_UUID; }
 let authToken   = null;
 
 let appBooted  = false;  // true once user has authenticated and been routed
@@ -2462,6 +2463,7 @@ async function qaInsertNewQuestion() {
       .reduce((a,b) => Math.max(a,b), 0);
     const newId = prefix + (maxNum + 1);
 
+    const goLive = isAdmin(); // admin → active immediately; tutors → goes to QA review
     const newQ = {
       question_id:   newId,
       section:       section,
@@ -2475,8 +2477,9 @@ async function qaInsertNewQuestion() {
       strand:        document.getElementById('qa-edit-strand').value,
       dok:           parseInt(document.getElementById('qa-edit-dok').value),
       skill:         document.getElementById('qa-edit-skill').value,
-      active:        true,
+      active:        goLive,
       source:        'manual',
+      curriculum:    currentCurriculum,
       created_by:    currentUser ? currentUser.id : null,
       assigned_to:   tutorMode && tutorStudentId ? tutorStudentId : null,
     };
@@ -2488,18 +2491,19 @@ async function qaInsertNewQuestion() {
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
 
-    // Add to local question bank
-    ALL_QUESTIONS.push({
-      n: newId, sec: section, text: newQ.text,
-      opts: [newQ.opt_a, newQ.opt_b, newQ.opt_c, newQ.opt_d],
-      ans: newQ.correct_index, exp: newQ.explanation,
-      assigned_to: newQ.assigned_to, created_by: newQ.created_by
-    });
-
-    alert(`✅ Question ${newId} created successfully!`);
-
-    // Reload question bank so new question appears in workout
-    await fetchQuestionBank();
+    if (goLive) {
+      // Add to local question bank immediately
+      ALL_QUESTIONS.push({
+        n: newId, sec: section, text: newQ.text,
+        opts: [newQ.opt_a, newQ.opt_b, newQ.opt_c, newQ.opt_d],
+        ans: newQ.correct_index, exp: newQ.explanation,
+        assigned_to: newQ.assigned_to, created_by: newQ.created_by
+      });
+      await fetchQuestionBank();
+      alert(`✅ Question ${newId} created and live!`);
+    } else {
+      alert(`✅ Question ${newId} submitted for review. It will go live once approved.`);
+    }
 
     // Reset panel
     const panel = document.getElementById('qa-edit-panel');
@@ -2799,6 +2803,7 @@ async function qaDecide(decision) {
             correct_index: row.correct_index, explanation: row.explanation || '',
             diag: null, strand: tax?.strand||null, dok: tax?.dok||null,
             source: 'generated', active: true,
+            curriculum: currentCurriculum,
             created_by: currentUser ? currentUser.id : null,
             assigned_to: tutorMode && tutorStudentId ? tutorStudentId : null,
           })
