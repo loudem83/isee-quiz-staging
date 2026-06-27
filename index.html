@@ -525,19 +525,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
     <!-- Edit panel — hidden until ✏️ Edit is clicked -->
     <div id="qa-edit-panel" style="display:none;background:#f8fafc;border:1.5px solid #94a3b8;border-radius:12px;padding:1.1rem;margin-top:0.75rem;">
       <div style="font-size:0.85rem;font-weight:700;color:#334155;margin-bottom:0.9rem;">✏️ Edit Question</div>
-      <div style="display:flex;gap:8px;margin-bottom:10px;">
-        <div style="flex:1">
-          <label style="font-size:0.78rem;color:#64748b;font-weight:600;">Section</label>
-          <select id="qa-edit-section" onchange="qaOnSectionChange()" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;">
-            <option value="MA">MA — Mathematics Achievement</option>
-            <option value="QR">QR — Quantitative Reasoning</option>
-            <option value="GR">GR — Grammaire</option>
-            <option value="VO">VO — Vocabulaire</option>
-            <option value="CO">CO — Compréhension</option>
-            <option value="EX">EX — Expression</option>
-          </select>
-        </div>
-      </div>
       <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Question text</label>
       <textarea id="qa-edit-text" rows="3" style="width:100%;margin:4px 0 10px;padding:8px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.9rem;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
@@ -556,8 +543,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
         <div style="font-size:0.78rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">🏷️ Taxonomy</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
           <div>
-            <label style="font-size:0.78rem;color:#64748b;font-weight:600;">Strand</label>
-            <select id="qa-edit-strand" onchange="qaOnStrandChange()" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;"></select>
+            <label style="font-size:0.78rem;color:#64748b;font-weight:600;">Section</label>
+            <select id="qa-edit-section" onchange="qaOnSectionChange()" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;"></select>
           </div>
           <div>
             <label style="font-size:0.78rem;color:#64748b;font-weight:600;">DoK</label>
@@ -567,6 +554,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
               <option value="3">3 — Analyse</option>
             </select>
           </div>
+        </div>
+        <div style="margin-bottom:8px;">
+          <label style="font-size:0.78rem;color:#64748b;font-weight:600;">Strand</label>
+          <select id="qa-edit-strand" onchange="qaOnStrandChange()" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;"></select>
         </div>
         <label style="font-size:0.78rem;color:#64748b;font-weight:600;">Skill</label>
         <select id="qa-edit-skill" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;margin-bottom:0;"></select>
