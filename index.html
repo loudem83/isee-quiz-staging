@@ -2,8 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "xdkjxxrqf6");
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>[STAGING] ISEE Maths Practice Quiz</title>
+<title>[STAGING] Primary Practice</title>
 <!-- Supabase JS client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
@@ -310,12 +317,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
     <button onclick="exitTutorSession()">← Back to students</button>
   </div>
   <div class="home-hero">
-    <h2 id="home-hero-title">🎓 ISEE Maths Practice Quiz</h2>
+    <h2 id="home-hero-title">🎓 Primary Practice</h2>
     <p id="home-user-greeting">Interactive practice for Mathematics Achievement &amp; Quantitative Reasoning</p>
     <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;">
       <div id="curriculum-switcher" style="display:flex;gap:6px;">
-        <button onclick="setCurriculum('isee_lower')" id="btn-isee_lower" style="padding:4px 12px;border-radius:99px;border:1.5px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.25);color:white;font-size:0.78rem;font-weight:600;cursor:pointer;">📐 ISEE</button>
-        <button onclick="setCurriculum('french_cm1')" id="btn-french_cm1" style="padding:4px 12px;border-radius:99px;border:1.5px solid rgba(255,255,255,0.3);background:transparent;color:white;font-size:0.78rem;font-weight:600;cursor:pointer;opacity:0.7;">🇫🇷 Français</button>
+        <button onclick="setCurriculum('isee_lower')" id="btn-isee_lower" style="padding:4px 12px;border-radius:99px;border:1.5px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.25);color:white;font-size:0.78rem;font-weight:600;cursor:pointer;">📐 Math (ISEE/CM1/2)</button>
+        <button onclick="setCurriculum('french_cm1')" id="btn-french_cm1" style="padding:4px 12px;border-radius:99px;border:1.5px solid rgba(255,255,255,0.3);background:transparent;color:white;font-size:0.78rem;font-weight:600;cursor:pointer;opacity:0.7;">🇫🇷 Français CM1/2</button>
       </div>
       <button onclick="signOut()" style="background:rgba(255,255,255,0.15);border:none;color:white;padding:4px 12px;border-radius:6px;font-size:0.78rem;cursor:pointer;">Sign out</button>
     </div>
@@ -603,8 +610,8 @@ const supaClient = window.supabase.createClient(SUPA_URL, SUPA_KEY);
    EXAM CONFIG — swap these to add new subjects
 ════════════════════════════════════════ */
 const CURRICULA = {
-  'isee_lower': { id: 'isee_lower', label: 'ISEE Lower Level', emoji: '📐', sections: ['MA','QR'] },
-  'french_cm1': { id: 'french_cm1', label: 'Français CM1',     emoji: '🇫🇷', sections: ['GR','VO','CO','EX'] },
+  'isee_lower': { id: 'isee_lower', label: 'Math (ISEE/CM1/2)', emoji: '📐', sections: ['MA','QR'] },
+  'french_cm1': { id: 'french_cm1', label: 'Français CM1/2',     emoji: '🇫🇷', sections: ['GR','VO','CO','EX'] },
 };
 let currentCurriculum = localStorage.getItem('curriculum') || 'isee_lower';
 
