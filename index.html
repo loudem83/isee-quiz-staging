@@ -528,7 +528,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
       <div style="display:flex;gap:8px;margin-bottom:10px;">
         <div style="flex:1">
           <label style="font-size:0.78rem;color:#64748b;font-weight:600;">Section</label>
-          <select id="qa-edit-section" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;">
+          <select id="qa-edit-section" onchange="qaOnSectionChange()" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.82rem;box-sizing:border-box;">
             <option value="MA">MA — Mathematics Achievement</option>
             <option value="QR">QR — Quantitative Reasoning</option>
             <option value="GR">GR — Grammaire</option>
@@ -2420,10 +2420,17 @@ function qaNewQuestion() {
   document.getElementById('qa-edit-d').value = '';
   document.getElementById('qa-edit-correct').value = '0';
   document.getElementById('qa-edit-exp').value = '';
-  if (document.getElementById('qa-edit-section')) document.getElementById('qa-edit-section').value = currentCurriculum === 'french_cm1' ? 'GR' : 'MA';
+  // Populate section dropdown for current curriculum
+  const sectionEl = document.getElementById('qa-edit-section');
+  if (sectionEl) {
+    const sections = currentCurriculum === 'french_cm1'
+      ? [{v:'GR',l:'GR — Grammaire'},{v:'VO',l:'VO — Vocabulaire'},{v:'CO',l:'CO — Compréhension'},{v:'EX',l:'EX — Expression'}]
+      : [{v:'MA',l:'MA — Mathematics Achievement'},{v:'QR',l:'QR — Quantitative Reasoning'}];
+    sectionEl.innerHTML = sections.map(s => `<option value="${s.v}">${s.l}</option>`).join('');
+  }
   document.getElementById('qa-edit-dok').value = '1';
   document.getElementById('qa-edit-skill').value = '';
-  qaPopulateStrands(''); // populate strands for current curriculum
+  qaOnSectionChange(); // populate strands for selected section
 
   // Change edit panel title and save button behaviour
   const panel = document.getElementById('qa-edit-panel');
@@ -2613,21 +2620,31 @@ function qaRender() {
   const row = qaQuestions[qaIdx];
   if (!row) return;
   const tax = topicToTaxonomy(row.target_topic, row.section);
-  const dokLabel = ['', 'DoK 1 — Recall', 'DoK 2 — Conceptual', 'DoK 3 — Analytical'][tax?.dok] || '';
+  const dokLabel = ['', 'DoK 1 — Recall', 'DoK 2 — Conceptual', 'DoK 3 — Analytical'][row.dok || tax?.dok] || '';
 
   const counterEl = document.getElementById('qa-counter');
   counterEl.style.display = 'flex';
   document.getElementById('qa-counter-text').textContent = `Question ${qaIdx + 1} of ${qaQuestions.length} pending`;
-  const badge = document.getElementById('qa-section-badge');
-  badge.textContent = row.section === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning';
-  badge.style.background = row.section === 'MA' ? '#dbeafe' : '#d1fae5';
-  badge.style.color = row.section === 'MA' ? '#1e40af' : '#065f46';
 
+  // Section badge — dynamic per curriculum
+  const sectionLabels = {
+    'MA': 'Mathematics Achievement', 'QR': 'Quantitative Reasoning',
+    'GR': 'Grammaire', 'VO': 'Vocabulaire', 'CO': 'Compréhension', 'EX': 'Expression'
+  };
+  const sectionColors = {
+    'MA': {bg:'#dbeafe',col:'#1e40af'}, 'QR': {bg:'#d1fae5',col:'#065f46'},
+    'GR': {bg:'#f5f3ff',col:'#4c1d95'}, 'VO': {bg:'#fef9c3',col:'#92400e'},
+    'CO': {bg:'#f0fdf4',col:'#065f46'}, 'EX': {bg:'#fff7ed',col:'#c2410c'}
+  };
+  const badge = document.getElementById('qa-section-badge');
+  const sc = sectionColors[row.section] || {bg:'#f1f5f9',col:'#475569'};
+  badge.textContent = sectionLabels[row.section] || row.section;
+  badge.style.background = sc.bg;
+  badge.style.color = sc.col;
+
+  // Fix 1: remove redundant ID/Topic header — taxonomy shown in question card below
   const taxEl = document.getElementById('qa-taxonomy');
-  taxEl.style.display = 'block';
-  taxEl.innerHTML = tax
-    ? `<b>🏷 Taxonomy</b> &nbsp;|&nbsp; <b>ID:</b> ${row.question_id} &nbsp;|&nbsp; <b>Strand:</b> ${tax.strand} &nbsp;|&nbsp; <b>Subtopic:</b> ${tax.sub} &nbsp;|&nbsp; <b>${dokLabel}</b>`
-    : `<b>🏷 ID:</b> ${row.question_id} &nbsp;|&nbsp; <b>Topic:</b> ${row.target_topic || 'Unknown'}`;
+  taxEl.style.display = 'none';
 
   const opts = [row.opt_a, row.opt_b, row.opt_c, row.opt_d].map((o, i) => {
     const isCorrect = i === row.correct_index;
@@ -2668,12 +2685,21 @@ function qaStartEdit() {
   const row = qaQuestions[qaIdx];
   if (!row) return;
 
-  // Populate strand and skill dropdowns
+  // Populate section dropdown for current curriculum
+  const sectionEl = document.getElementById('qa-edit-section');
+  if (sectionEl) {
+    const sections = currentCurriculum === 'french_cm1'
+      ? [{v:'GR',l:'GR — Grammaire'},{v:'VO',l:'VO — Vocabulaire'},{v:'CO',l:'CO — Compréhension'},{v:'EX',l:'EX — Expression'}]
+      : [{v:'MA',l:'MA — Mathematics Achievement'},{v:'QR',l:'QR — Quantitative Reasoning'}];
+    sectionEl.innerHTML = sections.map(s => `<option value="${s.v}" ${s.v === row.section ? 'selected' : ''}>${s.l}</option>`).join('');
+  }
+
+  // Populate strand and skill dropdowns based on the question's section
   const currentStrand = row.strand || '';
   const currentDok    = row.dok    || 2;
   const currentSkill  = row.skill  || '';
 
-  // Populate strands for current curriculum and select correct one
+  // Populate strands for the question's section
   qaPopulateStrands(currentStrand);
   // Select correct skill
   const skillEl = document.getElementById('qa-edit-skill');
@@ -2884,14 +2910,37 @@ const QA_SKILL_OPTIONS = {
   'Structure du texte':      ['Identifier & rédiger une introduction','Organiser un paragraphe','Utiliser les temps verbaux de façon cohérente'],
 };
 
+const QA_STRANDS_BY_SECTION = {
+  // ISEE
+  'MA': ['Whole Numbers','Decimals, Fractions & Percentages','Algebraic Thinking','Measurement','Geometry','Data Analysis & Prob.'],
+  'QR': ['Whole Numbers','Decimals, Fractions & Percentages','Algebraic Thinking','Measurement','Geometry','Data Analysis & Prob.'],
+  // French CM1
+  'GR': ['Conjugaison','Nature des mots','Fonctions','Accord','Types de phrases'],
+  'VO': ['Sens des mots','Formation des mots','Champ lexical'],
+  'CO': ['Compréhension globale','Compréhension détaillée','Inférences','Vocabulaire en contexte'],
+  'EX': ['Construction de phrases','Structure du texte'],
+};
+
 const QA_STRANDS_BY_CURRICULUM = {
   'isee_lower': ['Whole Numbers','Decimals, Fractions & Percentages','Algebraic Thinking','Measurement','Geometry','Data Analysis & Prob.'],
   'french_cm1': ['Conjugaison','Nature des mots','Fonctions','Accord','Types de phrases','Sens des mots','Formation des mots','Champ lexical','Compréhension globale','Compréhension détaillée','Inférences','Vocabulaire en contexte','Construction de phrases','Structure du texte'],
 };
 
-function qaPopulateStrands(selectedStrand) {
+function qaOnSectionChange() {
+  const section = document.getElementById('qa-edit-section')?.value;
   const strandEl = document.getElementById('qa-edit-strand');
-  const strands = QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower'];
+  if (!strandEl) return;
+  const strands = QA_STRANDS_BY_SECTION[section] || QA_STRANDS_BY_CURRICULUM[currentCurriculum] || [];
+  strandEl.innerHTML = strands.map(s => `<option value="${s}">${s}</option>`).join('');
+  qaOnStrandChange();
+}
+
+function qaPopulateStrands(selectedStrand) {
+  const section = document.getElementById('qa-edit-section')?.value;
+  const strandEl = document.getElementById('qa-edit-strand');
+  const strands = (section && QA_STRANDS_BY_SECTION[section])
+    ? QA_STRANDS_BY_SECTION[section]
+    : QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower'];
   strandEl.innerHTML = strands.map(s => `<option value="${s}" ${s === selectedStrand ? 'selected' : ''}>${s}</option>`).join('');
   qaOnStrandChange();
 }
@@ -2904,6 +2953,7 @@ function qaOnStrandChange() {
 
 // Expose globally
 window.qaOnStrandChange   = qaOnStrandChange;
+window.qaOnSectionChange  = qaOnSectionChange;
 window.qaPopulateStrands  = qaPopulateStrands;
 
 /* ════════════════════════════════════════════
