@@ -997,6 +997,8 @@ function openCatChat() {
 
   document.getElementById('catChatOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.width    = '100%';
   document.getElementById('catChatMessages').innerHTML = '';
 
   appendCatMsg('Purrr! Hi ' + childName + '! I\'m ' + catName + ' — so happy to see you! 🐾');
@@ -1006,6 +1008,8 @@ function openCatChat() {
 function closeCatChat() {
   document.getElementById('catChatOverlay').classList.remove('open');
   document.body.style.overflow = '';
+  document.body.style.position = '';
+  document.body.style.width    = '';
 }
 
 function handleOverlayClick(e) {
