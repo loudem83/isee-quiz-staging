@@ -2882,23 +2882,24 @@ const QA_SKILL_OPTIONS = {
   'Geometry':                          ['Identifying & Classifying Shapes','Symmetry, Transformations & Views of 3D','Coordinate Planes'],
   'Data Analysis & Prob.':             ['Reading Tables & Graphs','Mean, Median & Mode','Simple Probability','Data Interpretation & Inference','Interpreting Data & Graphs'],
   // French CM1 — GR Grammaire
-  'Conjugaison':        ['Les verbes du 1er groupe au présent','Les verbes du 2ème groupe au présent','Les verbes irréguliers au présent (être, avoir, aller, faire)','Le passé composé avec avoir','Le passé composé avec être','L\'imparfait','Le futur simple','L\'impératif'],
-  'Nature des mots':    ['Le nom et le déterminant','L\'adjectif qualificatif','Le pronom personnel sujet','Le verbe','L\'adverbe'],
-  'Fonctions':          ['Le sujet du verbe','Le complément d\'objet direct','Le complément d\'objet indirect','Les compléments circonstanciels'],
-  'Accord':             ['Accord sujet-verbe','Accord du nom et de l\'adjectif','Accord du participe passé avec être'],
-  'Types de phrases':   ['Phrase affirmative & négative','Phrase interrogative','Phrase exclamative & impérative','La ponctuation'],
+  'Conjugaison':              ['Les verbes du 1er groupe au présent','Les verbes du 2ème groupe au présent','Les verbes du 3ème groupe au présent','Les verbes irréguliers au présent (être, avoir, aller, faire)','Le passé composé (avoir et être)','L\'imparfait','Le futur simple','L\'impératif'],
+  'Nature des mots':          ['Le nom et le déterminant','Le groupe nominal (nom noyau, épithète)','Les déterminants (articles définis, indéfinis, possessifs, démonstratifs)','L\'adjectif qualificatif','Le pronom personnel sujet','Les pronoms personnels compléments','Le verbe','L\'adverbe','Les conjonctions de coordination'],
+  'Fonctions':                ['Le sujet du verbe','Le complément d\'objet direct','Le complément d\'objet indirect','Les compléments circonstanciels'],
+  'Accord':                   ['Accord sujet-verbe','Accord du nom et de l\'adjectif','Le féminin des noms et des adjectifs','Le pluriel des noms et des adjectifs','La chaîne d\'accords dans le groupe nominal','Accord du participe passé avec être','Accord du participe passé avec avoir'],
+  'Types de phrases':         ['Phrase affirmative & négative','Phrase interrogative','Phrase exclamative & impérative','La ponctuation'],
+  'Homophones grammaticaux':  ['Distinguer a / à','Distinguer son / sont','Distinguer et / est','Distinguer on / ont / on n\'','Distinguer ou / où','Distinguer ce / se','Distinguer ces / ses / mes / mais','Distinguer c\'est / s\'est','Distinguer la / là / l\'a / l\'as'],
   // French CM1 — VO Vocabulaire
-  'Sens des mots':      ['Synonymes & antonymes','Homophones lexicaux','Sens propre & sens figuré','Polysémie'],
-  'Formation des mots': ['Préfixes','Suffixes','Familles de mots','Mots composés'],
-  'Champ lexical':      ['Identifier le champ lexical','Champ lexical des émotions','Champ lexical de la nature'],
+  'Sens des mots':            ['Utiliser le dictionnaire','Synonymes & antonymes','Homophones lexicaux','Sens propre & sens figuré','Polysémie'],
+  'Formation des mots':       ['Préfixes','Suffixes','Familles de mots','Mots composés'],
+  'Champ lexical':            ['Identifier le champ lexical'],
   // French CM1 — CO Compréhension
-  'Compréhension globale':   ['Identifier l\'idée principale','Dégager le thème d\'un texte','Identifier le type de texte','Identifier l\'intention de l\'auteur'],
-  'Compréhension détaillée': ['Repérer les informations explicites','Reconstituer la chronologie','Identifier les personnages & leurs relations'],
-  'Inférences':              ['Déduire des informations implicites','Comprendre les causes & conséquences','Identifier le point de vue du narrateur'],
-  'Vocabulaire en contexte': ['Trouver le sens d\'un mot en contexte','Identifier le registre de langue'],
+  'Compréhension globale':    ['Identifier l\'idée principale','Dégager le thème d\'un texte','Identifier le type de texte (narratif, théâtre, poème, documentaire)','Identifier l\'intention de l\'auteur'],
+  'Compréhension détaillée':  ['Repérer les informations explicites','Reconstituer la chronologie','Identifier les personnages & leurs relations'],
+  'Inférences':               ['Déduire des informations implicites','Comprendre les causes & conséquences','Identifier le point de vue du narrateur'],
+  'Vocabulaire en contexte':  ['Trouver le sens d\'un mot en contexte'],
   // French CM1 — EX Expression
-  'Construction de phrases': ['Construire une phrase simple correcte','Construire une phrase complexe','Utiliser les connecteurs logiques','Transformer une phrase (négation, interrogation)'],
-  'Structure du texte':      ['Identifier & rédiger une introduction','Organiser un paragraphe','Utiliser les temps verbaux de façon cohérente'],
+  'Construction de phrases':  ['Construire une phrase simple correcte','Construire une phrase complexe','Utiliser les connecteurs logiques','Transformer une phrase (négation, interrogation)'],
+  'Structure du texte':       ['Identifier & rédiger une introduction','Organiser un paragraphe','Utiliser les temps verbaux de façon cohérente'],
 };
 
 const QA_STRANDS_BY_SECTION = {
@@ -2906,7 +2907,7 @@ const QA_STRANDS_BY_SECTION = {
   'MA': ['Whole Numbers','Decimals, Fractions & Percentages','Algebraic Thinking','Measurement','Geometry','Data Analysis & Prob.'],
   'QR': ['Whole Numbers','Decimals, Fractions & Percentages','Algebraic Thinking','Measurement','Geometry','Data Analysis & Prob.'],
   // French CM1
-  'GR': ['Conjugaison','Nature des mots','Fonctions','Accord','Types de phrases'],
+  'GR': ['Conjugaison','Nature des mots','Fonctions','Accord','Types de phrases','Homophones grammaticaux'],
   'VO': ['Sens des mots','Formation des mots','Champ lexical'],
   'CO': ['Compréhension globale','Compréhension détaillée','Inférences','Vocabulaire en contexte'],
   'EX': ['Construction de phrases','Structure du texte'],
@@ -2914,7 +2915,7 @@ const QA_STRANDS_BY_SECTION = {
 
 const QA_STRANDS_BY_CURRICULUM = {
   'isee_lower': ['Whole Numbers','Decimals, Fractions & Percentages','Algebraic Thinking','Measurement','Geometry','Data Analysis & Prob.'],
-  'french_cm1': ['Conjugaison','Nature des mots','Fonctions','Accord','Types de phrases','Sens des mots','Formation des mots','Champ lexical','Compréhension globale','Compréhension détaillée','Inférences','Vocabulaire en contexte','Construction de phrases','Structure du texte'],
+  'french_cm1': ['Conjugaison','Nature des mots','Fonctions','Accord','Types de phrases','Homophones grammaticaux','Sens des mots','Formation des mots','Champ lexical','Compréhension globale','Compréhension détaillée','Inférences','Vocabulaire en contexte','Construction de phrases','Structure du texte'],
 };
 
 function qaOnSectionChange() {
