@@ -78,7 +78,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .home-hero{background:linear-gradient(135deg,#1a3a5c 0%,#0f6e56 100%);color:white;padding:3rem 1.5rem 2.5rem;text-align:center;}
 .home-hero h2{font-size:2rem;font-weight:700;margin-bottom:8px;}
 .home-hero p{font-size:1rem;opacity:0.85;}
-.home-body{max-width:700px;margin:0 auto;padding:2rem 1rem;}
+.home-body{max-width:700px;margin:0 auto;padding:2rem 1rem;overflow-x:hidden;}
 .dash-section{background:white;border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
 .dash-title{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;margin-bottom:12px;}
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
@@ -241,6 +241,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .hl{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary);}
 .hl-dot{width:8px;height:8px;border-radius:50%;}
 @media(max-width:500px){
+  .home-body{padding:1rem 0.75rem;}
+  .cat-avatar-card{padding:8px 12px;}
   .heat-head,.heat-row{grid-template-columns:110px repeat(3,1fr);}
   .hh,.hc{font-size:10px;padding:6px 3px;}
   .hh:first-child,.hc:first-child{padding-left:8px;}
@@ -260,6 +262,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .cat-chat-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:flex-end;}
 .cat-chat-overlay.open{display:flex;}
 .cat-chat-panel{background:#fffaf5;border-radius:20px 20px 0 0;width:100%;max-height:75vh;display:flex;flex-direction:column;padding:0 0 16px 0;animation:slideUp 0.25s ease-out;}
+@media(max-width:500px){.cat-chat-panel{max-height:85vh;border-radius:16px 16px 0 0;}}
 @keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
 .cat-chat-header{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;border-bottom:1.5px solid #f0d090;}
 .cat-chat-header svg{width:40px;height:40px;flex-shrink:0;}
@@ -272,6 +275,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .child-msg-wrap{display:flex;justify-content:flex-end;}
 .child-msg-bubble{background:#3d1f00;color:white;padding:9px 13px;border-radius:16px 16px 4px 16px;font-size:14px;line-height:1.5;max-width:80%;}
 .cat-chat-input-row{display:flex;gap:8px;padding:10px 14px 0;}
+@media(max-width:500px){.cat-chat-input-row{padding-bottom:env(safe-area-inset-bottom,8px);}}
 .cat-chat-input{flex:1;padding:9px 14px;border:1.5px solid #e8c080;border-radius:22px;font-size:14px;outline:none;background:white;}
 .cat-chat-input:focus{border-color:#FF8C00;}
 .cat-chat-send{background:#FF8C00;color:white;border:none;border-radius:22px;padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;}
@@ -454,9 +458,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 
     </div><!-- end #home-student-view metrics -->
 
-    <!-- Cat avatar card — tappable (student) / static (tutor) -->
-    <div id="cat-avatar-card" class="cat-avatar-card" onclick="openCatChat()" style="flex-direction:column;align-items:center;padding:12px 16px 14px;">
-      <svg width="160" height="135" viewBox="0 0 380 320" xmlns="http://www.w3.org/2000/svg">
+    <!-- Practice section -->
+    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:10px;">Practice</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <button onclick="showScreen('screen-workout');loadWorkout();" style="background:#eff6ff;border:1.5px solid #1d4ed8;border-radius:12px;padding:16px;cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left;">
+        <span style="font-size:22px;flex-shrink:0;">🏋️</span>
+        <div>
+          <div style="font-size:14px;font-weight:600;color:#1e40af;">Adaptive workout</div>
+          <div style="font-size:11px;color:#64748b;margin-top:2px;">20 questions · all topics</div>
+        </div>
+      </button>
+      <button onclick="showScreen('screen-drill');loadDrill();" style="background:#f0fdf4;border:1.5px solid #0f6e56;border-radius:12px;padding:16px;cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left;">
+        <span style="font-size:22px;flex-shrink:0;">🎯</span>
+        <div>
+          <div style="font-size:14px;font-weight:600;color:#0f6e56;">Drill by topic</div>
+          <div style="font-size:11px;color:#64748b;margin-top:2px;">Choose a strand</div>
+        </div>
+      </button>
+    </div>
+
+    <!-- Cat avatar card -->
+    <div id="cat-avatar-card" class="cat-avatar-card" onclick="openCatChat()" style="flex-direction:row;align-items:center;padding:10px 14px;gap:12px;">
         <style>
           @keyframes catBreathe{0%,100%{transform:scaleY(1) translateY(0);}50%{transform:scaleY(1.03) translateY(-2px);}}
           @keyframes tailSway{0%,100%{transform:rotate(0deg);}50%{transform:rotate(12deg);}}
@@ -523,31 +545,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
         <path d="M182 107 Q186 98 190 107" fill="none" stroke="#c46000" stroke-width="2" stroke-linecap="round"/>
         <path d="M200 110 Q204 102 208 110" fill="none" stroke="#c46000" stroke-width="2" stroke-linecap="round"/>
       </svg>
-      <div style="text-align:center;margin-top:4px;">
+      <div style="flex:1;min-width:0;">
         <div class="cat-card-name" id="catCardName">Mochi</div>
         <div class="cat-card-hint" id="catCardHint">Tap me to chat! 🐾</div>
       </div>
-    </div>
-
-    <!-- Practice section label -->
-    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:10px;">Practice</div>
-
-    <!-- Pathway buttons — 2 col grid -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-      <button onclick="showScreen('screen-workout');loadWorkout();" style="background:#eff6ff;border:1.5px solid #1d4ed8;border-radius:12px;padding:16px;cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left;">
-        <span style="font-size:22px;flex-shrink:0;">🏋️</span>
-        <div>
-          <div style="font-size:14px;font-weight:600;color:#1e40af;">Adaptive workout</div>
-          <div style="font-size:11px;color:#64748b;margin-top:2px;">20 questions · all topics</div>
-        </div>
-      </button>
-      <button onclick="showScreen('screen-drill');loadDrill();" style="background:#f0fdf4;border:1.5px solid #0f6e56;border-radius:12px;padding:16px;cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left;">
-        <span style="font-size:22px;flex-shrink:0;">🎯</span>
-        <div>
-          <div style="font-size:14px;font-weight:600;color:#0f6e56;">Drill by topic</div>
-          <div style="font-size:11px;color:#64748b;margin-top:2px;">Choose a strand</div>
-        </div>
-      </button>
+      <div style="font-size:18px;color:#c46000;opacity:0.4;">›</div>
     </div>
 
     <!-- ── TUTOR TOOLS (shown in tutor session) ── -->
