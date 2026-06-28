@@ -2322,33 +2322,45 @@ async function updateDash() {
   if (weakSkills.length > 0) window._weakestSkill = weakSkills[0].skill;
 
   // ── Update DOM ──────────────────────────────────────────────────────
-  document.getElementById('snap-done').textContent      = done;
-  document.getElementById('snap-score').textContent     = score !== null ? score + '%' : '—';
-  document.getElementById('snap-thisweek').textContent  = twCount;
-  document.getElementById('snap-remaining').textContent = remaining;
+  const snapDone = document.getElementById('snap-done');
+  const snapScore = document.getElementById('snap-score');
+  const snapWeek = document.getElementById('snap-thisweek');
+  const snapRem = document.getElementById('snap-remaining');
+  const snapTwCount = document.getElementById('snap-tw-count');
+  const snapLwCount = document.getElementById('snap-lw-count');
+  const snapTwPct = document.getElementById('snap-tw-pct');
+  const snapLwPct = document.getElementById('snap-lw-pct');
+  const snapBarTw = document.getElementById('snap-bar-tw');
+  const snapBarLw = document.getElementById('snap-bar-lw');
 
-  document.getElementById('snap-tw-count').textContent = twCount;
-  document.getElementById('snap-lw-count').textContent = lwCount;
-  document.getElementById('snap-tw-pct').textContent   = twPct !== null ? twPct + '% ✓' : '—';
-  document.getElementById('snap-lw-pct').textContent   = lwPct !== null ? lwPct + '% ✓' : '—';
-  document.getElementById('snap-bar-tw').style.width   = twBarW + '%';
-  document.getElementById('snap-bar-lw').style.width   = lwBarW + '%';
+  if (snapDone) snapDone.textContent      = done;
+  if (snapScore) snapScore.textContent    = score !== null ? score + '%' : '—';
+  if (snapWeek) snapWeek.textContent      = twCount;
+  if (snapRem) snapRem.textContent        = remaining;
+  if (snapTwCount) snapTwCount.textContent = twCount;
+  if (snapLwCount) snapLwCount.textContent = lwCount;
+  if (snapTwPct) snapTwPct.textContent    = twPct !== null ? twPct + '% ✓' : '—';
+  if (snapLwPct) snapLwPct.textContent    = lwPct !== null ? lwPct + '% ✓' : '—';
+  if (snapBarTw) snapBarTw.style.width    = twBarW + '%';
+  if (snapBarLw) snapBarLw.style.width    = lwBarW + '%';
 
   // Boost section
   const boostEl = document.getElementById('snap-boost');
-  if (weakSkills.length === 0) {
-    boostEl.innerHTML = '<div style="font-size:0.82rem;color:#94a3b8;">Answer more questions to see your focus areas.</div>';
-  } else {
-    boostEl.innerHTML = weakSkills.map(s => {
-      const col = s.pct < 50 ? '#E24B4A' : s.pct < 80 ? '#BA7517' : '#639922';
-      const safeSkillKey = encodeURIComponent((s.strand||'') + '|||' + s.skill);
-      return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-top:0.5px solid #f1f5f9;cursor:pointer;" onclick="startDrillSkill('${safeSkillKey}', true)">
-        <div style="width:8px;height:8px;border-radius:50%;background:${col};flex-shrink:0;"></div>
-        <div style="font-size:0.82rem;color:#334155;flex:1;">${s.skill}</div>
-        <div style="font-size:0.75rem;font-weight:600;color:${col};">${s.pct}% 1st attempt</div>
-        <div style="font-size:0.8rem;color:#94a3b8;">→</div>
-      </div>`;
-    }).join('');
+  if (boostEl) {
+    if (weakSkills.length === 0) {
+      boostEl.innerHTML = '<div style="font-size:0.82rem;color:#94a3b8;">Answer more questions to see your focus areas.</div>';
+    } else {
+      boostEl.innerHTML = weakSkills.map(s => {
+        const col = s.pct < 50 ? '#E24B4A' : s.pct < 80 ? '#BA7517' : '#639922';
+        const safeSkillKey = encodeURIComponent((s.strand||'') + '|||' + s.skill);
+        return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-top:0.5px solid #f1f5f9;cursor:pointer;" onclick="startDrillSkill('${safeSkillKey}', true)">
+          <div style="width:8px;height:8px;border-radius:50%;background:${col};flex-shrink:0;"></div>
+          <div style="font-size:0.82rem;color:#334155;flex:1;">${s.skill}</div>
+          <div style="font-size:0.75rem;font-weight:600;color:${col};">${s.pct}% 1st attempt</div>
+          <div style="font-size:0.8rem;color:#94a3b8;">→</div>
+        </div>`;
+      }).join('');
+    }
   }
 }
 
