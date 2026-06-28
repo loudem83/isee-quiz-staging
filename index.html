@@ -1615,18 +1615,22 @@ let hintedOptions = {}; // key → [crossed-off option indices]
 // Load points from Supabase on startup
 async function loadPoints() {
   try {
-    const res = await fetch(SUPA_URL + '/rest/v1/user_points?user_id=eq.' + userId() + '&select=points,total_points', {
+    const url = SUPA_URL + '/rest/v1/user_points?user_id=eq.' + userId() + '&select=points,total_points';
+    console.log('loadPoints URL:', url);
+    const res = await fetch(url, {
       headers: authHeaders()
     });
-    if (!res.ok) return;
+    if (!res.ok) { console.log('loadPoints failed:', res.status); return; }
     const rows = await res.json();
+    console.log('loadPoints rows:', JSON.stringify(rows));
     if (rows.length > 0) {
       userPoints  = rows[0].points       || 0;
       totalPoints = rows[0].total_points || rows[0].points || 0;
+      console.log('totalPoints set to:', totalPoints);
       refreshPointsBadge();
       refreshTotalPoints();
     }
-  } catch(e) {}
+  } catch(e) { console.log('loadPoints error:', e); }
 }
 
 // Save points to Supabase
