@@ -985,6 +985,8 @@ function getWeakTopic() {
   return 'maths'; // fallback
 }
 
+let _chatScrollY = 0;
+
 function openCatChat() {
   const childName = window.currentChildName || 'friend';
   const catName   = 'Mochi';
@@ -995,10 +997,13 @@ function openCatChat() {
   catChatHistory   = [];
   catChatExchanges = 0;
 
+  _chatScrollY = window.scrollY;
+  document.body.style.overflow   = 'hidden';
+  document.body.style.position   = 'fixed';
+  document.body.style.top        = '-' + _chatScrollY + 'px';
+  document.body.style.width      = '100%';
+
   document.getElementById('catChatOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-  document.body.style.position = 'fixed';
-  document.body.style.width    = '100%';
   document.getElementById('catChatMessages').innerHTML = '';
 
   appendCatMsg('Purrr! Hi ' + childName + '! I\'m ' + catName + ' — so happy to see you! 🐾');
@@ -1009,7 +1014,9 @@ function closeCatChat() {
   document.getElementById('catChatOverlay').classList.remove('open');
   document.body.style.overflow = '';
   document.body.style.position = '';
+  document.body.style.top      = '';
   document.body.style.width    = '';
+  window.scrollTo(0, _chatScrollY);
 }
 
 function handleOverlayClick(e) {
