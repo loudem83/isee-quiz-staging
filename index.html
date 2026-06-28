@@ -962,7 +962,10 @@ async function catChatSend() {
   try {
     const res = await fetch(CAT_CHAT_EDGE_URL, {
       method: 'POST',
-      headers: { ...authHeaders() },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + authToken,
+      },
       body: JSON.stringify({
         messages:      catChatHistory,
         childName:     window.currentChildName || 'friend',
@@ -973,9 +976,7 @@ async function catChatSend() {
       }),
     });
 
-    console.log('Cat chat response status:', res.status);
     const data = await res.json();
-    console.log('Cat chat data:', data);
     removeTypingIndicator(typingId);
     catChatHistory.push({ role: 'assistant', content: data.reply });
     catChatExchanges++;
