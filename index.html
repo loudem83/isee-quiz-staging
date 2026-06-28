@@ -248,6 +248,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 
 /* PARENT DASHBOARD */
 .ql-wrap{max-width:760px;margin:0 auto;padding:1.1rem 1rem 3rem;}
+/* ── Cat avatar card ── */
+.cat-avatar-card{background:#fff8f0;border:2px solid #f0c070;border-radius:16px;padding:16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform 0.15s;user-select:none;margin-bottom:8px;}
+.cat-avatar-card:hover{transform:scale(1.02);}
+.cat-avatar-card:active{transform:scale(0.98);}
+.cat-avatar-card svg{width:72px;height:72px;flex-shrink:0;}
+.cat-card-text{flex:1;}
+.cat-card-name{font-weight:700;font-size:15px;color:#3d1f00;}
+.cat-card-hint{font-size:12px;color:#c46000;margin-top:2px;}
+/* ── Slide-up chat panel ── */
+.cat-chat-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:flex-end;}
+.cat-chat-overlay.open{display:flex;}
+.cat-chat-panel{background:#fffaf5;border-radius:20px 20px 0 0;width:100%;max-height:75vh;display:flex;flex-direction:column;padding:0 0 16px 0;animation:slideUp 0.25s ease-out;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.cat-chat-header{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;border-bottom:1.5px solid #f0d090;}
+.cat-chat-header svg{width:40px;height:40px;flex-shrink:0;}
+.cat-chat-header-name{font-weight:700;color:#3d1f00;font-size:15px;}
+.cat-chat-header-sub{font-size:11px;color:#c46000;}
+.cat-chat-close{margin-left:auto;background:none;border:none;font-size:22px;color:#c46000;cursor:pointer;line-height:1;}
+.cat-chat-messages{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+.cat-msg-wrap{display:flex;align-items:flex-end;gap:8px;}
+.cat-msg-bubble{background:#FF8C00;color:white;padding:9px 13px;border-radius:16px 16px 16px 4px;font-size:14px;line-height:1.5;max-width:80%;font-weight:500;}
+.child-msg-wrap{display:flex;justify-content:flex-end;}
+.child-msg-bubble{background:#3d1f00;color:white;padding:9px 13px;border-radius:16px 16px 4px 16px;font-size:14px;line-height:1.5;max-width:80%;}
+.cat-chat-input-row{display:flex;gap:8px;padding:10px 14px 0;}
+.cat-chat-input{flex:1;padding:9px 14px;border:1.5px solid #e8c080;border-radius:22px;font-size:14px;outline:none;background:white;}
+.cat-chat-input:focus{border-color:#FF8C00;}
+.cat-chat-send{background:#FF8C00;color:white;border:none;border-radius:22px;padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;}
+.cat-chat-send:disabled{background:#ccc;cursor:default;}
+.cat-typing{display:flex;gap:4px;padding:4px 2px;align-items:center;}
+.cat-typing span{width:7px;height:7px;background:rgba(255,255,255,0.85);border-radius:50%;animation:catBounce 1s infinite;}
+.cat-typing span:nth-child(2){animation-delay:0.15s;}
+.cat-typing span:nth-child(3){animation-delay:0.30s;}
+@keyframes catBounce{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-5px);}}
+
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
@@ -328,6 +362,78 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
     </div>
   </div>
   <div class="home-body">
+
+    <!-- Cat avatar card -->
+    <div id="cat-avatar-card" class="cat-avatar-card" onclick="openCatChat()">
+      <svg viewBox="0 0 140 145" width="72" height="72" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="70" cy="80" r="52" fill="#f5a623"/>
+        <ellipse cx="70" cy="84" rx="38" ry="36" fill="#f7bc5a"/>
+        <polygon points="26,46 14,12 44,38" fill="#f5a623"/>
+        <polygon points="114,46 126,12 96,38" fill="#f5a623"/>
+        <polygon points="28,44 18,16 42,36" fill="#fac775"/>
+        <polygon points="112,44 122,16 98,36" fill="#fac775"/>
+        <polygon points="30,42 22,20 40,34" fill="#f0997b" opacity="0.45"/>
+        <polygon points="110,42 118,20 100,34" fill="#f0997b" opacity="0.45"/>
+        <circle cx="54" cy="78" r="14" fill="white"/>
+        <circle cx="86" cy="78" r="14" fill="white"/>
+        <circle cx="54" cy="80" r="9" fill="#8B4513"/>
+        <circle cx="86" cy="80" r="9" fill="#8B4513"/>
+        <circle cx="54" cy="80" r="6" fill="#2c2c2a"/>
+        <circle cx="86" cy="80" r="6" fill="#2c2c2a"/>
+        <circle cx="50" cy="75" r="2.5" fill="white"/>
+        <circle cx="82" cy="75" r="2.5" fill="white"/>
+        <polygon points="70,93 67,97 73,97" fill="#e8847a"/>
+        <path d="M64 97 Q67 101 70 99 Q73 101 76 97" stroke="#c0705a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <ellipse cx="38" cy="92" rx="9" ry="5" fill="#f0997b" opacity="0.22"/>
+        <ellipse cx="102" cy="92" rx="9" ry="5" fill="#f0997b" opacity="0.22"/>
+        <line x1="12" y1="90" x2="48" y2="93" stroke="#3d2b00" stroke-width="0.8" stroke-linecap="round" opacity="0.45"/>
+        <line x1="10" y1="97" x2="48" y2="97" stroke="#3d2b00" stroke-width="0.8" stroke-linecap="round" opacity="0.45"/>
+        <line x1="128" y1="90" x2="92" y2="93" stroke="#3d2b00" stroke-width="0.8" stroke-linecap="round" opacity="0.45"/>
+        <line x1="130" y1="97" x2="92" y2="97" stroke="#3d2b00" stroke-width="0.8" stroke-linecap="round" opacity="0.45"/>
+        <path d="M62,46 Q70,40 78,46" stroke="#ef9f27" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.45"/>
+      </svg>
+      <div class="cat-card-text">
+        <div class="cat-card-name" id="catCardName">Mochi</div>
+        <div class="cat-card-hint">Tap me to chat! 🐾</div>
+      </div>
+    </div>
+
+    <!-- Cat chat overlay -->
+    <div class="cat-chat-overlay" id="catChatOverlay" onclick="handleOverlayClick(event)">
+      <div class="cat-chat-panel">
+        <div class="cat-chat-header">
+          <svg viewBox="0 0 140 145" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="70" cy="80" r="52" fill="#f5a623"/>
+            <ellipse cx="70" cy="84" rx="38" ry="36" fill="#f7bc5a"/>
+            <polygon points="26,46 14,12 44,38" fill="#f5a623"/>
+            <polygon points="114,46 126,12 96,38" fill="#f5a623"/>
+            <polygon points="28,44 18,16 42,36" fill="#fac775"/>
+            <polygon points="112,44 122,16 98,36" fill="#fac775"/>
+            <circle cx="54" cy="78" r="14" fill="white"/>
+            <circle cx="86" cy="78" r="14" fill="white"/>
+            <circle cx="54" cy="80" r="9" fill="#8B4513"/>
+            <circle cx="86" cy="80" r="9" fill="#8B4513"/>
+            <circle cx="54" cy="80" r="6" fill="#2c2c2a"/>
+            <circle cx="86" cy="80" r="6" fill="#2c2c2a"/>
+            <circle cx="50" cy="75" r="2.5" fill="white"/>
+            <circle cx="82" cy="75" r="2.5" fill="white"/>
+            <polygon points="70,93 67,97 73,97" fill="#e8847a"/>
+            <path d="M64 97 Q67 101 70 99 Q73 101 76 97" stroke="#c0705a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+          </svg>
+          <div>
+            <div class="cat-chat-header-name" id="catChatHeaderName">Mochi</div>
+            <div class="cat-chat-header-sub">Your learning buddy 🐾</div>
+          </div>
+          <button class="cat-chat-close" onclick="closeCatChat()">✕</button>
+        </div>
+        <div class="cat-chat-messages" id="catChatMessages"></div>
+        <div class="cat-chat-input-row">
+          <input class="cat-chat-input" id="catChatInput" placeholder="Say something..." />
+          <button class="cat-chat-send" id="catChatSend" onclick="catChatSend()">Send</button>
+        </div>
+      </div>
+    </div>
+
     <div class="dash-section">
       <div class="dash-title">🚀 Choose a Pathway</div>
       <button class="all-btn" onclick="showScreen('screen-workout');loadWorkout();" style="border-color:#1d4ed8;color:#1e40af;background:#eff6ff;font-size:1.05rem;padding:1.3rem;">
@@ -798,6 +904,136 @@ window.startTutorWorkout  = startTutorWorkout;
 window.setCurriculum      = setCurriculum;
 window.startAssessment    = startAssessment;
 window.qaOnStrandChange   = qaOnStrandChange;
+
+/* ════════════════════════════════════════
+   CAT CHAT
+════════════════════════════════════════ */
+const CAT_CHAT_EDGE_URL = 'https://yajqvfwzhudghivzgijt.supabase.co/functions/v1/cat-chat';
+
+let catChatHistory   = [];
+let catChatExchanges = 0;
+
+function getWeakTopic() {
+  // Find weakest skill from quiz results (built in updateDash)
+  if (window._weakestSkill) return window._weakestSkill;
+  return 'maths'; // fallback
+}
+
+function openCatChat() {
+  const childName = window.currentChildName || 'friend';
+  const catName   = 'Mochi';
+  const weakTopic = getWeakTopic();
+  const pts       = totalPoints || 0;
+
+  document.getElementById('catCardName').textContent       = catName;
+  document.getElementById('catChatHeaderName').textContent = catName;
+
+  catChatHistory   = [];
+  catChatExchanges = 0;
+
+  document.getElementById('catChatOverlay').classList.add('open');
+  document.getElementById('catChatMessages').innerHTML = '';
+
+  appendCatMsg('Purrr! Hi ' + childName + '! I\'m ' + catName + ' — so happy to see you! 🐾');
+  document.getElementById('catChatInput').focus();
+}
+
+function closeCatChat() {
+  document.getElementById('catChatOverlay').classList.remove('open');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('catChatOverlay')) closeCatChat();
+}
+
+async function catChatSend() {
+  const input = document.getElementById('catChatInput');
+  const text  = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  document.getElementById('catChatSend').disabled = true;
+
+  appendChildMsg(text);
+  catChatHistory.push({ role: 'user', content: text });
+
+  const typingId = appendTypingIndicator();
+
+  try {
+    const res = await fetch(CAT_CHAT_EDGE_URL, {
+      method: 'POST',
+      headers: { ...authHeaders() },
+      body: JSON.stringify({
+        messages:      catChatHistory,
+        childName:     window.currentChildName || 'friend',
+        catName:       'Mochi',
+        weakTopic:     getWeakTopic(),
+        points:        totalPoints || 0,
+        exchangeCount: catChatExchanges,
+      }),
+    });
+
+    const data = await res.json();
+    removeTypingIndicator(typingId);
+    catChatHistory.push({ role: 'assistant', content: data.reply });
+    catChatExchanges++;
+    appendCatMsg(data.reply);
+  } catch(e) {
+    removeTypingIndicator(typingId);
+    appendCatMsg('Meow... something went wrong! Try again? 🐾');
+  }
+
+  document.getElementById('catChatSend').disabled = false;
+  document.getElementById('catChatInput').focus();
+}
+
+function appendCatMsg(text) {
+  const msgs = document.getElementById('catChatMessages');
+  const wrap = document.createElement('div');
+  wrap.className = 'cat-msg-wrap';
+  wrap.innerHTML = '<div class="cat-msg-bubble">' + text + '</div>';
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function appendChildMsg(text) {
+  const msgs = document.getElementById('catChatMessages');
+  const wrap = document.createElement('div');
+  wrap.className = 'child-msg-wrap';
+  wrap.innerHTML = '<div class="child-msg-bubble">' + text + '</div>';
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function appendTypingIndicator() {
+  const msgs = document.getElementById('catChatMessages');
+  const wrap = document.createElement('div');
+  wrap.className = 'cat-msg-wrap';
+  const id = 'cat-typing-' + Date.now();
+  wrap.id = id;
+  wrap.innerHTML = '<div class="cat-msg-bubble cat-typing"><span></span><span></span><span></span></div>';
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+  return id;
+}
+
+function removeTypingIndicator(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+window.openCatChat        = openCatChat;
+window.closeCatChat       = closeCatChat;
+window.handleOverlayClick = handleOverlayClick;
+window.catChatSend        = catChatSend;
+
+// Wire up Enter key
+document.addEventListener('DOMContentLoaded', function() {
+  const input = document.getElementById('catChatInput');
+  if (input) input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') catChatSend();
+  });
+});
 window.qaNewQuestion      = qaNewQuestion;
 
 // Hide "how it works" if user already dismissed it
@@ -2001,6 +2237,9 @@ async function updateDash() {
     .map(([skill, v]) => ({ skill, pct: Math.round(v.c / v.t * 100), strand: v.strand }))
     .sort((a,b) => a.pct - b.pct)
     .slice(0, 3);
+
+  // Expose weakest skill for cat chat
+  if (weakSkills.length > 0) window._weakestSkill = weakSkills[0].skill;
 
   // ── Update DOM ──────────────────────────────────────────────────────
   document.getElementById('snap-done').textContent      = done;
