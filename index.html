@@ -1632,10 +1632,10 @@ async function loadPoints() {
 // Save points to Supabase
 async function savePoints() {
   try {
-    await fetch(SUPA_URL + '/rest/v1/user_points?user_id=eq.' + userId(), {
-      method: 'PATCH',
-      headers: { ...authHeaders(), 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ points: userPoints, total_points: totalPoints, updated_at: new Date().toISOString() })
+    await fetch(SUPA_URL + '/rest/v1/user_points', {
+      method: 'POST',
+      headers: { ...authHeaders(), 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify({ user_id: userId(), points: userPoints, total_points: totalPoints, updated_at: new Date().toISOString() })
     });
   } catch(e) {}
 }
@@ -3350,8 +3350,7 @@ async function fetchQuestionBank() {
 
     // Now run the rest of the init that depends on ALL_QUESTIONS
     loadProgress();
-    await updateDash();
-    loadPoints();
+    await Promise.all([updateDash(), loadPoints()]);
 
     setLoadState(100, 'Ready!');
 
@@ -3359,6 +3358,7 @@ async function fetchQuestionBank() {
     await new Promise(r => setTimeout(r, 400));
     document.getElementById('screen-loading').style.display = 'none';
     showScreen('screen-home');
+    refreshTotalPoints(); // ensure points display after screen is visible
 
   } catch(e) {
     const banner = document.getElementById('screen-loading');
