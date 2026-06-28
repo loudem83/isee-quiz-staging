@@ -973,7 +973,9 @@ async function catChatSend() {
       }),
     });
 
+    console.log('Cat chat response status:', res.status);
     const data = await res.json();
+    console.log('Cat chat data:', data);
     removeTypingIndicator(typingId);
     catChatHistory.push({ role: 'assistant', content: data.reply });
     catChatExchanges++;
