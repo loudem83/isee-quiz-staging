@@ -479,6 +479,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 
     <!-- Cat avatar card -->
     <div id="cat-avatar-card" class="cat-avatar-card" onclick="openCatChat()" style="flex-direction:row;align-items:center;padding:10px 14px;gap:12px;">
+      <svg width="72" height="60" viewBox="0 0 380 320" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
         <style>
           @keyframes catBreathe{0%,100%{transform:scaleY(1) translateY(0);}50%{transform:scaleY(1.03) translateY(-2px);}}
           @keyframes tailSway{0%,100%{transform:rotate(0deg);}50%{transform:rotate(12deg);}}
@@ -987,8 +988,6 @@ function getWeakTopic() {
 function openCatChat() {
   const childName = window.currentChildName || 'friend';
   const catName   = 'Mochi';
-  const weakTopic = getWeakTopic();
-  const pts       = totalPoints || 0;
 
   document.getElementById('catCardName').textContent       = catName;
   document.getElementById('catChatHeaderName').textContent = catName;
@@ -997,6 +996,7 @@ function openCatChat() {
   catChatExchanges = 0;
 
   document.getElementById('catChatOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
   document.getElementById('catChatMessages').innerHTML = '';
 
   appendCatMsg('Purrr! Hi ' + childName + '! I\'m ' + catName + ' — so happy to see you! 🐾');
@@ -1005,6 +1005,7 @@ function openCatChat() {
 
 function closeCatChat() {
   document.getElementById('catChatOverlay').classList.remove('open');
+  document.body.style.overflow = '';
 }
 
 function handleOverlayClick(e) {
