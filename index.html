@@ -1083,10 +1083,14 @@ function openCatChat() {
   catChatHistory   = [];
   catChatExchanges = 0;
 
+  const isFrench = currentCurriculum === 'french_cm1';
+  const greeting = isFrench
+    ? 'Purrr ! Bonjour ' + childName + ' ! Je suis ' + catName + ' — trop content de te voir ! 🐾'
+    : 'Purrr! Hi ' + childName + '! I\'m ' + catName + ' — so happy to see you! 🐾';
+
   document.getElementById('catChatOverlay').classList.add('open');
   document.getElementById('catChatMessages').innerHTML = '';
-
-  appendCatMsg('Purrr! Hi ' + childName + '! I\'m ' + catName + ' — so happy to see you! 🐾');
+  appendCatMsg(greeting);
   setTimeout(() => document.getElementById('catChatInput').focus(), 300);
 }
 
