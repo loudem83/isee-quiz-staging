@@ -479,7 +479,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 
     <!-- Cat avatar card -->
     <div id="cat-avatar-card" class="cat-avatar-card" onclick="openCatChat()" style="flex-direction:row;align-items:center;padding:10px 14px;gap:12px;">
-      <svg width="72" height="60" viewBox="0 0 380 320" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+      <!-- ISEE cat (default) -->
+      <svg id="cat-svg-isee" width="72" height="61" viewBox="0 0 380 320" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
         <style>
           @keyframes catBreathe{0%,100%{transform:scaleY(1) translateY(0);}50%{transform:scaleY(1.03) translateY(-2px);}}
           @keyframes tailSway{0%,100%{transform:rotate(0deg);}50%{transform:rotate(12deg);}}
@@ -545,6 +546,81 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
         <path d="M172 110 Q176 102 180 110" fill="none" stroke="#c46000" stroke-width="2" stroke-linecap="round"/>
         <path d="M182 107 Q186 98 190 107" fill="none" stroke="#c46000" stroke-width="2" stroke-linecap="round"/>
         <path d="M200 110 Q204 102 208 110" fill="none" stroke="#c46000" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+
+      <!-- French cat (beret + marinière) -->
+      <svg id="cat-svg-french" width="72" height="61" viewBox="0 0 380 340" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;display:none;">
+        <defs>
+          <clipPath id="bodyEllipseClip">
+            <ellipse cx="190" cy="240" rx="47" ry="54"/>
+          </clipPath>
+        </defs>
+        <ellipse cx="190" cy="298" rx="52" ry="8" fill="#c47a00" opacity="0.18"/>
+        <ellipse cx="190" cy="240" rx="48" ry="55" fill="#FF8C00"/>
+        <ellipse cx="190" cy="255" rx="28" ry="35" fill="#FFBA5A"/>
+        <ellipse cx="190" cy="255" rx="28" ry="35" fill="none" stroke="#3d1f00" stroke-width="2"/>
+        <path d="M190 232 Q180 245 190 260 Q200 245 190 232Z" fill="#ffe0a0" stroke="#c46000" stroke-width="1.2"/>
+        <path d="M176 240 Q168 252 178 265 Q186 252 176 240Z" fill="#ffe0a0" stroke="#c46000" stroke-width="1.2"/>
+        <path d="M204 240 Q212 252 202 265 Q194 252 204 240Z" fill="#ffe0a0" stroke="#c46000" stroke-width="1.2"/>
+        <path d="M190 208 Q183 218 190 228 Q197 218 190 208Z" fill="#ffd080" stroke="#c46000" stroke-width="1"/>
+        <g clip-path="url(#bodyEllipseClip)">
+          <rect x="130" y="155" width="120" height="98" fill="white"/>
+          <rect x="130" y="160" width="120" height="8" fill="#1a2e5a"/>
+          <rect x="130" y="176" width="120" height="8" fill="#1a2e5a"/>
+          <rect x="130" y="192" width="120" height="8" fill="#1a2e5a"/>
+          <rect x="130" y="208" width="120" height="8" fill="#1a2e5a"/>
+          <rect x="130" y="224" width="120" height="8" fill="#1a2e5a"/>
+          <rect x="130" y="240" width="120" height="8" fill="#1a2e5a"/>
+        </g>
+        <path d="M143 253 Q190 261 237 253" fill="none" stroke="#3d1f00" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M167 172 Q190 184 213 172" fill="white" stroke="#3d1f00" stroke-width="2" stroke-linecap="round"/>
+        <ellipse cx="190" cy="240" rx="48" ry="55" fill="none" stroke="#3d1f00" stroke-width="3.5"/>
+        <ellipse cx="150" cy="245" rx="14" ry="10" fill="#FF8C00" stroke="#3d1f00" stroke-width="2.5" transform="rotate(-20,150,245)"/>
+        <ellipse cx="230" cy="245" rx="14" ry="10" fill="#FF8C00" stroke="#3d1f00" stroke-width="2.5" transform="rotate(20,230,245)"/>
+        <line x1="143" y1="242" x2="143" y2="250" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="148" y1="240" x2="148" y2="249" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="153" y1="242" x2="153" y2="250" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="223" y1="242" x2="223" y2="250" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="228" y1="240" x2="228" y2="249" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="233" y1="242" x2="233" y2="250" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M232 270 Q275 290 265 250 Q255 220 240 235" fill="#FF8C00" stroke="#3d1f00" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M257 233 Q248 225 242 233 Q248 241 257 233Z" fill="#FFBA5A" stroke="#c46000" stroke-width="1"/>
+        <ellipse cx="168" cy="287" rx="20" ry="10" fill="#FF8C00" stroke="#3d1f00" stroke-width="2.5"/>
+        <ellipse cx="212" cy="287" rx="20" ry="10" fill="#FF8C00" stroke="#3d1f00" stroke-width="2.5"/>
+        <line x1="160" y1="283" x2="160" y2="291" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="168" y1="281" x2="168" y2="290" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="176" y1="283" x2="176" y2="291" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="204" y1="283" x2="204" y2="291" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="212" y1="281" x2="212" y2="290" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="220" y1="283" x2="220" y2="291" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+        <ellipse cx="190" cy="160" rx="58" ry="55" fill="#FF8C00"/>
+        <ellipse cx="190" cy="160" rx="58" ry="55" fill="none" stroke="#3d1f00" stroke-width="4"/>
+        <path d="M176 200 Q184 210 190 212 Q196 210 204 200" fill="none" stroke="#c46000" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M182 203 Q190 215 198 203" fill="none" stroke="#c46000" stroke-width="1.2" stroke-linecap="round"/>
+        <polygon points="145,122 125,78 172,110" fill="#FF8C00" stroke="#3d1f00" stroke-width="3.5" stroke-linejoin="round"/>
+        <polygon points="145,122 132,85 166,112" fill="#FFBA5A"/>
+        <polygon points="235,122 255,78 208,110" fill="#FF8C00" stroke="#3d1f00" stroke-width="3.5" stroke-linejoin="round"/>
+        <polygon points="235,122 248,85 214,112" fill="#FFBA5A"/>
+        <ellipse cx="170" cy="155" rx="16" ry="17" fill="white" stroke="#3d1f00" stroke-width="2.5"/>
+        <ellipse cx="210" cy="155" rx="16" ry="17" fill="white" stroke="#3d1f00" stroke-width="2.5"/>
+        <circle cx="173" cy="157" r="10" fill="#3d1f00"/>
+        <circle cx="213" cy="157" r="10" fill="#3d1f00"/>
+        <circle cx="177" cy="153" r="3.5" fill="white"/>
+        <circle cx="217" cy="153" r="3.5" fill="white"/>
+        <ellipse cx="190" cy="175" rx="6" ry="4" fill="#ff6b6b" stroke="#3d1f00" stroke-width="1.5"/>
+        <path d="M180 180 Q190 188 200 180" fill="none" stroke="#3d1f00" stroke-width="2" stroke-linecap="round"/>
+        <line x1="132" y1="172" x2="178" y2="176" stroke="#3d1f00" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="132" y1="180" x2="178" y2="180" stroke="#3d1f00" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="202" y1="176" x2="248" y2="172" stroke="#3d1f00" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="202" y1="180" x2="248" y2="180" stroke="#3d1f00" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M172 110 Q176 102 180 110" fill="none" stroke="#c46000" stroke-width="2" stroke-linecap="round"/>
+        <path d="M182 107 Q186 98 190 107" fill="none" stroke="#c46000" stroke-width="2" stroke-linecap="round"/>
+        <path d="M200 110 Q204 102 208 110" fill="none" stroke="#c46000" stroke-width="2" stroke-linecap="round"/>
+        <ellipse cx="190" cy="113" rx="54" ry="10" fill="#c0152a" stroke="#3d1f00" stroke-width="2.5"/>
+        <path d="M140 113 Q148 68 190 62 Q240 58 244 100 Q244 108 236 113 Z" fill="#c0152a" stroke="#3d1f00" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M155 108 Q160 75 190 68 Q225 65 238 100" fill="none" stroke="#a01020" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+        <circle cx="222" cy="68" r="5" fill="#a01020" stroke="#3d1f00" stroke-width="2"/>
+        <ellipse cx="190" cy="113" rx="54" ry="10" fill="none" stroke="#e03050" stroke-width="1" opacity="0.4"/>
       </svg>
       <div style="flex:1;min-width:0;">
         <div class="cat-card-name" id="catCardName">Mochi</div>
@@ -789,10 +865,19 @@ const Q_TABLE  = EXAM_CONFIG.q_table;
 const R_TABLE  = EXAM_CONFIG.r_table;
 const R_STAGING = EXAM_CONFIG.r_staging;
 
+function updateCatAvatar() {
+  const isFrench = currentCurriculum === 'french_cm1';
+  const iseeEl   = document.getElementById('cat-svg-isee');
+  const frenchEl = document.getElementById('cat-svg-french');
+  if (iseeEl)   iseeEl.style.display   = isFrench ? 'none' : '';
+  if (frenchEl) frenchEl.style.display = isFrench ? '' : 'none';
+}
+
 function setCurriculum(c) {
   currentCurriculum = c;
   localStorage.setItem('curriculum', c);
   updateCurriculumUI();
+  updateCatAvatar();
   // Reload question bank with new filter
   ALL_QUESTIONS = [];
   Object.keys(chosen).forEach(k => delete chosen[k]);
@@ -968,6 +1053,7 @@ window.enterTutorSession  = enterTutorSession;
 window.launchTutorQA      = launchTutorQA;
 window.startTutorWorkout  = startTutorWorkout;
 window.setCurriculum      = setCurriculum;
+window.updateCatAvatar    = updateCatAvatar;
 window.startAssessment    = startAssessment;
 window.qaOnStrandChange   = qaOnStrandChange;
 
@@ -1040,6 +1126,7 @@ async function catChatSend() {
         currentTopic:  window._weakestSkill || getWeakTopic(),
         points:        totalPoints || 0,
         recentScore:   window._recentScore || null,
+        curriculum:    currentCurriculum,
         exchangeCount: catChatExchanges,
       }),
     });
@@ -3358,7 +3445,8 @@ async function fetchQuestionBank() {
     await new Promise(r => setTimeout(r, 400));
     document.getElementById('screen-loading').style.display = 'none';
     showScreen('screen-home');
-    refreshTotalPoints(); // ensure points display after screen is visible
+    refreshTotalPoints();
+    updateCatAvatar();
 
   } catch(e) {
     const banner = document.getElementById('screen-loading');
