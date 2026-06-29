@@ -1037,7 +1037,9 @@ async function catChatSend() {
         childName:     window.currentChildName || 'friend',
         catName:       'Mochi',
         weakTopic:     getWeakTopic(),
+        currentTopic:  window._weakestSkill || getWeakTopic(),
         points:        totalPoints || 0,
+        recentScore:   window._recentScore || null,
         exchangeCount: catChatExchanges,
       }),
     });
@@ -2321,8 +2323,9 @@ async function updateDash() {
     .sort((a,b) => a.pct - b.pct)
     .slice(0, 3);
 
-  // Expose weakest skill for cat chat
+  // Expose weakest skill and recent score for cat chat
   if (weakSkills.length > 0) window._weakestSkill = weakSkills[0].skill;
+  if (score !== null) window._recentScore = score;
 
   // ── Update DOM ──────────────────────────────────────────────────────
   const snapDone = document.getElementById('snap-done');
