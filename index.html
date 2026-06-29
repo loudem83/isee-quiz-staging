@@ -74,55 +74,466 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 @keyframes brPop{0%{transform:scale(0);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 @keyframes brFade{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
 
-/* HOME */
-.home-hero{background:linear-gradient(135deg,#1a3a5c 0%,#0f6e56 100%);color:white;padding:3rem 1.5rem 2.5rem;text-align:center;}
-.home-hero h2{font-size:2rem;font-weight:700;margin-bottom:8px;}
-.home-hero p{font-size:1rem;opacity:0.85;}
-.home-body{max-width:700px;margin:0 auto;padding:2rem 1rem;overflow-x:hidden;}
-.dash-section{background:white;border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
-.dash-title{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;margin-bottom:12px;}
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-@media(max-width:400px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
-.stat-card{border-radius:10px;padding:12px 8px;text-align:center;}
-.stat-card .val{font-size:1.8rem;font-weight:700;line-height:1;}
-.stat-card .lbl{font-size:0.72rem;font-weight:600;margin-top:4px;opacity:0.8;}
-.stat-card.total{background:#f1f5f9;color:#334155;}
-.stat-card.answered{background:#dbeafe;color:#1e40af;}
-.stat-card.correct{background:#d1fae5;color:#065f46;}
-.stat-card.wrong{background:#fee2e2;color:#991b1b;}
-.mini-bar-wrap{margin-top:12px;}
-.mini-bar-label{display:flex;justify-content:space-between;font-size:0.8rem;color:#64748b;margin-bottom:5px;}
-.mini-bar-track{background:#e2e8f0;border-radius:99px;height:8px;margin-bottom:8px;overflow:hidden;}
-.mini-bar-fill{height:8px;border-radius:99px;transition:width 0.5s;}
-.mini-bar-fill.answered{background:#3b82f6;}
-.mini-bar-fill.correct{background:#22c55e;}
-.mini-bar-fill.wrong{background:#ef4444;}
-.pathway-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;}
-@media(max-width:540px){.pathway-grid{grid-template-columns:1fr;}}
-.pathway-card{background:white;border-radius:16px;padding:1.75rem 1.5rem;cursor:pointer;border:2px solid transparent;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.07);text-align:center;}
-.pathway-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,0.12);}
-.pathway-card.ma:hover{border-color:#1d4ed8;}
-.pathway-card.qr:hover{border-color:#0f6e56;}
-.drill-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;}
-@media(max-width:480px){.drill-grid{grid-template-columns:1fr;}}
-.drill-card{background:white;border-radius:12px;padding:1rem 1.1rem;cursor:pointer;border:1.5px solid #e2e8f0;transition:all 0.15s;display:flex;justify-content:space-between;align-items:center;}
-.drill-card:hover{border-color:#0f6e56;background:#f0fdf4;transform:translateY(-1px);}
-.drill-card .dc-left h4{font-size:0.9rem;font-weight:700;color:#1a3a5c;margin:0 0 3px;}
-.drill-card .dc-left p{font-size:0.78rem;color:#64748b;margin:0;}
-.drill-card .dc-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
-.drill-card .dc-count{font-size:1.1rem;font-weight:700;color:#0f6e56;}
-.drill-card .dc-label{font-size:0.7rem;color:#94a3b8;}
-.drill-strand{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;margin:1rem 0 6px;}
-.pathway-card .icon{font-size:2.8rem;margin-bottom:12px;}
-.pathway-card h3{font-size:1.1rem;font-weight:700;margin-bottom:6px;}
-.pathway-card p{font-size:0.85rem;color:#64748b;line-height:1.5;}
-.pathway-card .pill{display:inline-block;padding:3px 12px;border-radius:99px;font-size:0.75rem;font-weight:700;margin-top:10px;}
-.pathway-card.ma .pill{background:#dbeafe;color:#1e40af;}
-.pathway-card.qr .pill{background:#d1fae5;color:#065f46;}
-.all-btn{width:100%;background:white;border:2px dashed #c4b5fd;border-radius:16px;padding:1.1rem;cursor:pointer;font-size:1rem;font-weight:600;color:#5b21b6;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:1.25rem;}
-.all-btn:hover{background:#ede9fe;border-color:#7c3aed;}
-.reset-btn{width:100%;margin-top:8px;padding:9px 14px;border-radius:10px;border:1.5px solid #fca5a5;background:#fff;color:#dc2626;font-size:0.85rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all 0.15s;}
-.reset-btn:hover{background:#fef2f2;border-color:#ef4444;}
+/* ════════════ HOME SCREEN — DESIGN SYSTEM ════════════ */
+/* 8pt grid, spec colors, rounded cards, soft shadows    */
+
+/* Reset body background for home */
+#screen-home { background: #F8F8F7; min-height: 100vh; padding-bottom: 104px; }
+
+/* ── App Header ── */
+.pp-header {
+  background: linear-gradient(160deg, #FF6B00 0%, #FF8A00 100%);
+  padding: 48px 24px 32px;
+  border-radius: 0 0 32px 32px;
+  color: white;
+  position: relative;
+}
+.pp-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.pp-header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pp-header-logo-icon {
+  width: 36px;
+  height: 36px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+.pp-header-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.3px;
+}
+.pp-signout-btn {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 18px;
+  border: none;
+  background: rgba(255,255,255,0.15);
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.pp-signout-btn:hover { background: rgba(255,255,255,0.25); }
+
+.pp-greeting {
+  font-size: 15px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.88);
+  margin-bottom: 16px;
+}
+
+/* Language pills */
+.pp-lang-pills {
+  display: flex;
+  gap: 8px;
+}
+.pp-lang-pill {
+  height: 48px;
+  padding: 0 20px;
+  border-radius: 24px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: white;
+}
+.pp-lang-pill.inactive {
+  background: rgba(255,255,255,0.18);
+  opacity: 0.85;
+}
+.pp-lang-pill.active {
+  background: white;
+  color: #FF6B00;
+  box-shadow: 0 6px 18px rgba(255,107,0,0.20);
+}
+
+/* ── Scroll body ── */
+.pp-body {
+  padding: 24px 24px 0;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ── Progress Card ── */
+.pp-progress-card {
+  background: white;
+  border-radius: 28px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  margin-bottom: 24px;
+}
+.pp-progress-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.pp-progress-card-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #202124;
+}
+.pp-dashboard-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #FF6B00;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Stat cards grid */
+.pp-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+@media(max-width: 400px) { .pp-stat-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.pp-stat-card {
+  background: #FCFCFC;
+  border-radius: 20px;
+  padding: 16px 8px;
+  text-align: center;
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.pp-stat-icon { font-size: 20px; margin-bottom: 2px; }
+.pp-stat-num {
+  font-size: 28px;
+  font-weight: 700;
+  color: #202124;
+  line-height: 1;
+}
+.pp-stat-num.green { color: #2EBE60; }
+.pp-stat-num.amber { color: #FF6B00; }
+.pp-stat-num.blue  { color: #4A8DFF; }
+.pp-stat-lbl {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6D6D6D;
+}
+
+/* Progress bars */
+.pp-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.pp-bar-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6D6D6D;
+  width: 72px;
+  flex-shrink: 0;
+}
+.pp-bar-track {
+  flex: 1;
+  height: 10px;
+  border-radius: 5px;
+  background: #ECECEC;
+  overflow: hidden;
+}
+.pp-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  background: #FF6B00;
+  transition: width 0.5s ease;
+}
+.pp-bar-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  width: 56px;
+  flex-shrink: 0;
+}
+.pp-bar-pts {
+  font-size: 13px;
+  font-weight: 600;
+  color: #202124;
+}
+.pp-bar-pct {
+  font-size: 12px;
+  color: #2EBE60;
+  font-weight: 500;
+}
+
+/* ── Section title ── */
+.pp-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #202124;
+  margin-bottom: 16px;
+}
+
+/* ── Practice cards ── */
+.pp-practice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.pp-practice-card {
+  background: white;
+  border-radius: 24px;
+  padding: 20px;
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  transition: transform 0.15s, box-shadow 0.15s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.pp-practice-card:active { transform: scale(0.97); }
+.pp-practice-card-icon {
+  font-size: 40px;
+  margin-bottom: 8px;
+  display: block;
+}
+.pp-practice-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #FF6B00;
+  margin-bottom: 4px;
+}
+.pp-practice-card-sub {
+  font-size: 13px;
+  color: #6D6D6D;
+  line-height: 1.4;
+  flex: 1;
+}
+.pp-practice-btn {
+  margin-top: 16px;
+  height: 40px;
+  border-radius: 16px;
+  border: none;
+  background: #FF6B00;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(255,107,0,0.20);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.15s;
+}
+.pp-practice-btn:hover { background: #e55f00; }
+.pp-practice-btn.outline {
+  background: transparent;
+  color: #FF6B00;
+  border: 2px solid #FF6B00;
+  box-shadow: none;
+}
+
+/* ── Mochi card ── */
+.pp-mochi-card {
+  background: #FFF3E8;
+  border-radius: 24px;
+  height: 110px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 16px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  transition: transform 0.15s;
+}
+.pp-mochi-card:active { transform: scale(0.97); }
+.pp-mochi-card-text { flex: 1; }
+.pp-mochi-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: #202124;
+  margin-bottom: 2px;
+}
+.pp-mochi-hint {
+  font-size: 14px;
+  color: #FF6B00;
+}
+.pp-mochi-arrow {
+  font-size: 20px;
+  color: #ECECEC;
+}
+
+/* ── Streak card ── */
+.pp-streak-card {
+  background: white;
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  margin-bottom: 24px;
+}
+.pp-streak-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.pp-streak-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pp-streak-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #202124;
+}
+.pp-streak-sub {
+  font-size: 13px;
+  color: #6D6D6D;
+}
+.pp-streak-best {
+  font-size: 13px;
+  color: #6D6D6D;
+}
+.pp-streak-days {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.pp-day-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #DDDDDD;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6D6D6D;
+  flex-shrink: 0;
+}
+.pp-day-circle.done {
+  background: #FF6B00;
+  border-color: #FF6B00;
+  color: white;
+}
+.pp-streak-badge {
+  background: #FF6B00;
+  color: white;
+  border-radius: 16px;
+  padding: 8px 12px;
+  text-align: center;
+  min-width: 56px;
+  box-shadow: 0 6px 18px rgba(255,107,0,0.20);
+}
+.pp-streak-badge-num {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+.pp-streak-badge-lbl {
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+/* ── Study tip card ── */
+.pp-tip-card {
+  background: #F8FBFF;
+  border-radius: 24px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+  margin-bottom: 24px;
+}
+.pp-tip-icon { font-size: 28px; flex-shrink: 0; }
+.pp-tip-title { font-size: 15px; font-weight: 700; color: #202124; margin-bottom: 2px; }
+.pp-tip-text  { font-size: 13px; color: #6D6D6D; line-height: 1.5; }
+.pp-tip-illus { font-size: 32px; flex-shrink: 0; opacity: 0.6; }
+
+/* ── Bottom Navigation ── */
+.pp-bottom-nav {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 48px);
+  max-width: 552px;
+  height: 88px;
+  background: white;
+  border-radius: 28px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 8px;
+  z-index: 50;
+}
+.pp-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  cursor: pointer;
+  padding: 8px 0;
+  background: none;
+  border: none;
+}
+.pp-nav-icon { font-size: 22px; }
+.pp-nav-label { font-size: 11px; font-weight: 500; color: #6D6D6D; }
+.pp-nav-item.active .pp-nav-label { color: #FF6B00; }
+.pp-nav-item.active .pp-nav-icon { filter: none; }
+
+/* ── Tutor overlay in new design ── */
+.pp-tutor-banner {
+  background: #4c1d95;
+  color: white;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+.pp-tutor-banner button {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* ── Streak computation helpers ── */
 
 
 .quiz-wrap{max-width:760px;margin:0 auto;padding:1.1rem 1rem 3rem;}
@@ -351,21 +762,358 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 
 <!-- SCREEN 1: HOME -->
 <div id="screen-home" class="screen">
-  <div id="tutor-session-banner" style="display:none" class="tutor-banner">
-    <span>👁 Viewing <strong id="tutor-viewing-name"></strong>'s account</span>
+  <!-- Tutor session banner -->
+  <div id="tutor-session-banner" style="display:none" class="pp-tutor-banner">
+    <span>👁 Viewing <strong id="tutor-viewing-name"></strong>'s account — results not saved</span>
     <button onclick="exitTutorSession()">← Back to students</button>
   </div>
-  <div class="home-hero">
-    <h2 id="home-hero-title">🎓 Primary Practice</h2>
-    <p id="home-user-greeting">Interactive practice for Mathematics Achievement &amp; Quantitative Reasoning</p>
-    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;">
-      <div id="curriculum-switcher" style="display:flex;gap:6px;">
-        <button onclick="setCurriculum('isee_lower')" id="btn-isee_lower" style="padding:4px 12px;border-radius:99px;border:1.5px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.25);color:white;font-size:0.78rem;font-weight:600;cursor:pointer;">📐 Math (ISEE/CM1/2)</button>
-        <button onclick="setCurriculum('french_cm1')" id="btn-french_cm1" style="padding:4px 12px;border-radius:99px;border:1.5px solid rgba(255,255,255,0.3);background:transparent;color:white;font-size:0.78rem;font-weight:600;cursor:pointer;opacity:0.7;">🇫🇷 Français CM1/2</button>
+
+  <!-- App Header -->
+  <div class="pp-header">
+    <div class="pp-header-top">
+      <div class="pp-header-logo">
+        <div class="pp-header-logo-icon">📐</div>
+        <div id="pp-header-subject" class="pp-header-title">Math (ISEE/CM1/2)</div>
       </div>
-      <button onclick="signOut()" style="background:rgba(255,255,255,0.15);border:none;color:white;padding:4px 12px;border-radius:6px;font-size:0.78rem;cursor:pointer;">Sign out</button>
+      <button class="pp-signout-btn" onclick="signOut()">Sign out</button>
+    </div>
+    <div class="pp-greeting" id="pp-greeting">Welcome back 👋</div>
+    <div class="pp-lang-pills">
+      <button class="pp-lang-pill active" id="btn-isee_lower" onclick="setCurriculum('isee_lower')">
+        📐 Math (ISEE/CM1/2)
+      </button>
+      <button class="pp-lang-pill inactive" id="btn-french_cm1" onclick="setCurriculum('french_cm1')">
+        🇫🇷 Français CM1/2
+      </button>
     </div>
   </div>
+
+  <!-- Cat chat overlay -->
+  <div class="cat-chat-overlay" id="catChatOverlay" onclick="handleOverlayClick(event)">
+    <div class="cat-chat-panel">
+      <div class="cat-chat-header">
+        <svg width="36" height="36" viewBox="0 0 140 145" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+          <circle cx="70" cy="80" r="52" fill="#f5a623"/>
+          <ellipse cx="70" cy="84" rx="38" ry="36" fill="#f7bc5a"/>
+          <polygon points="26,46 14,12 44,38" fill="#f5a623"/>
+          <polygon points="114,46 126,12 96,38" fill="#f5a623"/>
+          <polygon points="28,44 18,16 42,36" fill="#fac775"/>
+          <polygon points="112,44 122,16 98,36" fill="#fac775"/>
+          <polygon points="30,42 22,20 40,34" fill="#f0997b" opacity="0.45"/>
+          <polygon points="110,42 118,20 100,34" fill="#f0997b" opacity="0.45"/>
+          <circle cx="54" cy="78" r="14" fill="white"/>
+          <circle cx="86" cy="78" r="14" fill="white"/>
+          <circle cx="54" cy="80" r="9" fill="#8B4513"/>
+          <circle cx="86" cy="80" r="9" fill="#8B4513"/>
+          <circle cx="54" cy="80" r="6" fill="#2c2c2a"/>
+          <circle cx="86" cy="80" r="6" fill="#2c2c2a"/>
+          <circle cx="50" cy="75" r="2.5" fill="white"/>
+          <circle cx="82" cy="75" r="2.5" fill="white"/>
+          <polygon points="70,93 67,97 73,97" fill="#e8847a"/>
+          <path d="M64 97 Q67 101 70 99 Q73 101 76 97" stroke="#c0705a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <div class="cat-chat-header-name" id="catChatHeaderName">Mochi</div>
+          <div class="cat-chat-header-sub">Your learning buddy 🐾</div>
+        </div>
+        <button class="cat-chat-close" onclick="closeCatChat()">✕</button>
+      </div>
+      <div class="cat-chat-messages" id="catChatMessages"></div>
+      <div class="cat-chat-input-row">
+        <input class="cat-chat-input" id="catChatInput" placeholder="Say something..." />
+        <button class="cat-chat-send" id="catChatSend" onclick="catChatSend()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="pp-body">
+
+    <!-- Progress Card -->
+    <div class="pp-progress-card">
+      <div class="pp-progress-card-header">
+        <div class="pp-progress-card-title">Your progress</div>
+        <button class="pp-dashboard-link" onclick="showScreen('screen-pd');loadParentDash();">
+          View dashboard <span>›</span>
+        </button>
+      </div>
+
+      <!-- 4 stat cards -->
+      <div class="pp-stat-grid">
+        <div class="pp-stat-card">
+          <div class="pp-stat-icon">✅</div>
+          <div class="pp-stat-num" id="snap-done">—</div>
+          <div class="pp-stat-lbl">Done</div>
+        </div>
+        <div class="pp-stat-card">
+          <div class="pp-stat-icon">🎯</div>
+          <div class="pp-stat-num green" id="snap-score">—</div>
+          <div class="pp-stat-lbl">% Correct</div>
+        </div>
+        <div class="pp-stat-card">
+          <div class="pp-stat-icon">📅</div>
+          <div class="pp-stat-num blue" id="snap-thisweek">—</div>
+          <div class="pp-stat-lbl">This week</div>
+        </div>
+        <div class="pp-stat-card">
+          <div class="pp-stat-icon">⭐</div>
+          <div class="pp-stat-num amber" id="snap-total-pts">—</div>
+          <div class="pp-stat-lbl">Total pts</div>
+        </div>
+      </div>
+
+      <!-- Progress bars -->
+      <div class="pp-bar-row">
+        <div class="pp-bar-label">This week</div>
+        <div class="pp-bar-track"><div id="snap-bar-tw" class="pp-bar-fill" style="width:0%"></div></div>
+        <div class="pp-bar-right">
+          <span class="pp-bar-pts" id="snap-tw-count">0</span>
+          <span class="pp-bar-pct" id="snap-tw-pct"></span>
+        </div>
+      </div>
+      <div class="pp-bar-row">
+        <div class="pp-bar-label" style="color:#ADADAD;">Last week</div>
+        <div class="pp-bar-track"><div id="snap-bar-lw" class="pp-bar-fill" style="width:0%;background:#ECECEC;"></div></div>
+        <div class="pp-bar-right">
+          <span class="pp-bar-pts" style="color:#6D6D6D;" id="snap-lw-count">0</span>
+          <span class="pp-bar-pct" id="snap-lw-pct"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Practice Section -->
+    <div class="pp-section-title">Practice</div>
+    <div class="pp-practice-grid">
+      <div class="pp-practice-card" onclick="showScreen('screen-workout');loadWorkout();">
+        <span class="pp-practice-card-icon">🏋️</span>
+        <div class="pp-practice-card-title">Adaptive workout</div>
+        <div class="pp-practice-card-sub">20 questions · All topics</div>
+        <button class="pp-practice-btn">Start ›</button>
+      </div>
+      <div class="pp-practice-card" onclick="showScreen('screen-drill');loadDrill();">
+        <span class="pp-practice-card-icon">🎯</span>
+        <div class="pp-practice-card-title">Drill by topic</div>
+        <div class="pp-practice-card-sub">Choose a strand to focus on</div>
+        <button class="pp-practice-btn outline">Choose ›</button>
+      </div>
+    </div>
+
+    <!-- Mochi Card -->
+    <div id="cat-avatar-card" class="pp-mochi-card" onclick="openCatChat()">
+      <!-- ISEE cat -->
+      <svg id="cat-svg-isee" width="64" height="54" viewBox="0 0 380 320" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+        <style>
+          @keyframes catBreathe{0%,100%{transform:scaleY(1) translateY(0);}50%{transform:scaleY(1.03) translateY(-2px);}}
+          @keyframes tailSway{0%,100%{transform:rotate(0deg);}50%{transform:rotate(12deg);}}
+          @keyframes eyeBlink{0%,90%,100%{transform:scaleY(1);}95%{transform:scaleY(0.08);}}
+          #cat-body{animation:catBreathe 3s ease-in-out infinite;}
+          #cat-tail{animation:tailSway 2.5s ease-in-out infinite;transform-origin:232px 270px;}
+          #cat-eye-l{animation:eyeBlink 4s ease-in-out infinite;transform-origin:170px 155px;}
+          #cat-eye-r{animation:eyeBlink 4s ease-in-out infinite 0.05s;transform-origin:210px 155px;}
+        </style>
+        <ellipse cx="190" cy="298" rx="52" ry="8" fill="#c47a00" opacity="0.18"/>
+        <g id="cat-body">
+          <ellipse cx="190" cy="240" rx="48" ry="55" fill="#FF8C00"/><ellipse cx="190" cy="240" rx="48" ry="55" fill="none" stroke="#3d1f00" stroke-width="3.5"/>
+          <ellipse cx="190" cy="255" rx="28" ry="35" fill="#FFBA5A"/><ellipse cx="190" cy="255" rx="28" ry="35" fill="none" stroke="#3d1f00" stroke-width="2"/>
+          <path d="M190 232 Q180 245 190 260 Q200 245 190 232Z" fill="#ffe0a0" stroke="#c46000" stroke-width="1.2"/>
+          <path d="M176 240 Q168 252 178 265 Q186 252 176 240Z" fill="#ffe0a0" stroke="#c46000" stroke-width="1.2"/>
+          <path d="M204 240 Q212 252 202 265 Q194 252 204 240Z" fill="#ffe0a0" stroke="#c46000" stroke-width="1.2"/>
+          <path d="M190 208 Q183 218 190 228 Q197 218 190 208Z" fill="#ffd080" stroke="#c46000" stroke-width="1"/>
+          <ellipse cx="150" cy="245" rx="14" ry="10" fill="#FF8C00" stroke="#3d1f00" stroke-width="2.5" transform="rotate(-20,150,245)"/>
+          <ellipse cx="230" cy="245" rx="14" ry="10" fill="#FF8C00" stroke="#3d1f00" stroke-width="2.5" transform="rotate(20,230,245)"/>
+          <line x1="143" y1="242" x2="143" y2="250" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="148" y1="240" x2="148" y2="249" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="153" y1="242" x2="153" y2="250" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="223" y1="242" x2="223" y2="250" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="228" y1="240" x2="228" y2="249" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="233" y1="242" x2="233" y2="250" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+          <ellipse cx="168" cy="287" rx="20" ry="10" fill="#FF8C00" stroke="#3d1f00" stroke-width="2.5"/>
+          <ellipse cx="212" cy="287" rx="20" ry="10" fill="#FF8C00" stroke="#3d1f00" stroke-width="2.5"/>
+          <line x1="160" y1="283" x2="160" y2="291" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="168" y1="281" x2="168" y2="290" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="176" y1="283" x2="176" y2="291" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="204" y1="283" x2="204" y2="291" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="212" y1="281" x2="212" y2="290" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="220" y1="283" x2="220" y2="291" stroke="#3d1f00" stroke-width="1.2" stroke-linecap="round"/>
+        </g>
+        <g id="cat-tail">
+          <path d="M232 270 Q275 290 265 250 Q255 220 240 235" fill="#FF8C00" stroke="#3d1f00" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M257 233 Q248 225 242 233 Q248 241 257 233Z" fill="#FFBA5A" stroke="#c46000" stroke-width="1"/>
+        </g>
+        <ellipse cx="190" cy="160" rx="58" ry="55" fill="#FF8C00"/>
+        <ellipse cx="190" cy="160" rx="58" ry="55" fill="none" stroke="#3d1f00" stroke-width="4"/>
+        <path d="M176 200 Q184 210 190 212 Q196 210 204 200" fill="none" stroke="#c46000" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M182 203 Q190 215 198 203" fill="none" stroke="#c46000" stroke-width="1.2" stroke-linecap="round"/>
+        <polygon points="145,122 125,78 172,110" fill="#FF8C00" stroke="#3d1f00" stroke-width="3.5" stroke-linejoin="round"/>
+        <polygon points="145,122 132,85 166,112" fill="#FFBA5A"/>
+        <polygon points="235,122 255,78 208,110" fill="#FF8C00" stroke="#3d1f00" stroke-width="3.5" stroke-linejoin="round"/>
+        <polygon points="235,122 248,85 214,112" fill="#FFBA5A"/>
+        <g id="cat-eye-l">
+          <ellipse cx="170" cy="155" rx="16" ry="17" fill="white" stroke="#3d1f00" stroke-width="2.5"/>
+          <circle cx="173" cy="157" r="10" fill="#3d1f00"/>
+          <circle cx="177" cy="153" r="3.5" fill="white"/>
+        </g>
+        <g id="cat-eye-r">
+          <ellipse cx="210" cy="155" rx="16" ry="17" fill="white" stroke="#3d1f00" stroke-width="2.5"/>
+          <circle cx="213" cy="157" r="10" fill="#3d1f00"/>
+          <circle cx="217" cy="153" r="3.5" fill="white"/>
+        </g>
+        <ellipse cx="190" cy="175" rx="6" ry="4" fill="#ff6b6b" stroke="#3d1f00" stroke-width="1.5"/>
+        <path d="M180 180 Q190 188 200 180" fill="none" stroke="#3d1f00" stroke-width="2" stroke-linecap="round"/>
+        <line x1="132" y1="172" x2="178" y2="176" stroke="#3d1f00" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="132" y1="180" x2="178" y2="180" stroke="#3d1f00" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="202" y1="176" x2="248" y2="172" stroke="#3d1f00" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="202" y1="180" x2="248" y2="180" stroke="#3d1f00" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M172 110 Q176 102 180 110" fill="none" stroke="#c46000" stroke-width="2" stroke-linecap="round"/>
+        <path d="M182 107 Q186 98 190 107" fill="none" stroke="#c46000" stroke-width="2" stroke-linecap="round"/>
+        <path d="M200 110 Q204 102 208 110" fill="none" stroke="#c46000" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <!-- French cat -->
+      <svg id="cat-svg-french" width="64" height="54" viewBox="0 0 380 340" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;display:none;">
+        <defs><clipPath id="bodyEllipseClip2"><ellipse cx="190" cy="240" rx="47" ry="54"/></clipPath></defs>
+        <ellipse cx="190" cy="298" rx="52" ry="8" fill="#c47a00" opacity="0.18"/>
+        <ellipse cx="190" cy="240" rx="48" ry="55" fill="#FF8C00"/>
+        <ellipse cx="190" cy="255" rx="28" ry="35" fill="#FFBA5A"/>
+        <ellipse cx="190" cy="255" rx="28" ry="35" fill="none" stroke="#3d1f00" stroke-width="2"/>
+        <path d="M190 232 Q180 245 190 260 Q200 245 190 232Z" fill="#ffe0a0" stroke="#c46000" stroke-width="1.2"/>
+        <path d="M176 240 Q168 252 178 265 Q186 252 176 240Z" fill="#ffe0a0" stroke="#c46000" stroke-width="1.2"/>
+        <path d="M204 240 Q212 252 202 265 Q194 252 204 240Z" fill="#ffe0a0" stroke="#c46000" stroke-width="1.2"/>
+        <g clip-path="url(#bodyEllipseClip2)">
+          <rect x="130" y="155" width="120" height="98" fill="white"/>
+          <rect x="130" y="160" width="120" height="8" fill="#1a2e5a"/>
+          <rect x="130" y="176" width="120" height="8" fill="#1a2e5a"/>
+          <rect x="130" y="192" width="120" height="8" fill="#1a2e5a"/>
+          <rect x="130" y="208" width="120" height="8" fill="#1a2e5a"/>
+          <rect x="130" y="224" width="120" height="8" fill="#1a2e5a"/>
+          <rect x="130" y="240" width="120" height="8" fill="#1a2e5a"/>
+        </g>
+        <ellipse cx="190" cy="240" rx="48" ry="55" fill="none" stroke="#3d1f00" stroke-width="3.5"/>
+        <ellipse cx="150" cy="245" rx="14" ry="10" fill="#FF8C00" stroke="#3d1f00" stroke-width="2.5" transform="rotate(-20,150,245)"/>
+        <ellipse cx="230" cy="245" rx="14" ry="10" fill="#FF8C00" stroke="#3d1f00" stroke-width="2.5" transform="rotate(20,230,245)"/>
+        <path d="M232 270 Q275 290 265 250 Q255 220 240 235" fill="#FF8C00" stroke="#3d1f00" stroke-width="3" stroke-linejoin="round"/>
+        <ellipse cx="168" cy="287" rx="20" ry="10" fill="#FF8C00" stroke="#3d1f00" stroke-width="2.5"/>
+        <ellipse cx="212" cy="287" rx="20" ry="10" fill="#FF8C00" stroke="#3d1f00" stroke-width="2.5"/>
+        <ellipse cx="190" cy="160" rx="58" ry="55" fill="#FF8C00"/>
+        <ellipse cx="190" cy="160" rx="58" ry="55" fill="none" stroke="#3d1f00" stroke-width="4"/>
+        <polygon points="145,122 125,78 172,110" fill="#FF8C00" stroke="#3d1f00" stroke-width="3.5" stroke-linejoin="round"/>
+        <polygon points="145,122 132,85 166,112" fill="#FFBA5A"/>
+        <polygon points="235,122 255,78 208,110" fill="#FF8C00" stroke="#3d1f00" stroke-width="3.5" stroke-linejoin="round"/>
+        <polygon points="235,122 248,85 214,112" fill="#FFBA5A"/>
+        <ellipse cx="170" cy="155" rx="16" ry="17" fill="white" stroke="#3d1f00" stroke-width="2.5"/>
+        <ellipse cx="210" cy="155" rx="16" ry="17" fill="white" stroke="#3d1f00" stroke-width="2.5"/>
+        <circle cx="173" cy="157" r="10" fill="#3d1f00"/>
+        <circle cx="213" cy="157" r="10" fill="#3d1f00"/>
+        <circle cx="177" cy="153" r="3.5" fill="white"/>
+        <circle cx="217" cy="153" r="3.5" fill="white"/>
+        <ellipse cx="190" cy="175" rx="6" ry="4" fill="#ff6b6b" stroke="#3d1f00" stroke-width="1.5"/>
+        <path d="M180 180 Q190 188 200 180" fill="none" stroke="#3d1f00" stroke-width="2" stroke-linecap="round"/>
+        <line x1="132" y1="172" x2="178" y2="176" stroke="#3d1f00" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="132" y1="180" x2="178" y2="180" stroke="#3d1f00" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="202" y1="176" x2="248" y2="172" stroke="#3d1f00" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="202" y1="180" x2="248" y2="180" stroke="#3d1f00" stroke-width="1.5" stroke-linecap="round"/>
+        <ellipse cx="190" cy="113" rx="54" ry="10" fill="#c0152a" stroke="#3d1f00" stroke-width="2.5"/>
+        <path d="M140 113 Q148 68 190 62 Q240 58 244 100 Q244 108 236 113 Z" fill="#c0152a" stroke="#3d1f00" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="222" cy="68" r="5" fill="#a01020" stroke="#3d1f00" stroke-width="2"/>
+      </svg>
+      <div class="pp-mochi-card-text">
+        <div class="pp-mochi-name" id="catCardName">Mochi</div>
+        <div class="pp-mochi-hint" id="catCardHint">Tap me to chat! 🐾</div>
+      </div>
+      <div class="pp-mochi-arrow">›</div>
+    </div>
+
+    <!-- Streak Card -->
+    <div class="pp-streak-card">
+      <div class="pp-streak-header">
+        <div class="pp-streak-left">
+          <span style="font-size:20px;">🔥</span>
+          <div>
+            <div class="pp-streak-title">Streak</div>
+            <div class="pp-streak-sub" id="pp-streak-sub">Keep it going!</div>
+          </div>
+        </div>
+        <div class="pp-streak-best" id="pp-streak-best">Best: —</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="pp-streak-days" id="pp-streak-days">
+          <!-- populated by JS -->
+        </div>
+        <div class="pp-streak-badge" id="pp-streak-badge-count">
+          <div class="pp-streak-badge-num" id="pp-streak-num">—</div>
+          <div class="pp-streak-badge-lbl">days</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Study Tip Card -->
+    <div class="pp-tip-card" id="pp-study-tip">
+      <div class="pp-tip-icon">💡</div>
+      <div style="flex:1;">
+        <div class="pp-tip-title">Study tip</div>
+        <div class="pp-tip-text" id="pp-tip-text">Review your mistakes regularly to improve faster!</div>
+      </div>
+      <div class="pp-tip-illus">📝</div>
+    </div>
+
+    <!-- Tutor tools (shown in tutor session) -->
+    <div id="home-tutor-tools" style="display:none;margin-top:8px;">
+      <hr style="border:none;border-top:1px solid #ECECEC;margin-bottom:24px;">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#7c3aed;margin-bottom:12px;">✏️ Tutor tools</div>
+      <button id="home-studio-btn" onclick="launchTutorQA()" style="width:100%;background:#f5f3ff;border:1.5px solid #7c3aed;border-radius:16px;padding:18px;cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;margin-bottom:24px;">
+        <span style="font-size:24px;">✏️</span>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#4c1d95;">Question Studio</div>
+          <div style="font-size:13px;color:#64748b;margin-top:2px;" id="studio-subtitle">Create questions for this student</div>
+        </div>
+      </button>
+    </div>
+
+    <!-- QA Review (staging only) -->
+    <button id="home-qa-btn" onclick="showScreen('screen-qa');loadQAReview();" style="width:100%;background:#f5f3ff;border:1.5px solid #c4b5fd;border-radius:16px;padding:16px;cursor:pointer;font-size:14px;font-weight:600;color:#4c1d95;margin-bottom:24px;">
+      🔬 QA Review — Generated Questions
+    </button>
+
+    <!-- How it works -->
+    <div id="how-it-works" style="background:#fffbeb;border:1px solid #fde68a;border-radius:16px;padding:20px;margin-bottom:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:13px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.05em;">💡 How it works</div>
+        <button onclick="document.getElementById('how-it-works').style.display='none';localStorage.setItem('hiw_dismissed','1');" style="background:none;border:none;color:#94a3b8;font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div style="font-size:14px;color:#92400e;line-height:1.7;">
+        <div style="margin-bottom:6px;">🪙 <strong>Earn 10 points</strong> for every correct answer</div>
+        <div style="margin-bottom:6px;">💡 <strong>Spend 50 points</strong> on a hint — it crosses off one wrong answer</div>
+        <div style="margin-bottom:6px;">🎯 <strong>Max 2 hints</strong> per question — use them wisely!</div>
+        <div>📈 The app <strong>adapts to your weak spots</strong> — questions you struggle with come back more often</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="pp-bottom-nav">
+    <button class="pp-nav-item active" onclick="showScreen('screen-home');">
+      <span class="pp-nav-icon">🏠</span>
+      <span class="pp-nav-label" style="color:#FF6B00;">Home</span>
+    </button>
+    <button class="pp-nav-item" onclick="showScreen('screen-drill');loadDrill();">
+      <span class="pp-nav-icon">📚</span>
+      <span class="pp-nav-label">Topics</span>
+    </button>
+    <button class="pp-nav-item" onclick="showScreen('screen-pd');loadParentDash();">
+      <span class="pp-nav-icon">📊</span>
+      <span class="pp-nav-label">Progress</span>
+    </button>
+    <button class="pp-nav-item" onclick="">
+      <span class="pp-nav-icon">🎁</span>
+      <span class="pp-nav-label">Rewards</span>
+    </button>
+    <button class="pp-nav-item" onclick="">
+      <span class="pp-nav-icon">···</span>
+      <span class="pp-nav-label">More</span>
+    </button>
+  </nav>
+
+</div>
   <div class="home-body">
 
     <!-- Cat chat overlay -->
@@ -887,23 +1635,98 @@ function setCurriculum(c) {
 
 function updateCurriculumUI() {
   const curr = CURRICULA[currentCurriculum];
-  // Update hero title
-  const title = document.getElementById('home-hero-title');
-  if (title) title.textContent = curr.emoji + ' ' + curr.label;
-  // Update button styles
+  // Update header subject
+  const subj = document.getElementById('pp-header-subject');
+  if (subj) subj.textContent = curr.label;
+  // Update pill styles
   Object.keys(CURRICULA).forEach(c => {
     const btn = document.getElementById('btn-' + c);
     if (!btn) return;
     if (c === currentCurriculum) {
-      btn.style.background = 'rgba(255,255,255,0.25)';
-      btn.style.borderColor = 'rgba(255,255,255,0.6)';
-      btn.style.opacity = '1';
+      btn.classList.add('active');
+      btn.classList.remove('inactive');
     } else {
-      btn.style.background = 'transparent';
-      btn.style.borderColor = 'rgba(255,255,255,0.3)';
-      btn.style.opacity = '0.7';
+      btn.classList.remove('active');
+      btn.classList.add('inactive');
     }
   });
+}
+
+function updateGreeting() {
+  const name = window.currentChildName || '';
+  const el = document.getElementById('pp-greeting');
+  if (el) el.textContent = 'Welcome back, ' + (name || 'friend') + ' 👋';
+}
+
+function updateStreak() {
+  // Compute streak from quiz_results already loaded in updateDash
+  // Use localStorage-cached recent session dates
+  const today = new Date();
+  const days = ['S','M','T','W','T','F','S'];
+  const dayEls = document.getElementById('pp-streak-days');
+  if (!dayEls) return;
+
+  // Build last 7 days array (Mon→Sun)
+  const week = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    week.push(d);
+  }
+
+  // Check which days have quiz_results (use snap-tw data as proxy)
+  // For now render the 7-day row with today's streak from totalPoints activity
+  const streakDays = window._streakDays || [];
+  dayEls.innerHTML = week.map((d, i) => {
+    const label = ['M','T','W','T','F','S','S'][(d.getDay() + 6) % 7];
+    const dateStr = d.toISOString().slice(0, 10);
+    const done = streakDays.includes(dateStr);
+    return '<div class="pp-day-circle' + (done ? ' done' : '') + '">' +
+      (done ? '✓' : label) + '</div>';
+  }).join('');
+
+  const streak = window._currentStreak || 0;
+  const best   = window._bestStreak   || 0;
+  const numEl  = document.getElementById('pp-streak-num');
+  const bestEl = document.getElementById('pp-streak-best');
+  const subEl  = document.getElementById('pp-streak-sub');
+  if (numEl)  numEl.textContent  = streak;
+  if (bestEl) bestEl.textContent = 'Best: ' + best + ' days';
+  if (subEl)  subEl.textContent  = streak > 0 ? 'Keep it going!' : 'Start your streak today!';
+}
+
+function computeStreak(rows) {
+  // rows: array of {answered_at} strings, already filtered by curriculum
+  const dates = [...new Set(rows.map(r => r.answered_at.slice(0,10)))].sort().reverse();
+  const today  = new Date().toISOString().slice(0,10);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+
+  let streak = 0;
+  let check  = dates[0] === today || dates[0] === yesterday ? dates[0] : null;
+  if (check) {
+    for (const d of dates) {
+      if (d === check) {
+        streak++;
+        const dt = new Date(check);
+        dt.setDate(dt.getDate() - 1);
+        check = dt.toISOString().slice(0,10);
+      } else break;
+    }
+  }
+
+  // Best streak
+  let best = 0, cur = 1;
+  for (let i = 1; i < dates.length; i++) {
+    const diff = (new Date(dates[i-1]) - new Date(dates[i])) / 86400000;
+    if (diff === 1) { cur++; best = Math.max(best, cur); }
+    else cur = 1;
+  }
+  best = Math.max(best, streak);
+
+  window._currentStreak = streak;
+  window._bestStreak    = Math.max(best, streak);
+  window._streakDays    = dates.slice(0, 7);
+  updateStreak();
 }
 
 const ADMIN_UUID = '388dbcdf-8f2a-4f0c-86ad-8e9c11e43e57'; // ldemerli@amazon.co.uk
@@ -1035,9 +1858,9 @@ async function onSignedIn() {
   // Store name globally for use across the app
   window.currentChildName = name;
 
-  const greet = document.getElementById('home-user-greeting');
-  if (greet) greet.textContent = `Welcome back, ${name} 👋`;
+  updateGreeting();
   updateCurriculumUI();
+  updateCatAvatar();
 
   // Show name in quiz top bar
   const quizTitle = document.getElementById('quiz-title');
@@ -1054,6 +1877,8 @@ window.launchTutorQA      = launchTutorQA;
 window.startTutorWorkout  = startTutorWorkout;
 window.setCurriculum      = setCurriculum;
 window.updateCatAvatar    = updateCatAvatar;
+window.updateGreeting     = updateGreeting;
+window.updateStreak       = updateStreak;
 window.startAssessment    = startAssessment;
 window.qaOnStrandChange   = qaOnStrandChange;
 
@@ -2417,6 +3242,9 @@ async function updateDash() {
   // Expose weakest skill and recent score for cat chat
   if (weakSkills.length > 0) window._weakestSkill = weakSkills[0].skill;
   if (score !== null) window._recentScore = score;
+
+  // Compute streak from quiz results
+  computeStreak(rows);
 
   // ── Update DOM ──────────────────────────────────────────────────────
   const snapDone = document.getElementById('snap-done');
