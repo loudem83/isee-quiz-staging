@@ -74,6 +74,124 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 @keyframes brPop{0%{transform:scale(0);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 @keyframes brFade{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
 
+/* ════════════ DRILL SCREEN — extends pp- design system ════════════ */
+.drill-topic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+@media (max-width: 900px) { .drill-topic-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .drill-topic-grid { grid-template-columns: 1fr; } }
+
+.drill-topic-card {
+  background: white;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 150ms ease-out, box-shadow 150ms ease-out, border-color 150ms ease-out;
+}
+.drill-topic-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(0,0,0,0.10); }
+.drill-topic-card.expanded {
+  border-color: #FF6B00;
+  box-shadow: 0 10px 30px rgba(255,107,0,0.15), 0 0 0 4px rgba(255,107,0,0.08);
+  transform: none;
+}
+.drill-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.drill-card-left { display: flex; align-items: center; gap: 14px; }
+.drill-card-name { font-size: 18px; font-weight: 600; color: #202124; }
+.drill-card-count { font-size: 13px; font-weight: 500; color: #FF6B00; margin-top: 2px; }
+.drill-chevron { font-size: 20px; color: #ADADAD; transition: transform 200ms ease-out; }
+.drill-topic-card.expanded .drill-chevron { color: #FF6B00; transform: rotate(90deg); }
+.drill-skill-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid #F5F5F4;
+  cursor: pointer;
+}
+.drill-skill-row:hover .drill-skill-name { color: #FF6B00; }
+.drill-skill-name { font-size: 14px; color: #202124; transition: color 150ms; }
+.drill-skill-num { font-size: 14px; font-weight: 700; color: #2EBE60; }
+.drill-more { font-size: 13px; color: #ADADAD; margin-top: 8px; border-top: 1px solid #F5F5F4; padding-top: 8px; }
+.drill-explore-row { display: flex; justify-content: flex-end; margin-top: 14px; }
+.drill-explore-btn {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 18px;
+  border: 1.5px solid #FFE2CC;
+  background: white;
+  color: #FF6B00;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 150ms ease-out;
+}
+.drill-explore-btn:hover { background: #FFF3E8; }
+.drill-start-btn {
+  width: 100%;
+  height: 52px;
+  border-radius: 18px;
+  border: none;
+  background: linear-gradient(135deg, #FF6B00, #FF8A00);
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 6px 18px rgba(255,107,0,0.25);
+  transition: box-shadow 150ms ease-out, transform 150ms ease-out;
+}
+.drill-start-btn:hover { box-shadow: 0 10px 24px rgba(255,107,0,0.35); transform: translateY(-1px); }
+
+.drill-banner {
+  background: #FFF4EB;
+  border-radius: 24px;
+  padding: 28px 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+}
+.drill-banner-text { flex: 1; }
+.drill-banner-title { font-size: 20px; font-weight: 600; color: #202124; margin-bottom: 6px; }
+.drill-banner-sub { font-size: 15px; color: #6D6D6D; }
+.drill-banner-sub span { color: #FF6B00; font-weight: 600; }
+.drill-banner-btn {
+  height: 52px;
+  padding: 0 28px;
+  border-radius: 24px;
+  border: none;
+  background: linear-gradient(135deg, #FF6B00, #FF8A00);
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(255,107,0,0.25);
+  flex-shrink: 0;
+  transition: box-shadow 150ms ease-out;
+}
+.drill-banner-btn:hover { box-shadow: 0 10px 24px rgba(255,107,0,0.35); }
+
 /* ════════════ WORKOUT SCREEN — extends pp- design system ════════════ */
 .pp-page-header {
   height: 96px;
@@ -1321,13 +1439,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 </div>
 
 <!-- SCREEN 5: DRILL BY TOPIC -->
-<div id="screen-drill" class="screen">
-  <div class="top-bar">
-    <h1>🎯 Drill by Topic</h1>
-    <button class="back-btn" onclick="goHome()">← Home</button>
+<div id="screen-drill" class="screen" style="background:#F8F8F7;min-height:100vh;">
+  <div class="pp-page-header">
+    <div class="pp-page-title">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="white"/></svg>
+      Drill by Topic
+    </div>
+    <button class="pp-home-pill" onclick="goHome()">← Home</button>
   </div>
-  <div class="ql-wrap">
-    <div id="drill-status" style="font-size:0.9rem;color:#64748b;margin-bottom:1rem;"></div>
+  <div class="pp-content">
+    <div id="drill-intro-row" style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:24px;">
+      <div>
+        <div style="font-size:24px;font-weight:600;color:#202124;margin-bottom:6px;">Choose a topic to focus your practice</div>
+        <div style="font-size:15px;color:#6D6D6D;">Select a topic below — we'll create a custom set of questions just for that area.</div>
+        <div id="drill-status" style="font-size:15px;font-weight:500;color:#FF6B00;display:flex;align-items:center;gap:6px;margin-top:10px;"></div>
+      </div>
+      <div style="width:300px;height:52px;border-radius:24px;border:1.5px solid #ECECEC;background:white;display:flex;align-items:center;padding:0 18px;gap:10px;flex-shrink:0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ADADAD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="drill-search" type="text" placeholder="Search topics..." oninput="filterDrillCards(this.value)" style="border:none;outline:none;font-size:15px;color:#6D6D6D;background:transparent;width:100%;font-size:16px;" />
+      </div>
+    </div>
     <div id="drill-content"></div>
   </div>
 </div>
@@ -1738,6 +1869,8 @@ window.setCurriculum      = setCurriculum;
 window.updateCatAvatar    = updateCatAvatar;
 window.updateGreeting     = updateGreeting;
 window.updateStreak       = updateStreak;
+window.toggleDrillCard    = toggleDrillCard;
+window.filterDrillCards   = filterDrillCards;
 window.startAssessment    = startAssessment;
 window.qaOnStrandChange   = qaOnStrandChange;
 
@@ -2711,23 +2844,22 @@ function startTutorWorkout() {
   updateDash();
 }
 
+let _drillStrandData = []; // cache for search filtering
+
 function loadDrill() {
   const statusEl  = document.getElementById('drill-status');
   const contentEl = document.getElementById('drill-content');
 
-  // Build strand and skill counts from ALL_QUESTIONS
-  const strandMap  = {};
-  const skillMap   = {};
+  const strandMap = {};
+  const skillMap  = {};
 
   ALL_QUESTIONS.forEach(q => {
     const tax = TAXONOMY[q.n];
     if (!tax) return;
     const strand = tax.strand;
     const skill  = tax.skill || null;
-
     if (!strandMap[strand]) strandMap[strand] = 0;
     strandMap[strand]++;
-
     if (skill) {
       const key = strand + '|||' + skill;
       if (!skillMap[key]) skillMap[key] = { strand, skill, count: 0 };
@@ -2736,48 +2868,138 @@ function loadDrill() {
   });
 
   if (Object.keys(strandMap).length === 0) {
-    statusEl.textContent = 'No taxonomy data found.';
+    statusEl.innerHTML = 'No questions found.';
     contentEl.innerHTML = '';
     return;
   }
 
   const strandOrder = QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower'];
-  const strandLabels = Object.fromEntries((QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower']).map(s => [s, s]));
-
   const total = Object.values(strandMap).reduce((s,c) => s+c, 0);
-  statusEl.textContent = `${total} questions across ${Object.keys(strandMap).length} topics`;
 
-  let html = '<div class="drill-grid">';
-  strandOrder.filter(s => strandMap[s]).forEach(strand => {
-    const safeKey = encodeURIComponent(strand + '|||__all__');
+  statusEl.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="13" y2="15"/></svg> ' + total + ' questions across ' + Object.keys(strandMap).length + ' topics';
+
+  // Build strand data for rendering + search
+  _drillStrandData = strandOrder.filter(s => strandMap[s]).map(strand => {
     const skills = Object.values(skillMap)
       .filter(s => s.strand === strand)
       .sort((a,b) => a.skill.localeCompare(b.skill));
+    return { strand, count: strandMap[strand], skills };
+  });
 
-    const skillsHtml = skills.map(s => {
-      const sk = encodeURIComponent(strand + '|||' + s.skill);
-      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:0.5px solid #f1f5f9;cursor:pointer;" onclick="startDrillSkill('${sk}')">
-        <span style="font-size:0.75rem;color:#475569;">${s.skill}</span>
-        <span style="font-size:0.75rem;font-weight:600;color:#0f6e56;min-width:24px;text-align:right;">${s.count}</span>
-      </div>`;
-    }).join('');
+  renderDrillCards(null);
+}
+
+function renderDrillCards(expandedStrand) {
+  const contentEl = document.getElementById('drill-content');
+  if (!contentEl) return;
+
+  let html = '<div class="drill-topic-grid">';
+
+  _drillStrandData.forEach(({ strand, count, skills }) => {
+    const isExpanded = strand === expandedStrand;
+    const icon = STRAND_ICONS_SVG[strand] || '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>';
+    const safe = encodeURIComponent(strand);
+    const PREVIEW = 4;
+
+    let skillsHtml = '';
+    if (isExpanded) {
+      skillsHtml = skills.map(s => {
+        const sk = encodeURIComponent(strand + '|||' + s.skill);
+        return `<div class="drill-skill-row" onclick="startDrillSkill('${sk}')">
+          <span class="drill-skill-name">${s.skill}</span>
+          <span class="drill-skill-num">${s.count}</span>
+        </div>`;
+      }).join('');
+    } else {
+      const preview = skills.slice(0, PREVIEW);
+      skillsHtml = preview.map(s => {
+        const sk = encodeURIComponent(strand + '|||' + s.skill);
+        return `<div class="drill-skill-row" onclick="startDrillSkill('${sk}')">
+          <span class="drill-skill-name">${s.skill}</span>
+          <span class="drill-skill-num">${s.count}</span>
+        </div>`;
+      }).join('');
+      if (skills.length > PREVIEW) {
+        skillsHtml += `<div class="drill-more">+ ${skills.length - PREVIEW} more strand${skills.length - PREVIEW > 1 ? 's' : ''}</div>`;
+      }
+    }
+
+    const cta = isExpanded
+      ? `<button class="drill-start-btn" onclick="startDrillStrand('${safe}');event.stopPropagation();">Start Drill in ${strand} ›</button>`
+      : `<div class="drill-explore-row"><button class="drill-explore-btn" onclick="toggleDrillCard('${safe}');event.stopPropagation();">Explore ›</button></div>`;
 
     html += `
-      <div class="drill-card" style="flex-direction:column;align-items:stretch;cursor:default;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:pointer;" onclick="startDrillStrand('${encodeURIComponent(strand)}')">
-          <h4 style="margin:0;font-size:0.9rem;font-weight:700;color:#1a3a5c;">${strandLabels[strand]}</h4>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;">
-            <span class="dc-count">${strandMap[strand]}</span>
-            <span class="dc-label">questions</span>
+      <div class="drill-topic-card${isExpanded ? ' expanded' : ''}" onclick="toggleDrillCard('${safe}')">
+        <div class="drill-card-top">
+          <div class="drill-card-left">
+            <div class="pp-topic-icon-circle" style="${strand === 'Whole Numbers' ? 'font-size:18px;' : ''}">${icon}</div>
+            <div>
+              <div class="drill-card-name">${strand}</div>
+              <div class="drill-card-count">${count} questions</div>
+            </div>
           </div>
+          <div class="drill-chevron">${isExpanded ? '∧' : '›'}</div>
         </div>
-        <div style="border-top:0.5px solid #e2e8f0;padding-top:6px;">
-          ${skillsHtml}
-        </div>
+        ${skillsHtml}
+        ${cta}
       </div>`;
   });
+
   html += '</div>';
+
+  // Quick Assessment Banner
+  html += `
+    <div class="drill-banner">
+      <svg width="72" height="72" viewBox="0 0 380 320" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+        <ellipse cx="190" cy="298" rx="52" ry="8" fill="#c47a00" opacity="0.18"/>
+        <ellipse cx="190" cy="240" rx="48" ry="55" fill="#FF8C00"/>
+        <ellipse cx="190" cy="255" rx="28" ry="35" fill="#FFBA5A"/>
+        <ellipse cx="190" cy="160" rx="58" ry="55" fill="#FF8C00"/>
+        <ellipse cx="190" cy="160" rx="58" ry="55" fill="none" stroke="#3d1f00" stroke-width="4"/>
+        <polygon points="145,122 125,78 172,110" fill="#FF8C00" stroke="#3d1f00" stroke-width="3.5" stroke-linejoin="round"/>
+        <polygon points="235,122 255,78 208,110" fill="#FF8C00" stroke="#3d1f00" stroke-width="3.5" stroke-linejoin="round"/>
+        <ellipse cx="170" cy="155" rx="16" ry="17" fill="white" stroke="#3d1f00" stroke-width="2.5"/>
+        <ellipse cx="210" cy="155" rx="16" ry="17" fill="white" stroke="#3d1f00" stroke-width="2.5"/>
+        <circle cx="173" cy="157" r="10" fill="#3d1f00"/>
+        <circle cx="213" cy="157" r="10" fill="#3d1f00"/>
+        <circle cx="177" cy="153" r="3.5" fill="white"/>
+        <circle cx="217" cy="153" r="3.5" fill="white"/>
+        <ellipse cx="190" cy="175" rx="6" ry="4" fill="#ff6b6b" stroke="#3d1f00" stroke-width="1.5"/>
+        <path d="M180 180 Q190 188 200 180" fill="none" stroke="#3d1f00" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div class="drill-banner-text">
+        <div class="drill-banner-title">Not sure where to start?</div>
+        <div class="drill-banner-sub">Try our <span>Quick Assessment</span> to get a personalized recommendation.</div>
+      </div>
+      <button class="drill-banner-btn" onclick="startAssessment()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="white"/></svg>
+        Take Quick Assessment
+      </button>
+    </div>`;
+
   contentEl.innerHTML = html;
+}
+
+function toggleDrillCard(safeStrand) {
+  const strand = decodeURIComponent(safeStrand);
+  const cards = document.querySelectorAll('.drill-topic-card');
+  // Check if already expanded
+  const isCurrentlyExpanded = [...cards].some(c =>
+    c.classList.contains('expanded') &&
+    c.querySelector('.drill-card-name')?.textContent === strand
+  );
+  renderDrillCards(isCurrentlyExpanded ? null : strand);
+}
+
+function filterDrillCards(query) {
+  if (!query.trim()) { renderDrillCards(null); return; }
+  const q = query.toLowerCase();
+  const contentEl = document.getElementById('drill-content');
+  const cards = contentEl.querySelectorAll('.drill-topic-card');
+  cards.forEach(card => {
+    const name = card.querySelector('.drill-card-name')?.textContent.toLowerCase() || '';
+    card.style.display = name.includes(q) ? '' : 'none';
+  });
 }
 
 function startDrillStrand(safeStrand) {
