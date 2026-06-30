@@ -74,7 +74,175 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 @keyframes brPop{0%{transform:scale(0);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 @keyframes brFade{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
 
-/* ════════════ HOME SCREEN — DESIGN SYSTEM ════════════ */
+/* ════════════ WORKOUT SCREEN — extends pp- design system ════════════ */
+.pp-page-header {
+  height: 96px;
+  background: linear-gradient(160deg, #FF6B00 0%, #FF8A00 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+}
+.pp-page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.pp-home-pill {
+  height: 48px;
+  padding: 0 22px;
+  border-radius: 24px;
+  border: none;
+  background: white;
+  color: #FF6B00;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.10);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: box-shadow 150ms ease-out, transform 150ms ease-out;
+}
+.pp-home-pill:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.14); transform: translateY(-1px); }
+
+.pp-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px;
+  background: #F8F8F7;
+  min-height: calc(100vh - 96px);
+}
+.pp-intro-text {
+  font-size: 18px;
+  font-weight: 400;
+  color: #202124;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+.pp-intro-count {
+  font-size: 15px;
+  font-weight: 500;
+  color: #FF6B00;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+
+/* Quick assessment — highlighted card */
+.pp-quick-card {
+  background: white;
+  border-radius: 24px;
+  border: 1px solid #FFE2CC;
+  padding: 28px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  cursor: pointer;
+  margin-bottom: 24px;
+  transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+  min-height: 44px;
+}
+.pp-quick-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(0,0,0,0.10); }
+.pp-quick-icon { font-size: 40px; flex-shrink: 0; }
+.pp-quick-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #FF6B00;
+  margin-bottom: 4px;
+}
+.pp-quick-sub {
+  font-size: 15px;
+  font-weight: 500;
+  color: #6D6D6D;
+}
+.pp-quick-count {
+  font-size: 32px;
+  font-weight: 700;
+  color: #FF6B00;
+  text-align: right;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.pp-quick-count-lbl {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6D6D6D;
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* Tutor questions variant of quick card */
+.pp-quick-card.purple { border-color: #E9E4FB; }
+.pp-quick-card.purple .pp-quick-title { color: #534AB7; }
+.pp-quick-card.purple .pp-quick-count { color: #534AB7; }
+
+/* Topic grid — 2 col desktop, 1 col tablet */
+.pp-topic-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 760px) { .pp-topic-grid { grid-template-columns: 1fr; } }
+
+.pp-topic-card {
+  background: white;
+  border-radius: 24px;
+  padding: 24px;
+  min-height: 120px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+}
+.pp-topic-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(0,0,0,0.10); }
+.pp-topic-icon-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #FFF3E8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  flex-shrink: 0;
+}
+.pp-topic-center { flex: 1; min-width: 0; }
+.pp-topic-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #202124;
+  margin-bottom: 4px;
+}
+.pp-topic-dok {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6D6D6D;
+}
+.pp-topic-right {
+  text-align: right;
+  flex-shrink: 0;
+}
+.pp-topic-count {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2EBE60;
+  line-height: 1;
+}
+.pp-topic-count-lbl {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6D6D6D;
+  margin-top: 2px;
+}
 /* 8pt grid, spec colors, rounded cards, soft shadows    */
 
 /* Reset body background for home */
@@ -1139,13 +1307,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 
 <!-- SCREEN 6: WORKOUT -->
 <div id="screen-workout" class="screen">
-  <div class="top-bar">
-    <h1>🏋️ Start Workout</h1>
-    <button class="back-btn" onclick="goHome()">← Home</button>
+  <div class="pp-page-header">
+    <div class="pp-page-title">🏋️ Adaptive workout</div>
+    <button class="pp-home-pill" onclick="goHome()"><span>←</span> Home</button>
   </div>
-  <div class="ql-wrap">
-    <p style="font-size:0.9rem;color:#64748b;margin-bottom:1rem;">Pick a topic — we'll load up to 20 questions starting with the easiest and building up.</p>
-    <div id="workout-status" style="font-size:0.9rem;color:#64748b;margin-bottom:1rem;"></div>
+  <div class="pp-content">
+    <p class="pp-intro-text">Pick a topic — we'll load up to 20 questions starting with the easiest and building up.</p>
+    <div id="workout-status" class="pp-intro-count"></div>
     <div id="workout-content"></div>
   </div>
 </div>
@@ -1827,6 +1995,30 @@ let mode = 'all', curQs = [], cur = 0;
 /* ════════════════════════════════════════
    WORKOUT
 ════════════════════════════════════════ */
+const STRAND_ICONS = {
+  'Whole Numbers': '🔢',
+  'Decimals, Fractions & Percentages': '🥧',
+  'Algebraic Thinking': '💡',
+  'Measurement': '📏',
+  'Geometry': '📐',
+  'Data Analysis & Prob.': '📊',
+  'Conjugaison': '🔤',
+  'Nature des mots': '📝',
+  'Fonctions': '🔗',
+  'Accord': '🧩',
+  'Types de phrases': '❓',
+  'Homophones grammaticaux': '👂',
+  'Sens des mots': '📖',
+  'Formation des mots': '🧱',
+  'Champ lexical': '🗂️',
+  'Compréhension globale': '🔍',
+  'Compréhension détaillée': '🕵️',
+  'Inférences': '🧠',
+  'Vocabulaire en contexte': '💬',
+  'Construction de phrases': '✏️',
+  'Structure du texte': '📃',
+};
+
 function loadWorkout() {
   const statusEl  = document.getElementById('workout-status');
   const contentEl = document.getElementById('workout-content');
@@ -1850,52 +2042,60 @@ function loadWorkout() {
   const strandLabels = Object.fromEntries((QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower']).map(s => [s, s]));
 
   const total = Object.values(strandMap).reduce((s,c) => s+c, 0);
-  statusEl.textContent = `${total} questions available`;
+  statusEl.innerHTML = '<span>📋</span> ' + total + ' questions available';
 
-  let html = '<div class="drill-grid">';
+  let html = '';
 
-  // ── Assessment card — always first ──
+  // ── Quick Assessment — highlighted card ──
   html += `
-    <div class="drill-card" onclick="startAssessment()" style="border-color:#1d4ed8;background:linear-gradient(135deg,#eff6ff,#dbeafe);grid-column:1/-1;">
-      <div class="dc-left">
-        <h4 style="color:#1e40af;">🎯 Quick Assessment</h4>
-        <p style="font-size:0.75rem;color:#3b82f6;margin-top:2px;">20 mixed questions across all topics · Start here!</p>
+    <div class="pp-quick-card" onclick="startAssessment()">
+      <div class="pp-quick-icon">🎯</div>
+      <div style="flex:1;">
+        <div class="pp-quick-title">Quick Assessment</div>
+        <div class="pp-quick-sub">20 mixed questions across all topics · Start here!</div>
       </div>
-      <div class="dc-right">
-        <span class="dc-count" style="color:#1e40af;">20</span>
-        <span class="dc-label" style="color:#3b82f6;">questions</span>
+      <div>
+        <div class="pp-quick-count">20</div>
+        <div class="pp-quick-count-lbl">questions</div>
       </div>
     </div>`;
+
   const assignedQs = ALL_QUESTIONS.filter(q => q.assigned_to === userId());
   if (assignedQs.length > 0) {
     html += `
-      <div class="drill-card" onclick="startTutorWorkout()" style="border-color:#7c3aed;background:linear-gradient(135deg,#f5f3ff,#ede9fe);grid-column:1/-1;">
-        <div class="dc-left">
-          <h4 style="color:#4c1d95;">📝 Tutor Questions</h4>
-          <p style="font-size:0.75rem;color:#7c3aed;margin-top:2px;">Assigned by your tutor</p>
+      <div class="pp-quick-card purple" onclick="startTutorWorkout()">
+        <div class="pp-quick-icon">📝</div>
+        <div style="flex:1;">
+          <div class="pp-quick-title">Tutor Questions</div>
+          <div class="pp-quick-sub">Assigned by your tutor</div>
         </div>
-        <div class="dc-right">
-          <span class="dc-count" style="color:#4c1d95;">${assignedQs.length}</span>
-          <span class="dc-label" style="color:#7c3aed;">questions</span>
+        <div>
+          <div class="pp-quick-count">${assignedQs.length}</div>
+          <div class="pp-quick-count-lbl">questions</div>
         </div>
       </div>`;
   }
 
+  // ── Topic grid ──
+  html += '<div class="pp-topic-grid">';
   strandOrder.filter(s => strandMap[s]).forEach(strand => {
     const count = Math.min(strandMap[strand], 20);
+    const icon  = STRAND_ICONS[strand] || '📘';
     html += `
-      <div class="drill-card" onclick="startWorkout('${encodeURIComponent(strand)}')">
-        <div class="dc-left">
-          <h4>${strandLabels[strand]}</h4>
-          <p style="font-size:0.75rem;color:#94a3b8;margin-top:2px;">DoK 1 → 2 → 3</p>
+      <div class="pp-topic-card" onclick="startWorkout('${encodeURIComponent(strand)}')">
+        <div class="pp-topic-icon-circle">${icon}</div>
+        <div class="pp-topic-center">
+          <div class="pp-topic-title">${strandLabels[strand]}</div>
+          <div class="pp-topic-dok">DoK 1 → 2 → 3</div>
         </div>
-        <div class="dc-right">
-          <span class="dc-count">${count}</span>
-          <span class="dc-label">questions</span>
+        <div class="pp-topic-right">
+          <div class="pp-topic-count">${count}</div>
+          <div class="pp-topic-count-lbl">questions</div>
         </div>
       </div>`;
   });
   html += '</div>';
+
   contentEl.innerHTML = html;
 }
 
