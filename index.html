@@ -237,6 +237,242 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
   overflow-wrap: break-word;
 }
 
+/* ════════════ DASHBOARD SCREEN ════════════ */
+#screen-pd { background: var(--pp-bg); min-height: 100vh; }
+
+.pd-card {
+  background: var(--pp-surface);
+  border-radius: var(--pp-radius-xl);
+  padding: var(--pp-space-lg);
+  box-shadow: var(--pp-shadow-card);
+  margin-bottom: var(--pp-space-lg);
+}
+.pd-sec-title {
+  font-size: var(--pp-font-small-size);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--pp-text-muted);
+  margin-bottom: var(--pp-space-md);
+}
+.pd-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+@media(max-width:600px){ .pd-stat-grid { grid-template-columns: repeat(2,1fr); } }
+.pd-stat {
+  background: var(--pp-surface-2);
+  border-radius: 20px;
+  padding: 20px 12px;
+  text-align: center;
+}
+.pd-stat-num {
+  font-size: var(--pp-font-stat-size);
+  font-weight: var(--pp-font-stat-weight);
+  color: var(--pp-text);
+  line-height: 1;
+}
+.pd-stat-num.green  { color: var(--pp-success); }
+.pd-stat-num.orange { color: var(--pp-primary); }
+.pd-stat-num.red    { color: #E24B4A; }
+.pd-stat-lbl {
+  font-size: var(--pp-font-small-size);
+  font-weight: var(--pp-font-small-weight);
+  color: var(--pp-text-secondary);
+  margin-top: 6px;
+}
+.pd-stat-sub {
+  font-size: 11px;
+  color: var(--pp-text-muted);
+  margin-top: 2px;
+}
+.pd-dok-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.pd-dok-card {
+  background: var(--pp-surface-2);
+  border-radius: 20px;
+  padding: 20px;
+  text-align: center;
+}
+.pd-dok-label {
+  font-size: var(--pp-font-small-size);
+  font-weight: var(--pp-font-small-weight);
+  color: var(--pp-text-muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 8px;
+}
+.pd-dok-pct {
+  font-size: var(--pp-font-badge-size);
+  font-weight: var(--pp-font-badge-weight);
+  line-height: 1;
+}
+.pd-dok-count {
+  font-size: var(--pp-font-small-size);
+  color: var(--pp-text-secondary);
+  margin-top: 4px;
+}
+.pd-strand-card {
+  background: var(--pp-surface);
+  border-radius: var(--pp-radius-xl);
+  padding: var(--pp-space-lg);
+  box-shadow: var(--pp-shadow-card);
+  margin-bottom: var(--pp-space-md);
+  transition: box-shadow var(--pp-transition-fast);
+}
+.pd-strand-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--pp-space-md);
+}
+.pd-strand-name {
+  font-size: var(--pp-font-h3-size);
+  font-weight: var(--pp-font-h3-weight);
+  color: var(--pp-text);
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+.pd-strand-pct {
+  font-size: var(--pp-font-h3-size);
+  font-weight: var(--pp-font-h1-weight);
+  flex-shrink: 0;
+}
+.pd-skill-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid #F5F5F4;
+  cursor: pointer;
+  transition: opacity var(--pp-transition-fast);
+}
+.pd-skill-row:hover { opacity: .8; }
+.pd-skill-row:active { opacity: .6; }
+.pd-skill-row:focus-visible { outline: 2px solid var(--pp-primary); outline-offset: 1px; }
+.pd-skill-name {
+  font-size: var(--pp-font-caption-size);
+  font-weight: var(--pp-font-body-weight);
+  color: var(--pp-text);
+  flex: 1;
+  white-space: normal;
+  overflow-wrap: break-word;
+  padding-right: 8px;
+  padding-top: 2px;
+}
+.pd-skill-bar-track {
+  flex: 0 0 140px;
+  height: 10px;
+  background: var(--pp-border);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+@media(max-width:600px){ .pd-skill-bar-track { flex: 0 0 80px; } }
+.pd-skill-bar-fill { height: 100%; border-radius: 5px; }
+.pd-skill-pct {
+  font-size: var(--pp-font-caption-size);
+  font-weight: 700;
+  width: 40px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.pd-skill-count {
+  font-size: var(--pp-font-small-size);
+  color: var(--pp-text-muted);
+  width: 28px;
+  text-align: right;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.pd-skill-chevron {
+  font-size: var(--pp-font-caption-size);
+  color: var(--pp-text-muted);
+  flex-shrink: 0;
+}
+.pd-drill-panel {
+  background: var(--pp-surface);
+  border-radius: var(--pp-radius-xl);
+  padding: var(--pp-space-lg);
+  box-shadow: var(--pp-shadow-card);
+  margin-bottom: var(--pp-space-lg);
+}
+.pd-drill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--pp-space-sm);
+}
+.pd-drill-title {
+  font-size: var(--pp-font-h3-size);
+  font-weight: var(--pp-font-h3-weight);
+  color: var(--pp-text);
+}
+.pd-drill-close {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--pp-radius-sm);
+  border: 1.5px solid var(--pp-border);
+  background: var(--pp-surface);
+  color: var(--pp-text-secondary);
+  font-size: var(--pp-font-small-size);
+  cursor: pointer;
+}
+.pd-drill-summary {
+  font-size: var(--pp-font-caption-size);
+  color: var(--pp-text-secondary);
+  margin-bottom: var(--pp-space-md);
+}
+.pd-drill-table { width: 100%; border-collapse: collapse; }
+.pd-drill-table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: var(--pp-font-small-size);
+  font-weight: 700;
+  color: var(--pp-text-muted);
+  background: var(--pp-surface-2);
+  border-radius: 0;
+}
+.pd-drill-table th:first-child { border-radius: 12px 0 0 0; }
+.pd-drill-table th:last-child  { border-radius: 0 12px 0 0; }
+.pd-drill-table td {
+  padding: 10px 14px;
+  border-top: 1px solid #F5F5F4;
+  font-size: var(--pp-font-caption-size);
+  color: var(--pp-text);
+  vertical-align: middle;
+}
+.pd-drill-table tr { cursor: pointer; transition: background var(--pp-transition-fast); }
+.pd-drill-table tr:hover td { background: var(--pp-surface-2); }
+.pd-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--pp-radius-full);
+  font-size: var(--pp-font-small-size);
+  font-weight: 700;
+}
+.pd-badge.correct { background: var(--pp-success-bg); color: #065f46; }
+.pd-badge.wrong   { background: #FCEBEB; color: #A32D2D; }
+.pd-refresh-btn {
+  width: 100%;
+  height: 52px;
+  border-radius: var(--pp-radius-lg);
+  border: 1.5px solid var(--pp-border-accent);
+  background: var(--pp-surface);
+  color: var(--pp-primary);
+  font-size: var(--pp-font-caption-size);
+  font-weight: var(--pp-font-h2-weight);
+  cursor: pointer;
+  margin-top: var(--pp-space-lg);
+  transition: background var(--pp-transition-fast);
+}
+.pd-refresh-btn:hover { background: var(--pp-surface-warm); }
+
 /* ════════════ COMPONENT STATES ════════════ */
 
 /* Primary button states */
@@ -1698,23 +1934,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 
 <!-- SCREEN 3: PARENT DASHBOARD -->
 <div id="screen-pd" class="screen">
-  <div class="top-bar">
-    <h1>📊 Results Dashboard</h1>
-    <button class="back-btn" onclick="goHome()">← Home</button>
+  <div class="pp-page-header">
+    <div class="pp-page-title">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Your progress
+    </div>
+    <button class="pp-home-pill" onclick="goHome()">← Home</button>
   </div>
-  <div class="ql-wrap">
-    <div style="background:#fef9c3;border:1px solid #fde047;border-radius:10px;padding:12px 16px;font-size:0.85rem;color:#713f12;margin-bottom:1rem;">
-      🔒 Results are saved automatically. Summary cards show the <b>latest attempt</b> per question. Session history shows every sitting.
-    </div>
-    <!-- Diagnostic Tool -->
-    <div id="pd-diag" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:1.1rem;margin-bottom:1rem;">
-      <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;margin-bottom:10px;">🔧 Connection Diagnostic</div>
-      <button onclick="runDiagnostic()" style="width:100%;padding:10px;border-radius:8px;background:#1a3a5c;color:white;border:none;font-size:0.9rem;font-weight:600;cursor:pointer;margin-bottom:10px;">Run Connection Test</button>
-      <div id="diag-result" style="font-size:0.82rem;line-height:1.7;display:none;"></div>
-    </div>
-    <div id="pd-status" style="font-size:0.9rem;color:#64748b;margin-bottom:1rem;"></div>
+  <div class="pp-content">
+    <div id="pd-status" class="pp-intro-count" style="margin-bottom:8px;"></div>
     <div id="pd-content"></div>
-    <button onclick="loadParentDash()" style="width:100%;padding:11px;border-radius:10px;border:1.5px solid #dce3ea;background:white;cursor:pointer;font-size:0.9rem;font-weight:600;color:#1a3a5c;margin-top:0.5rem;">🔄 Refresh Results</button>
   </div>
 </div>
 
@@ -3658,17 +3887,19 @@ function renderParentDash(rows) {
     return;
   }
   document.getElementById('pd-status').textContent = '';
+
   const sessions = {};
   rows.forEach(r => { if (!sessions[r.session_id]) sessions[r.session_id] = []; sessions[r.session_id].push(r); });
   const latest = {};
   rows.forEach(r => { if (!latest[r.question_id]) latest[r.question_id] = r; });
   const latestVals = Object.values(latest);
-  const totalAns = latestVals.length;
-  const totalCor = rows.filter(r => r.correct).length;
-  const pct = rows.length ? Math.round(totalCor/rows.length*100) : 0;
+  const totalAns   = latestVals.length;
+  const totalCor   = rows.filter(r => r.correct).length;
+  const pct        = rows.length ? Math.round(totalCor / rows.length * 100) : 0;
   const sessionCount = Object.keys(sessions).length;
+  const remaining  = Math.max(0, ALL_QUESTIONS.length - totalAns);
 
-  // ── Skill performance — use all rows (consistent with overall score) ──
+  // Skill performance
   const skillStats = {};
   const skillQuestions = {};
   rows.forEach(r => {
@@ -3678,13 +3909,12 @@ function renderParentDash(rows) {
     if (!skillStats[key]) skillStats[key] = { strand: tax.strand, skill: tax.skill, correct: 0, total: 0 };
     skillStats[key].total++;
     if (r.correct) skillStats[key].correct++;
-    // For drill-down still use latest per question
     if (!skillQuestions[key]) skillQuestions[key] = [];
     const existing = skillQuestions[key].find(q => q.question_id === r.question_id);
     if (!existing) skillQuestions[key].push(r);
   });
 
-  // ── DoK performance — use all rows (consistent with overall score) ──
+  // DoK performance
   const dokStats = { 1:{c:0,t:0}, 2:{c:0,t:0}, 3:{c:0,t:0} };
   rows.forEach(r => {
     const tax = TAXONOMY[r.question_id];
@@ -3693,57 +3923,63 @@ function renderParentDash(rows) {
     if (r.correct) dokStats[tax.dok].c++;
   });
 
-  // ── Session scores for chart ───────────────────────────────────────────
+  // Session scores for chart
   const sessionScores = Object.keys(sessions).sort().slice(-12).map(sid => {
     const sr = sessions[sid];
-    const c = sr.filter(r => r.correct).length;
+    const c  = sr.filter(r => r.correct).length;
     return { date: sid.slice(5,10), pct: Math.round(c/sr.length*100) };
   });
 
-  // ── Strand grouping ────────────────────────────────────────────────────
-  const strandOrder = QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower'];
+  // Strand grouping
+  const strandOrder  = QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower'];
   const strandLabels = Object.fromEntries((QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower']).map(s => [s, s]));
+  const childName    = window.currentChildName || 'Your';
 
   function scoreColor(p) {
-    if (p >= 85) return { bar:'#27500A', text:'#173404' };  // dark green
-    if (p >= 70) return { bar:'#639922', text:'#3B6D11' };  // mid green
-    if (p >= 55) return { bar:'#97C459', text:'#3B6D11' };  // light green
-    if (p >= 40) return { bar:'#EF9F27', text:'#633806' };  // yellow/amber
-    return       { bar:'#E24B4A', text:'#A32D2D' };          // red
+    if (p >= 85) return { bar: '#2EBE60', text: '#2EBE60' };
+    if (p >= 70) return { bar: '#639922', text: '#3B6D11' };
+    if (p >= 55) return { bar: '#FF6B00', text: '#FF6B00' };
+    if (p >= 40) return { bar: '#EF9F27', text: '#BA7517' };
+    return             { bar: '#E24B4A', text: '#A32D2D' };
   }
 
-  // Build skill rows per strand — now clickable
+  function statNumClass(p) {
+    if (p >= 80) return 'green';
+    if (p >= 60) return 'orange';
+    return 'red';
+  }
+
+  // Skill rows (new design)
   function skillRows(strand) {
     return Object.values(skillStats)
       .filter(s => s.strand === strand)
       .sort((a,b) => a.skill.localeCompare(b.skill))
       .map(s => {
-        const p = Math.round(s.correct/s.total*100);
+        const p   = Math.round(s.correct / s.total * 100);
         const col = scoreColor(p);
-        const safeKey = encodeURIComponent((s.strand||'') + '|||' + s.skill);
-        return `<div onclick="pdShowSkillDrill('${safeKey}')" style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:0.5px solid #f1f5f9;cursor:pointer;">
-          <span style="font-size:0.75rem;color:#64748b;flex:0 0 180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.skill}</span>
-          <div style="flex:1;background:#f1f5f9;border-radius:3px;height:10px;overflow:hidden;">
-            <div style="width:${p}%;height:100%;background:${col.bar};border-radius:3px;"></div>
-          </div>
-          <span style="font-size:0.75rem;font-weight:600;color:${col.text};flex:0 0 32px;text-align:right;">${p}%</span>
-          <span style="font-size:0.72rem;color:#94a3b8;flex:0 0 24px;text-align:right;">${s.total}q</span>
-          <span style="font-size:0.72rem;color:#94a3b8;">›</span>
+        const safe = encodeURIComponent((s.strand||'') + '|||' + s.skill);
+        return `<div class="pd-skill-row" onclick="pdShowSkillDrill('${safe}')">
+          <div class="pd-skill-name">${s.skill}</div>
+          <div class="pd-skill-bar-track"><div class="pd-skill-bar-fill" style="width:${p}%;background:${col.bar};"></div></div>
+          <div class="pd-skill-pct" style="color:${col.text};">${p}%</div>
+          <div class="pd-skill-count">${s.total}q</div>
+          <div class="pd-skill-chevron">›</div>
         </div>`;
       }).join('');
   }
 
+  // Strand blocks
   const strandBlocks = strandOrder.map(strand => {
     const strandSkills = Object.values(skillStats).filter(s => s.strand === strand);
     if (strandSkills.length === 0) return '';
-    const sc = strandSkills.reduce((s,x) => s+x.correct, 0);
-    const st = strandSkills.reduce((s,x) => s+x.total, 0);
-    const sp = st ? Math.round(sc/st*100) : 0;
+    const sc  = strandSkills.reduce((s,x) => s+x.correct, 0);
+    const st  = strandSkills.reduce((s,x) => s+x.total,   0);
+    const sp  = st ? Math.round(sc/st*100) : 0;
     const col = scoreColor(sp);
-    return `<div style="background:white;border:0.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:8px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <span style="font-size:0.85rem;font-weight:600;color:#1a3a5c;">${strandLabels[strand]||strand}</span>
-        <span style="font-size:0.85rem;font-weight:600;color:${col.text};">${sp}%</span>
+    return `<div class="pd-strand-card">
+      <div class="pd-strand-header">
+        <div class="pd-strand-name">${strandLabels[strand]||strand}</div>
+        <div class="pd-strand-pct" style="color:${col.text};">${sp}%</div>
       </div>
       ${skillRows(strand)}
     </div>`;
@@ -3751,62 +3987,100 @@ function renderParentDash(rows) {
 
   // DoK cards
   const dokLabels = {1:'DoK 1 — recall', 2:'DoK 2 — apply', 3:'DoK 3 — analyse'};
-  const dokCards = [1,2,3].map(d => {
-    const p = dokStats[d].t ? Math.round(dokStats[d].c/dokStats[d].t*100) : null;
-    const col = p !== null ? scoreColor(p) : { text:'#94a3b8' };
-    return `<div style="background:white;border:0.5px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center;">
-      <div style="font-size:0.72rem;color:#94a3b8;margin-bottom:4px;">${dokLabels[d]}</div>
-      <div style="font-size:1.4rem;font-weight:500;color:${col.text};">${p !== null ? p+'%' : '—'}</div>
-      <div style="font-size:0.72rem;color:#94a3b8;margin-top:2px;">${dokStats[d].t} answered</div>
+  const dokCards  = [1,2,3].map(d => {
+    const p   = dokStats[d].t ? Math.round(dokStats[d].c/dokStats[d].t*100) : null;
+    const col = p !== null ? scoreColor(p) : { text: 'var(--pp-text-muted)' };
+    return `<div class="pd-dok-card">
+      <div class="pd-dok-label">${dokLabels[d]}</div>
+      <div class="pd-dok-pct" style="color:${col.text};">${p !== null ? p+'%' : '—'}</div>
+      <div class="pd-dok-count">${dokStats[d].t} answered</div>
     </div>`;
   }).join('');
 
-  // Store skill questions for drill-down access
+  // Stat colour for % correct card
+  const pctClass  = statNumClass(pct);
+  const pctBg     = pct >= 80 ? 'background:var(--pp-success-bg);' : pct >= 60 ? 'background:var(--pp-surface-warm);' : 'background:#FCEBEB;';
+  const pctSubCol = pct >= 80 ? 'color:var(--pp-success);' : pct >= 60 ? 'color:var(--pp-primary);' : 'color:#A32D2D;';
+
   window._pdSkillQuestions = skillQuestions;
 
   document.getElementById('pd-content').innerHTML = `
-    <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">Overview</div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem;">
-      <div style="background:#f1f5f9;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#334155;">${totalAns}</div><div style="font-size:0.72rem;color:#94a3b8;margin-top:3px;">Questions answered</div></div>
-      <div style="background:#eaf3de;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#27500a;">${pct}%</div><div style="font-size:0.72rem;color:#3b6d11;margin-top:3px;">% Correct</div><div style="font-size:0.68rem;color:#639922;margin-top:2px;">incl. retries</div></div>
-      <div style="background:#f1f5f9;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#334155;">${sessionCount}</div><div style="font-size:0.72rem;color:#94a3b8;margin-top:3px;">Sessions</div></div>
-      <div style="background:#f1f5f9;border-radius:10px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:500;color:#334155;">${Math.max(0, ALL_QUESTIONS.length - totalAns)}</div><div style="font-size:0.72rem;color:#94a3b8;margin-top:3px;">Remaining</div></div>
+
+    <div style="margin-bottom:var(--pp-space-lg);">
+      <div class="pp-intro-heading">${childName}'s results</div>
+      <div class="pp-intro-text">${CURRICULA[currentCurriculum]?.label || 'Math'} · All time</div>
     </div>
 
-    <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">DoK breakdown</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem;">${dokCards}</div>
+    <!-- Overview -->
+    <div class="pd-card">
+      <div class="pd-sec-title">Overview</div>
+      <div class="pd-stat-grid">
+        <div class="pd-stat">
+          <div class="pd-stat-num">${totalAns}</div>
+          <div class="pd-stat-lbl">Questions answered</div>
+        </div>
+        <div class="pd-stat" style="${pctBg}">
+          <div class="pd-stat-num ${pctClass}">${pct}%</div>
+          <div class="pd-stat-lbl" style="${pctSubCol}">% Correct</div>
+          <div class="pd-stat-sub">incl. retries</div>
+        </div>
+        <div class="pd-stat">
+          <div class="pd-stat-num">${sessionCount}</div>
+          <div class="pd-stat-lbl">Sessions</div>
+        </div>
+        <div class="pd-stat">
+          <div class="pd-stat-num orange">${remaining}</div>
+          <div class="pd-stat-lbl">Remaining</div>
+        </div>
+      </div>
+    </div>
 
+    <!-- DoK -->
+    <div class="pd-card">
+      <div class="pd-sec-title">DoK breakdown</div>
+      <div class="pd-dok-grid">${dokCards}</div>
+    </div>
+
+    <!-- Progress over time -->
     ${sessionScores.length >= 2 ? `
-    <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">Progress over time</div>
-    <div style="background:white;border:0.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:1.25rem;">
-      <div style="position:relative;width:100%;height:120px;">
+    <div class="pd-card">
+      <div class="pd-sec-title">Progress over time</div>
+      <div style="position:relative;height:180px;">
         <canvas id="pd-progress-chart" role="img" aria-label="Line chart showing score per session">${sessionScores.map(s=>s.date+': '+s.pct+'%').join(', ')}</canvas>
       </div>
     </div>` : ''}
 
-    <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;margin-bottom:8px;">Performance by skill <span style="font-weight:400;text-transform:none;letter-spacing:0;">— click a skill to see questions</span></div>
-    <div style="margin-bottom:1.25rem;">${strandBlocks || '<div style="color:#94a3b8;font-size:0.85rem;">No skill data yet — answer some questions first.</div>'}</div>
-
-    <div id="pd-skill-drill" style="display:none;margin-bottom:1.25rem;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;" id="pd-drill-label"></div>
-        <button onclick="document.getElementById('pd-skill-drill').style.display='none'" style="font-size:0.75rem;color:#64748b;border:0.5px solid #e2e8f0;background:white;border-radius:6px;padding:3px 10px;cursor:pointer;">✕ Close</button>
+    <!-- Performance by skill -->
+    <div class="pd-sec-title" style="margin-bottom:var(--pp-space-md);">
+      Performance by skill <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--pp-text-muted);">— click a skill to see questions</span>
+    </div>
+    <div id="pd-skill-drill" style="display:none;">
+      <div class="pd-drill-panel">
+        <div class="pd-drill-header">
+          <div class="pd-drill-title" id="pd-drill-label"></div>
+          <button class="pd-drill-close" onclick="document.getElementById('pd-skill-drill').style.display='none'">✕ Close</button>
+        </div>
+        <div class="pd-drill-summary" id="pd-drill-summary"></div>
+        <div style="border-radius:12px;overflow:hidden;border:1px solid var(--pp-border);">
+          <table class="pd-drill-table">
+            <thead><tr>
+              <th>ID</th>
+              <th>Question</th>
+              <th style="text-align:center;">Result</th>
+              <th style="text-align:center;">Attempts</th>
+              <th></th>
+            </tr></thead>
+            <tbody id="pd-drill-rows"></tbody>
+          </table>
+        </div>
       </div>
-      <div style="font-size:0.8rem;color:#64748b;margin-bottom:8px;" id="pd-drill-summary"></div>
-      <div style="background:white;border-radius:12px;border:0.5px solid #e2e8f0;overflow:hidden;">
-        <table style="width:100%;border-collapse:collapse;">
-          <thead><tr style="background:#f8fafc;">
-            <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Q</th>
-            <th style="padding:9px 14px;text-align:left;font-size:0.72rem;font-weight:700;color:#94a3b8;">Question</th>
-            <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Result</th>
-            <th style="padding:9px 14px;text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;">Attempts</th>
-          </tr></thead>
-          <tbody id="pd-drill-rows"></tbody>
-        </table>
-      </div>
-    </div>`;
+    </div>
+    <div>${strandBlocks || '<div style="color:var(--pp-text-muted);font-size:14px;padding:24px 0;">No skill data yet — answer some questions first.</div>'}</div>
 
-  // Render progress chart
+    <button class="pd-refresh-btn" onclick="loadParentDash()">↻ Refresh results</button>
+  `;
+
+  // Render chart with orange colour
   if (sessionScores.length >= 2) {
     function drawProgressChart(attempts) {
       const canvas = document.getElementById('pd-progress-chart');
@@ -3822,13 +4096,15 @@ function renderParentDash(rows) {
           labels: sessionScores.map(s => s.date),
           datasets: [{
             data: sessionScores.map(s => s.pct),
-            borderColor: '#378ADD',
-            backgroundColor: '#E6F1FB',
+            borderColor: '#FF6B00',
+            backgroundColor: 'rgba(255,107,0,0.08)',
             fill: true,
             tension: 0.3,
-            pointRadius: 3,
-            pointBackgroundColor: '#378ADD',
-            borderWidth: 2
+            pointRadius: 4,
+            pointBackgroundColor: '#FF6B00',
+            pointBorderColor: 'white',
+            pointBorderWidth: 2,
+            borderWidth: 2.5
           }]
         },
         options: {
@@ -3836,8 +4112,8 @@ function renderParentDash(rows) {
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            y: { min: 0, max: 100, ticks: { callback: v => v+'%', font:{size:10}, color:'#94a3b8' }, grid: { color:'rgba(0,0,0,0.05)' }, border:{display:false} },
-            x: { ticks: { font:{size:10}, color:'#94a3b8' }, grid:{display:false}, border:{display:false} }
+            y: { min: 0, max: 100, ticks: { callback: v => v+'%', font:{size:11}, color:'#ADADAD' }, grid: { color:'#ECECEC' }, border:{display:false} },
+            x: { ticks: { font:{size:11}, color:'#ADADAD' }, grid:{display:false}, border:{display:false} }
           }
         }
       });
@@ -3853,28 +4129,25 @@ function pdShowSkillDrill(safeKey) {
   if (qs.length === 0) return;
 
   const correct = qs.filter(r => r.correct).length;
-  const pct = Math.round(correct / qs.length * 100);
+  const pct     = Math.round(correct / qs.length * 100);
 
-  document.getElementById('pd-drill-label').textContent = skill + ' — ' + pct + '% correct';
+  document.getElementById('pd-drill-label').textContent   = skill + ' — ' + pct + '% correct';
   document.getElementById('pd-drill-summary').textContent =
     correct + ' correct, ' + (qs.length - correct) + ' incorrect out of ' + qs.length + ' attempted';
 
   const sorted = [...qs].sort((a,b) => a.question_id.localeCompare(b.question_id, undefined, {numeric:true}));
-  // Store the full skill pool question ids for navigation in quiz
   window._pdDrillPool = sorted.map(r => r.question_id);
 
   document.getElementById('pd-drill-rows').innerHTML = sorted.map(r => {
-    const q = ALL_QUESTIONS.find(q => String(q.n) === r.question_id);
+    const q       = ALL_QUESTIONS.find(q => String(q.n) === r.question_id);
     const preview = q ? q.text.split('\n')[0].slice(0,60) + (q.text.length > 60 ? '…' : '') : r.question_id;
-    const ok = r.correct;
-    return `<tr onclick="pdOpenQuestion('${r.question_id}')" style="cursor:pointer;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
-      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;font-size:0.8rem;font-weight:600;color:#64748b;white-space:nowrap;">${r.question_id}</td>
-      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;font-size:0.82rem;color:#334155;">${preview}</td>
-      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;text-align:center;">
-        <span style="background:${ok?'#d1fae5':'#fee2e2'};color:${ok?'#065f46':'#991b1b'};padding:3px 10px;border-radius:99px;font-size:0.75rem;font-weight:600;">${ok?'✓ Correct':'✗ Wrong'}</span>
-      </td>
-      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:0.82rem;color:#64748b;">${r.attempts}</td>
-      <td style="padding:9px 14px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:0.8rem;color:#94a3b8;">›</td>
+    const ok      = r.correct;
+    return `<tr onclick="pdOpenQuestion('${r.question_id}')">
+      <td style="color:var(--pp-text-muted);white-space:nowrap;">${r.question_id}</td>
+      <td style="color:var(--pp-text);">${preview}</td>
+      <td style="text-align:center;"><span class="pd-badge ${ok ? 'correct' : 'wrong'}">${ok ? '✓ Correct' : '✗ Wrong'}</span></td>
+      <td style="text-align:center;color:var(--pp-text-secondary);">${r.attempts}</td>
+      <td style="text-align:center;color:var(--pp-text-muted);">›</td>
     </tr>`;
   }).join('');
 
