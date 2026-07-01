@@ -255,6 +255,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
   color: var(--pp-text-muted);
   margin-bottom: var(--pp-space-md);
 }
+/* Alias — same style, clearer naming relationship with C003 SectionTitle */
+.pp-section-title--label { font-size: var(--pp-font-small-size); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--pp-text-muted); margin-bottom: var(--pp-space-md); }
 .pd-stat-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -263,7 +265,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 @media(max-width:600px){ .pd-stat-grid { grid-template-columns: repeat(2,1fr); } }
 .pd-stat {
   background: var(--pp-surface-2);
-  border-radius: 20px;
+  border-radius: var(--pp-radius-lg);
   padding: 20px 12px;
   text-align: center;
 }
@@ -294,7 +296,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 }
 .pd-dok-card {
   background: var(--pp-surface-2);
-  border-radius: 20px;
+  border-radius: var(--pp-radius-lg);
   padding: 20px;
   text-align: center;
 }
@@ -351,7 +353,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
   cursor: pointer;
   transition: opacity var(--pp-transition-fast);
 }
-.pd-skill-row:hover { opacity: .8; }
+.pd-skill-row:hover { background: var(--pp-surface-2); border-radius: var(--pp-radius-sm); }
+.pd-skill-row:hover .pd-skill-name { color: var(--pp-primary); }
 .pd-skill-row:active { opacity: .6; }
 .pd-skill-row:focus-visible { outline: 2px solid var(--pp-primary); outline-offset: 1px; }
 .pd-skill-name {
@@ -414,15 +417,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
   color: var(--pp-text);
 }
 .pd-drill-close {
-  height: 36px;
-  padding: 0 14px;
+  height: 44px;
+  padding: 0 16px;
   border-radius: var(--pp-radius-sm);
   border: 1.5px solid var(--pp-border);
   background: var(--pp-surface);
   color: var(--pp-text-secondary);
   font-size: var(--pp-font-small-size);
   cursor: pointer;
+  transition: background var(--pp-transition-fast);
 }
+.pd-drill-close:hover { background: var(--pp-surface-2); }
 .pd-drill-summary {
   font-size: var(--pp-font-caption-size);
   color: var(--pp-text-secondary);
@@ -968,7 +973,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 
 .pp-stat-card {
   background: var(--pp-surface-2);
-  border-radius: 20px;
+  border-radius: var(--pp-radius-lg);
   padding: 16px 8px;
   text-align: center;
   min-height: 96px;
@@ -4301,11 +4306,11 @@ function renderParentDash(rows) {
   const childName    = window.currentChildName || 'Your';
 
   function scoreColor(p) {
-    if (p >= 85) return { bar: '#2EBE60', text: '#2EBE60' };
-    if (p >= 70) return { bar: '#639922', text: '#3B6D11' };
-    if (p >= 55) return { bar: '#FF6B00', text: '#FF6B00' };
-    if (p >= 40) return { bar: '#EF9F27', text: '#BA7517' };
-    return             { bar: '#E24B4A', text: '#A32D2D' };
+    if (p >= 85) return { bar: 'var(--pp-success)',   text: 'var(--pp-success)' };
+    if (p >= 70) return { bar: '#639922',              text: '#3B6D11' };
+    if (p >= 55) return { bar: 'var(--pp-primary)',   text: 'var(--pp-primary)' };
+    if (p >= 40) return { bar: '#EF9F27',              text: '#BA7517' };
+    return             { bar: '#E24B4A',               text: '#A32D2D' };
   }
 
   function statNumClass(p) {
