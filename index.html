@@ -658,16 +658,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 /* ════════════ WORKOUT SCREEN — extends pp- design system ════════════ */
 .pp-page-header {
   height: 96px;
-  background: linear-gradient(160deg, #FF6B00 0%, #FF8A00 100%);
+  background: var(--pp-primary-gradient-hdr);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 32px;
+  padding: 0 var(--pp-space-xl);
 }
 .pp-page-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: white;
+  font-size: var(--pp-font-h1-size);
+  font-weight: var(--pp-font-h1-weight);
+  color: var(--pp-surface);
   letter-spacing: -0.3px;
   display: flex;
   align-items: center;
@@ -676,162 +676,178 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .pp-home-pill {
   height: 48px;
   padding: 0 22px;
-  border-radius: 24px;
+  border-radius: var(--pp-radius-pill);
   border: none;
-  background: white;
-  color: #FF6B00;
-  font-size: 15px;
-  font-weight: 600;
+  background: var(--pp-surface);
+  color: var(--pp-primary);
+  font-size: var(--pp-font-body-size);
+  font-weight: var(--pp-font-h2-weight);
   cursor: pointer;
-  box-shadow: var(--elevation-3);
+  box-shadow: var(--pp-shadow-float);
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: box-shadow 150ms ease-out, transform 150ms ease-out;
+  transition: box-shadow var(--pp-transition-fast), transform var(--pp-transition-fast);
+  flex-shrink: 0;
 }
-.pp-home-pill:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.14); transform: translateY(-1px); }
+.pp-home-pill:hover { box-shadow: var(--pp-shadow-hover); transform: translateY(-1px); }
+.pp-home-pill:active { transform: scale(0.98); }
+.pp-home-pill:focus-visible { outline: 3px solid white; outline-offset: 3px; }
 
 .pp-content {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 32px;
-  background: #F8F8F7;
+  padding: var(--pp-space-xl);
+  background: var(--pp-bg);
   min-height: calc(100vh - 96px);
 }
 .pp-intro-heading {
-  font-size: 24px;
-  font-weight: 600;
-  color: #202124;
+  font-size: var(--pp-font-h2-size);
+  font-weight: var(--pp-font-h2-weight);
+  color: var(--pp-text);
   margin-bottom: 6px;
-  line-height: 1.3;
+  line-height: var(--pp-line-height-tight);
 }
 .pp-intro-text {
-  font-size: 15px;
-  font-weight: 400;
-  color: #6D6D6D;
+  font-size: var(--pp-font-body-size);
+  font-weight: var(--pp-font-body-weight);
+  color: var(--pp-text-secondary);
   margin-bottom: 0;
-  line-height: 1.5;
+  line-height: var(--pp-line-height-normal);
 }
 .pp-intro-count {
-  font-size: 15px;
-  font-weight: 500;
-  color: #FF6B00;
+  font-size: var(--pp-font-body-size);
+  font-weight: var(--pp-font-caption-weight);
+  color: var(--pp-primary);
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 24px;
+  gap: var(--pp-space-xs);
+  margin-bottom: var(--pp-space-lg);
   margin-top: 10px;
 }
 
 /* Quick assessment — highlighted card */
 .pp-quick-card {
-  background: white;
-  border-radius: 24px;
-  border: 1px solid #FFE2CC;
+  background: var(--pp-surface);
+  border-radius: var(--pp-radius-xl);
+  border: 1px solid var(--pp-border-accent);
   padding: 28px;
-  box-shadow: var(--elevation-1);
+  box-shadow: var(--pp-shadow-card);
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: var(--pp-space-lg);
   cursor: pointer;
-  margin-bottom: 24px;
-  transition: transform 150ms ease-out, box-shadow 150ms ease-out;
-  min-height: 44px;
+  margin-bottom: var(--pp-space-lg);
+  transition: transform var(--pp-transition-fast), box-shadow var(--pp-transition-fast);
+  width: 100%;
+  text-align: left;
 }
-.pp-quick-card:hover { transform: translateY(-4px); box-shadow: var(--elevation-2); }
+.pp-quick-card:hover { transform: translateY(-4px); box-shadow: var(--pp-shadow-hover); }
+.pp-quick-card:active { transform: scale(0.98); }
+.pp-quick-card:focus-visible { outline: 3px solid var(--pp-primary); outline-offset: 3px; }
 .pp-quick-icon { font-size: 40px; flex-shrink: 0; }
 .pp-quick-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #FF6B00;
+  font-size: var(--pp-font-h3-size);
+  font-weight: var(--pp-font-h2-weight);
+  color: var(--pp-primary);
   margin-bottom: 4px;
 }
 .pp-quick-sub {
-  font-size: 15px;
-  font-weight: 500;
-  color: #6D6D6D;
+  font-size: var(--pp-font-body-size);
+  font-weight: var(--pp-font-caption-weight);
+  color: var(--pp-text-secondary);
 }
 .pp-quick-count {
-  font-size: 32px;
-  font-weight: 700;
-  color: #FF6B00;
+  font-size: var(--pp-font-badge-size);
+  font-weight: var(--pp-font-badge-weight);
+  color: var(--pp-primary);
   text-align: right;
   flex-shrink: 0;
   line-height: 1;
+  white-space: nowrap;
 }
 .pp-quick-count-lbl {
-  font-size: 14px;
-  font-weight: 500;
-  color: #6D6D6D;
+  font-size: var(--pp-font-caption-size);
+  font-weight: var(--pp-font-caption-weight);
+  color: var(--pp-text-secondary);
   text-align: right;
   margin-top: 4px;
 }
 
-/* Tutor questions variant of quick card */
+/* Tutor questions variant — purple */
 .pp-quick-card.purple { border-color: #E9E4FB; }
-.pp-quick-card.purple .pp-quick-title { color: #534AB7; }
-.pp-quick-card.purple .pp-quick-count { color: #534AB7; }
+.pp-quick-card.purple .pp-quick-title { color: var(--pp-tutor); }
+.pp-quick-card.purple .pp-quick-count { color: var(--pp-tutor); }
 
-/* Topic grid — 2 col desktop, 1 col tablet */
+/* Topic grid — 2 col desktop, 1 col mobile */
 .pp-topic-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: var(--pp-space-lg);
 }
 @media (max-width: 760px) { .pp-topic-grid { grid-template-columns: 1fr; } }
+@media (max-width: 480px) { .pp-topic-grid { grid-template-columns: 1fr; } }
 
 .pp-topic-card {
-  background: white;
-  border-radius: 24px;
-  padding: 24px;
+  background: var(--pp-surface);
+  border-radius: var(--pp-radius-xl);
+  padding: var(--pp-space-lg);
   min-height: 120px;
-  box-shadow: var(--elevation-1);
+  box-shadow: var(--pp-shadow-card);
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: var(--pp-space-md);
   cursor: pointer;
-  transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+  transition: transform var(--pp-transition-fast), box-shadow var(--pp-transition-fast);
+  border: none;
+  width: 100%;
+  text-align: left;
 }
-.pp-topic-card:hover { transform: translateY(-4px); box-shadow: var(--elevation-2); }
+.pp-topic-card:hover { transform: translateY(-4px); box-shadow: var(--pp-shadow-hover); }
+.pp-topic-card:active { transform: scale(0.98); }
+.pp-topic-card:focus-visible { outline: 3px solid var(--pp-primary); outline-offset: 2px; }
 .pp-topic-icon-circle {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: #FFF3E8;
+  background: var(--pp-surface-warm);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 26px;
   font-weight: 700;
-  color: #FF6B00;
+  color: var(--pp-primary);
   flex-shrink: 0;
 }
 .pp-topic-center { flex: 1; min-width: 0; }
 .pp-topic-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #202124;
+  font-size: var(--pp-font-h3-size);
+  font-weight: var(--pp-font-h2-weight);
+  color: var(--pp-text);
   margin-bottom: 4px;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 .pp-topic-dok {
-  font-size: 14px;
-  font-weight: 500;
-  color: #6D6D6D;
+  font-size: var(--pp-font-caption-size);
+  font-weight: var(--pp-font-caption-weight);
+  color: var(--pp-text-muted);
 }
 .pp-topic-right {
   text-align: right;
   flex-shrink: 0;
 }
 .pp-topic-count {
-  font-size: 28px;
-  font-weight: 700;
-  color: #2EBE60;
+  font-size: var(--pp-font-stat-size);
+  font-weight: var(--pp-font-stat-weight);
+  color: var(--pp-success);
   line-height: 1;
+  white-space: nowrap;
 }
 .pp-topic-count-lbl {
-  font-size: 14px;
-  font-weight: 500;
-  color: #6D6D6D;
+  font-size: var(--pp-font-caption-size);
+  font-weight: var(--pp-font-caption-weight);
+  color: var(--pp-text-secondary);
   margin-top: 2px;
 }
 /* 8pt grid, spec colors, rounded cards, soft shadows    */
@@ -2274,7 +2290,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 <!-- SCREEN 6: WORKOUT -->
 <div id="screen-workout" class="screen">
   <div class="pp-page-header">
-    <div class="pp-page-title">🏋️ Adaptive workout</div>
+    <div class="pp-page-title">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5a4 4 0 0 0 0 5.66l5.66 5.66a4 4 0 0 0 5.66-5.66L12 6.5"/><path d="M15 3l2 2"/><path d="M17 7l2-2"/></svg>
+      Adaptive Workout
+    </div>
     <button class="pp-home-pill" onclick="goHome()"><span>←</span> Home</button>
   </div>
   <div class="pp-content">
@@ -2974,26 +2993,26 @@ let mode = 'all', curQs = [], cur = 0;
 ════════════════════════════════════════ */
 const STRAND_ICONS_SVG = {
   'Whole Numbers': '<span style="font-size:20px;font-weight:700;">123</span>',
-  'Decimals, Fractions & Percentages': '<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2 A10 10 0 0 1 22 12 L12 12 Z" fill="#FF6B00"/><path d="M12 12 L12 2 A10 10 0 0 0 4.2 18.2 Z" fill="none" stroke="#FF6B00" stroke-width="2"/></svg>',
-  'Algebraic Thinking': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4.5 12.3c.7.6 1.2 1.5 1.4 2.4.1.4.4.6.8.6h4.6c.4 0 .7-.2.8-.6.2-.9.7-1.8 1.4-2.4A7 7 0 0 0 12 2z"/></svg>',
-  'Geometry': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20 L13 4 L21 20 Z"/></svg>',
-  'Measurement': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8" width="19" height="8" rx="1" transform="rotate(-15 12 12)"/><line x1="7" y1="9" x2="8" y2="12" transform="rotate(-15 12 12)"/><line x1="11" y1="8" x2="12" y2="12" transform="rotate(-15 12 12)"/><line x1="15" y1="9" x2="16" y2="12" transform="rotate(-15 12 12)"/></svg>',
-  'Data Analysis & Prob.': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="13"/><line x1="12" y1="20" x2="12" y2="8"/><line x1="18" y1="20" x2="18" y2="11"/></svg>',
-  'Conjugaison': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>',
-  'Nature des mots': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>',
-  'Fonctions': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="3"/><circle cx="17" cy="17" r="3"/><path d="M9.5 9.5 14.5 14.5"/></svg>',
-  'Accord': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/></svg>',
-  'Types de phrases': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.1 9a3 3 0 0 1 5.82 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r="0.5" fill="#FF6B00"/><circle cx="12" cy="12" r="10"/></svg>',
-  'Homophones grammaticaux': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>',
-  'Sens des mots': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
-  'Formation des mots': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
-  'Champ lexical': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-6l-2-2H5a2 2 0 0 0-2 2z"/></svg>',
-  'Compréhension globale': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
-  'Compréhension détaillée': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>',
-  'Inférences': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 14a4.5 4.5 0 0 1 0-9c2.49 0 4.5 2.01 4.5 4.5"/><path d="M9 18h6"/><path d="M12 18v4"/></svg>',
-  'Vocabulaire en contexte': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-4-1L3 21l1-5a8.5 8.5 0 1 1 17-1z"/></svg>',
-  'Construction de phrases': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>',
-  'Structure du texte': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>',
+  'Decimals, Fractions & Percentages': '<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2 A10 10 0 0 1 22 12 L12 12 Z" fill="currentColor"/><path d="M12 12 L12 2 A10 10 0 0 0 4.2 18.2 Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  'Algebraic Thinking': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4.5 12.3c.7.6 1.2 1.5 1.4 2.4.1.4.4.6.8.6h4.6c.4 0 .7-.2.8-.6.2-.9.7-1.8 1.4-2.4A7 7 0 0 0 12 2z"/></svg>',
+  'Geometry': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20 L13 4 L21 20 Z"/></svg>',
+  'Measurement': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8" width="19" height="8" rx="1" transform="rotate(-15 12 12)"/><line x1="7" y1="9" x2="8" y2="12" transform="rotate(-15 12 12)"/><line x1="11" y1="8" x2="12" y2="12" transform="rotate(-15 12 12)"/><line x1="15" y1="9" x2="16" y2="12" transform="rotate(-15 12 12)"/></svg>',
+  'Data Analysis & Prob.': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="13"/><line x1="12" y1="20" x2="12" y2="8"/><line x1="18" y1="20" x2="18" y2="11"/></svg>',
+  'Conjugaison': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>',
+  'Nature des mots': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>',
+  'Fonctions': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="3"/><circle cx="17" cy="17" r="3"/><path d="M9.5 9.5 14.5 14.5"/></svg>',
+  'Accord': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/></svg>',
+  'Types de phrases': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.1 9a3 3 0 0 1 5.82 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/><circle cx="12" cy="12" r="10"/></svg>',
+  'Homophones grammaticaux': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>',
+  'Sens des mots': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+  'Formation des mots': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+  'Champ lexical': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-6l-2-2H5a2 2 0 0 0-2 2z"/></svg>',
+  'Compréhension globale': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+  'Compréhension détaillée': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>',
+  'Inférences': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 14a4.5 4.5 0 0 1 0-9c2.49 0 4.5 2.01 4.5 4.5"/><path d="M9 18h6"/><path d="M12 18v4"/></svg>',
+  'Vocabulaire en contexte': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-4-1L3 21l1-5a8.5 8.5 0 1 1 17-1z"/></svg>',
+  'Construction de phrases': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>',
+  'Structure du texte': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>',
 };
 
 function loadWorkout() {
@@ -3019,14 +3038,14 @@ function loadWorkout() {
   const strandLabels = Object.fromEntries((QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower']).map(s => [s, s]));
 
   const total = Object.values(strandMap).reduce((s,c) => s+c, 0);
-  statusEl.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="13" y2="15"/></svg> ' + total + ' questions available';
+  statusEl.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--pp-primary);"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="13" y2="15"/></svg> ' + total + ' questions available';
 
   let html = '';
 
   // ── Quick Assessment — highlighted card ──
   html += `
-    <div class="pp-quick-card" onclick="startAssessment()">
-      <div class="pp-quick-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="#FF6B00"/></svg></div>
+    <button class="pp-quick-card" onclick="startAssessment()">
+      <div class="pp-quick-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--pp-primary)"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg></div>
       <div style="flex:1;">
         <div class="pp-quick-title">Quick Assessment</div>
         <div class="pp-quick-sub">20 mixed questions across all topics · Start here!</div>
@@ -3035,13 +3054,13 @@ function loadWorkout() {
         <div class="pp-quick-count">20</div>
         <div class="pp-quick-count-lbl">questions</div>
       </div>
-    </div>`;
+    </button>`;
 
   const assignedQs = ALL_QUESTIONS.filter(q => q.assigned_to === userId());
   if (assignedQs.length > 0) {
     html += `
-      <div class="pp-quick-card purple" onclick="startTutorWorkout()">
-        <div class="pp-quick-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#534AB7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></div>
+      <button class="pp-quick-card purple" onclick="startTutorWorkout()">
+        <div class="pp-quick-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--pp-tutor)"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></div>
         <div style="flex:1;">
           <div class="pp-quick-title">Tutor Questions</div>
           <div class="pp-quick-sub">Assigned by your tutor</div>
@@ -3050,16 +3069,16 @@ function loadWorkout() {
           <div class="pp-quick-count">${assignedQs.length}</div>
           <div class="pp-quick-count-lbl">questions</div>
         </div>
-      </div>`;
+      </button>`;
   }
 
   // ── Topic grid ──
   html += '<div class="pp-topic-grid">';
   strandOrder.filter(s => strandMap[s]).forEach(strand => {
     const count = Math.min(strandMap[strand], 20);
-    const icon  = STRAND_ICONS_SVG[strand] || '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>';
+    const icon  = STRAND_ICONS_SVG[strand] || '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>';
     html += `
-      <div class="pp-topic-card" onclick="startWorkout('${encodeURIComponent(strand)}')">
+      <button class="pp-topic-card" onclick="startWorkout('${encodeURIComponent(strand)}')">
         <div class="pp-topic-icon-circle">${icon}</div>
         <div class="pp-topic-center">
           <div class="pp-topic-title">${strandLabels[strand]}</div>
@@ -3069,7 +3088,7 @@ function loadWorkout() {
           <div class="pp-topic-count">${count}</div>
           <div class="pp-topic-count-lbl">questions</div>
         </div>
-      </div>`;
+      </button>`;
   });
   html += '</div>';
 
@@ -3718,7 +3737,7 @@ function loadDrill() {
   const strandOrder = QA_STRANDS_BY_CURRICULUM[currentCurriculum] || QA_STRANDS_BY_CURRICULUM['isee_lower'];
   const total = Object.values(strandMap).reduce((s,c) => s+c, 0);
 
-  statusEl.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="13" y2="15"/></svg> ' + total + ' questions across ' + Object.keys(strandMap).length + ' topics';
+  statusEl.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--pp-primary);"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="13" y2="15"/></svg> ' + total + ' questions across ' + Object.keys(strandMap).length + ' topics';
 
   // Build strand data for rendering + search
   _drillStrandData = strandOrder.filter(s => strandMap[s]).map(strand => {
