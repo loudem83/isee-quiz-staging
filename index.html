@@ -35,6 +35,12 @@
   --pp-border-subtle:     #F5F5F4;
   --pp-success:           #2EBE60;
   --pp-success-bg:        #EAF8EF;
+  --pp-success-text:      #14532d;
+  --pp-error:             #E24B4A;
+  --pp-error-bg:          #FCEBEB;
+  --pp-error-text:        #7f1d1d;
+  --pp-error-border:      #E24B4A;
+  --pp-amber-text:        #854d0e;
   --pp-accent:            #4A8DFF;
   --pp-accent-bg:         #E6F1FB;
   --pp-amber:             #BA7517;
@@ -79,6 +85,8 @@
   /* ── Typography ── */
   --pp-font-display-size:   36px;
   --pp-font-display-weight: 700;
+  --pp-font-display-xl:     96px;
+  --pp-font-display-lg:     56px;
   --pp-font-h1-size:        32px;
   --pp-font-h1-weight:      700;
   --pp-font-h2-size:        24px;
@@ -1369,6 +1377,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 /* ── Streak computation helpers ── */
 
 
+/* ── Taxonomy badges (inside question card) ── */
+.q-taxonomy-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.q-tax-badge {
+  font-size: var(--pp-font-small-size);
+  font-weight: var(--pp-font-h2-weight);
+  padding: 2px 8px;
+  border-radius: var(--pp-radius-sm);
+}
+.q-tax-badge--strand { background: var(--pp-surface-2); color: var(--pp-text-secondary); }
+.q-tax-badge--dok    { background: var(--pp-surface-warm); color: var(--pp-amber-text); }
+.q-tax-badge--skill  { background: var(--pp-success-bg); color: var(--pp-success-text); }
+
+/* ── Admin QA button ── */
+.q-admin-row { margin-top: var(--pp-space-md); text-align: right; }
+.q-admin-btn {
+  font-size: var(--pp-font-caption-size);
+  font-weight: var(--pp-font-h2-weight);
+  padding: 5px 14px;
+  border-radius: var(--pp-radius-sm);
+  border: 1.5px solid rgba(76,29,149,0.35);
+  background: rgba(76,29,149,0.08);
+  color: var(--pp-tutor);
+  cursor: pointer;
+  min-height: 44px;
+  transition: background var(--pp-transition-fast);
+}
+.q-admin-btn:hover { background: rgba(76,29,149,0.14); }
+
 /* ════════════ QUIZ SCREEN ════════════ */
 #screen-quiz { background: var(--pp-bg); min-height: 100vh; }
 
@@ -1407,7 +1443,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .quiz-header-pill.white {
   background: var(--pp-surface);
   color: var(--pp-primary);
-  box-shadow: 0 4px 14px rgba(0,0,0,0.10);
+  box-shadow: var(--pp-shadow-float);
 }
 .quiz-header-pill.white:hover { box-shadow: var(--pp-shadow-float); }
 .quiz-header-pill:focus-visible { outline: 3px solid white; outline-offset: 3px; }
@@ -1472,7 +1508,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
   align-items: center;
   gap: 5px;
   background: var(--pp-surface-warm);
-  color: #854d0e;
+  color: var(--pp-amber-text);
   border-radius: var(--pp-radius-pill);
   padding: 4px 12px;
   font-size: var(--pp-font-caption-size);
@@ -1503,7 +1539,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .tab {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: var(--pp-radius-sm);
   border: 1.5px solid var(--pp-border);
   background: var(--pp-surface);
   font-size: var(--pp-font-small-size);
@@ -1517,10 +1553,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 }
 .tab:hover { border-color: var(--pp-primary); color: var(--pp-primary); }
 .tab.active { background: var(--pp-primary); border-color: var(--pp-primary); color: white; }
-.tab.correct { background: var(--pp-success-bg); border-color: var(--pp-success); color: #065f46; }
-.tab.wrong { background: #FCEBEB; border-color: #E24B4A; color: #A32D2D; }
+.tab.correct { background: var(--pp-success-bg); border-color: var(--pp-success); color: var(--pp-success-text); }
+.tab.wrong { background: var(--pp-error-bg); border-color: var(--pp-error); color: var(--pp-error-text); }
 .tab.correct.active { background: var(--pp-success); border-color: var(--pp-success); color: white; }
-.tab.wrong.active { background: #E24B4A; border-color: #E24B4A; color: white; }
+.tab.wrong.active { background: var(--pp-error); border-color: var(--pp-error); color: white; }
 .tab:focus-visible { outline: 3px solid var(--pp-primary); outline-offset: 2px; }
 
 /* Question card */
@@ -1551,7 +1587,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 }
 .q-diagram { margin: 10px 0 16px; overflow-x: auto; }
 .dtable { border-collapse: collapse; font-size: var(--pp-font-caption-size); margin: 10px 0; }
-.dtable th { background: var(--pp-surface-warm); color: #854d0e; padding: 7px 14px; border: 1px solid var(--pp-border-accent); font-weight: var(--pp-font-h2-weight); }
+.dtable th { background: var(--pp-surface-warm); color: var(--pp-amber-text); padding: 7px 14px; border: 1px solid var(--pp-border-accent); font-weight: var(--pp-font-h2-weight); }
 .dtable td { padding: 6px 14px; border: 1px solid var(--pp-border); }
 .dtable tr:nth-child(even) td { background: var(--pp-surface-2); }
 
@@ -1594,8 +1630,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 }
 .opt.correct-ans { border-color: var(--pp-success); background: var(--pp-success-bg); }
 .opt.correct-ans .badge { background: var(--pp-success); border-color: var(--pp-success); color: white; }
-.opt.wrong-sel { border-color: #E24B4A; background: #FCEBEB; }
-.opt.wrong-sel .badge { background: #E24B4A; border-color: #E24B4A; color: white; }
+.opt.wrong-sel { border-color: var(--pp-error); background: var(--pp-error-bg); }
+.opt.wrong-sel .badge { background: var(--pp-error); border-color: var(--pp-error); color: white; }
 .hint-crossed { text-decoration: line-through; opacity: 0.35; pointer-events: none; }
 
 /* Hint bar */
@@ -1605,22 +1641,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
   justify-content: space-between;
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid #F5F5F4;
-  min-height: 36px;
+  border-top: 1px solid var(--pp-border-subtle);
+  min-height: 44px;
 }
 .hint-btn {
   background: var(--pp-surface-warm);
-  color: #854d0e;
+  color: var(--pp-amber-text);
   border: 1.5px solid var(--pp-border-accent);
-  border-radius: 10px;
+  border-radius: var(--pp-radius-sm);
   padding: 6px 14px;
   font-size: var(--pp-font-caption-size);
   font-weight: var(--pp-font-h2-weight);
   cursor: pointer;
   transition: background var(--pp-transition-fast);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .hint-btn:hover { background: var(--pp-border-accent); }
 .hint-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.hint-cost { opacity: 0.7; font-size: var(--pp-font-small-size); }
 .hint-used { font-size: var(--pp-font-small-size); color: var(--pp-text-muted); }
 
 /* Feedback */
@@ -1633,8 +1674,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
   display: none;
 }
 .feedback.show { display: block; }
-.feedback.correct { background: var(--pp-success-bg); border: 1.5px solid var(--pp-success); color: #14532d; }
-.feedback.incorrect { background: #FCEBEB; border: 1.5px solid #E24B4A; color: #7f1d1d; }
+.feedback.correct { background: var(--pp-success-bg); border: 1.5px solid var(--pp-success); color: var(--pp-success-text); }
+.feedback.incorrect { background: var(--pp-error-bg); border: 1.5px solid var(--pp-error); color: var(--pp-error-text); }
 .fb-title { font-weight: 700; margin-bottom: 4px; font-size: var(--pp-font-body-size); }
 
 /* Nav buttons */
@@ -1684,14 +1725,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
   letter-spacing: .04em;
 }
 #workout-countdown .cd-number {
-  font-size: 96px;
+  font-size: var(--pp-font-display-xl);
   font-weight: var(--pp-font-h1-weight);
   color: var(--pp-surface);
   line-height: 1;
   animation: cdPop 0.4s ease;
 }
 #workout-countdown .cd-go {
-  font-size: 56px;
+  font-size: var(--pp-font-display-lg);
   font-weight: var(--pp-font-h1-weight);
   color: var(--pp-surface);
   animation: cdPop 0.4s ease;
@@ -1727,7 +1768,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 /* Streak badge */
 #streak-badge {
   position: fixed;
-  top: 88px;
+  top: calc(80px + var(--pp-space-sm));
   right: 16px;
   background: var(--pp-primary-gradient);
   color: white;
@@ -1736,14 +1777,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
   font-size: var(--pp-font-body-size);
   font-weight: var(--pp-font-h1-weight);
   z-index: 98;
-  transition: all 0.3s;
+  transition: all var(--pp-transition-medium);
   transform: scale(0);
   opacity: 0;
   box-shadow: var(--pp-shadow-btn);
 }
 #streak-badge.show { transform: scale(1); opacity: 1; }
 
-/* Milestone banner */
+/* Milestone banner — C032 */
 #milestone-banner {
   position: fixed;
   top: 0;
@@ -1752,12 +1793,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
   background: var(--pp-primary-gradient-hdr);
   color: white;
   text-align: center;
-  padding: 14px;
+  padding: var(--pp-space-md);
   font-size: var(--pp-font-body-size);
   font-weight: var(--pp-font-h1-weight);
   z-index: 100;
   transform: translateY(-100%);
-  transition: transform 0.4s ease;
+  transition: transform var(--pp-transition-medium);
 }
 #milestone-banner.show { transform: translateY(0); }
 
@@ -1774,17 +1815,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
   padding: 2rem;
   text-align: center;
 }
-#workout-end .we-emoji { font-size: 5rem; margin-bottom: 16px; }
+#workout-end .we-emoji { font-size: 80px; margin-bottom: var(--pp-space-md); }
 #workout-end .we-title {
   font-size: var(--pp-font-h2-size);
   font-weight: var(--pp-font-h1-weight);
   color: var(--pp-text);
   margin-bottom: 6px;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 #workout-end .we-sub {
   font-size: var(--pp-font-body-size);
   color: var(--pp-text-secondary);
-  margin-bottom: 24px;
+  margin-bottom: var(--pp-space-lg);
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 #workout-end .we-stats {
   display: grid;
@@ -4128,7 +4173,7 @@ function renderQ() {
     <div class="hint-bar">
       <span class="hint-used">${hintsUsed > 0 ? `💡 ${hintsUsed}/2 hint${hintsUsed>1?'s':''} used` : ''}</span>
       ${canHint
-        ? `<button class="hint-btn" onclick="useHint('${key}')">💡 Use hint <span style="opacity:0.7;font-size:0.75rem;">(−${HINT_COST} pts)</span></button>`
+        ? `<button class="hint-btn" onclick="useHint('${key}')">💡 Use hint <span class="hint-cost">(−${HINT_COST} pts)</span></button>`
         : hintsUsed >= 2
           ? `<span class="hint-used">Max hints used</span>`
           : `<span class="hint-used" title="Need ${HINT_COST} pts to use a hint">💡 Need ${HINT_COST} pts for hint</span>`
@@ -4140,11 +4185,11 @@ function renderQ() {
   document.getElementById('q-area').innerHTML = `
     <div class="q-card">
       <div class="q-meta ${q.sec.toLowerCase()}">${q.n} — ${q.sec === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning'}</div>
-      ${(()=>{ const tax = TAXONOMY[q.n]; return tax ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;"><span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;">${tax.strand}</span><span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#fef9c3;color:#92400e;font-weight:600;">DoK ${tax.dok}</span>${tax.skill ? `<span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:#f0fdf4;color:#065f46;font-weight:600;">${tax.skill}</span>` : ''}</div>` : ''; })()}
+      ${(()=>{ const tax = TAXONOMY[q.n]; return tax ? `<div class="q-taxonomy-row"><span class="q-tax-badge q-tax-badge--strand">${tax.strand}</span><span class="q-tax-badge q-tax-badge--dok">DoK ${tax.dok}</span>${tax.skill ? `<span class="q-tax-badge q-tax-badge--skill">${tax.skill}</span>` : ''}</div>` : ''; })()}
       <div class="q-text">${formatText(q.text)}</div>${diag}
       <div class="options">${opts}</div>${fb}
-      <div style="margin-top:0.75rem;text-align:right;">
-        <button onclick="pushToQA('${q.n}')" style="font-size:0.8rem;padding:5px 14px;border-radius:8px;border:1.5px solid #c4b5fd;background:#f5f3ff;color:#4c1d95;cursor:pointer;font-weight:600;">✏️ Push to QA</button>
+      <div class="q-admin-row">
+        <button onclick="pushToQA('${q.n}')" class="q-admin-btn">✏️ Push to QA</button>
       </div>
       ${hintBarHtml}
     </div>`;
