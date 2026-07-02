@@ -566,8 +566,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
   cursor: pointer;
   border: 2px solid transparent;
   transition: transform var(--pp-transition-fast), box-shadow var(--pp-transition-fast), border-color var(--pp-transition-fast);
-  text-align: left;
-  width: 100%;
 }
 .drill-topic-card:hover { transform: translateY(-4px); box-shadow: var(--pp-shadow-hover); }
 .drill-topic-card.expanded {
@@ -3892,7 +3890,7 @@ function renderDrillCards(expandedStrand) {
       : `<div class="drill-explore-row"><button class="drill-explore-btn" onclick="toggleDrillCard('${safe}');event.stopPropagation();">Explore ›</button></div>`;
 
     html += `
-      <button class="drill-topic-card${isExpanded ? ' expanded' : ''}" onclick="toggleDrillCard('${safe}')">
+      <div class="drill-topic-card${isExpanded ? ' expanded' : ''}" role="button" tabindex="0" onclick="toggleDrillCard('${safe}')" onkeydown="if(event.key==='Enter'||event.key===' ')toggleDrillCard('${safe}')">
         <div class="drill-card-top">
           <div class="drill-card-left">
             <div class="pp-topic-icon-circle${strand === 'Whole Numbers' ? ' pp-topic-icon-circle--text' : ''}">${icon}</div>
@@ -3905,7 +3903,7 @@ function renderDrillCards(expandedStrand) {
         </div>
         ${skillsHtml}
         ${cta}
-      </button>`;
+      </div>`;
   });
 
   html += '</div>';
