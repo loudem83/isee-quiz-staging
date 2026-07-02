@@ -633,12 +633,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
   flex-shrink: 0;
   white-space: nowrap;
 }
+.drill-skill-row--empty {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0;
+}
 .drill-more {
   font-size: var(--pp-font-small-size);
-  color: var(--pp-text-muted);
+  color: var(--pp-primary);
+  font-weight: var(--pp-font-h2-weight);
   margin-top: var(--pp-space-sm);
   border-top: 1px solid var(--pp-border-subtle);
   padding-top: var(--pp-space-sm);
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: color var(--pp-transition-fast);
+}
+.drill-more:hover { color: var(--pp-primary-dark); }
+.drill-more--spacer {
+  color: transparent;
+  pointer-events: none;
+  cursor: default;
 }
 .drill-explore-row { display: flex; justify-content: flex-end; margin-top: 14px; }
 .drill-explore-btn {
@@ -3855,12 +3875,12 @@ function renderDrillCards(expandedStrand) {
   if (!contentEl) return;
 
   let html = '<div class="drill-topic-grid">';
+  const PREVIEW = 4;
 
   _drillStrandData.forEach(({ strand, count, skills }) => {
     const isExpanded = strand === expandedStrand;
-    const icon = STRAND_ICONS_SVG[strand] || '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>';
+    const icon = STRAND_ICONS_SVG[strand] || '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>';
     const safe = encodeURIComponent(strand);
-    const PREVIEW = 4;
 
     let skillsHtml = '';
     if (isExpanded) {
@@ -3880,14 +3900,22 @@ function renderDrillCards(expandedStrand) {
           <span class="drill-skill-num">${s.count}</span>
         </button>`;
       }).join('');
+      // Pad to exactly PREVIEW rows so all cards are the same height
+      for (let i = preview.length; i < PREVIEW; i++) {
+        skillsHtml += `<div class="drill-skill-row drill-skill-row--empty" aria-hidden="true"><span class="drill-skill-name">&nbsp;</span></div>`;
+      }
+      // "+ N more" clickable to expand; spacer if none
       if (skills.length > PREVIEW) {
-        skillsHtml += `<div class="drill-more">+ ${skills.length - PREVIEW} more strand${skills.length - PREVIEW > 1 ? 's' : ''}</div>`;
+        const more = skills.length - PREVIEW;
+        skillsHtml += `<button class="drill-more" onclick="toggleDrillCard('${safe}');event.stopPropagation();">+ ${more} more strand${more > 1 ? 's' : ''} — tap to expand</button>`;
+      } else {
+        skillsHtml += `<div class="drill-more drill-more--spacer" aria-hidden="true">&nbsp;</div>`;
       }
     }
 
     const cta = isExpanded
       ? `<button class="drill-start-btn" onclick="startDrillStrand('${safe}');event.stopPropagation();">Start Drill in ${strand} ›</button>`
-      : `<div class="drill-explore-row"><button class="drill-explore-btn" onclick="toggleDrillCard('${safe}');event.stopPropagation();">Explore ›</button></div>`;
+      : `<div class="drill-explore-row"><button class="drill-explore-btn" onclick="startDrillStrand('${safe}');event.stopPropagation();">Start ›</button></div>`;
 
     html += `
       <div class="drill-topic-card${isExpanded ? ' expanded' : ''}" role="button" tabindex="0" onclick="toggleDrillCard('${safe}')" onkeydown="if(event.key==='Enter'||event.key===' ')toggleDrillCard('${safe}')">
@@ -3940,6 +3968,7 @@ function renderDrillCards(expandedStrand) {
 
   contentEl.innerHTML = html;
 }
+
 
 function toggleDrillCard(safeStrand) {
   const strand = decodeURIComponent(safeStrand);
