@@ -126,7 +126,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .student-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.08);}
 .student-avatar{width:42px;height:42px;border-radius:50%;background:#ddd6fe;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
 .student-info{flex:1;}
-.student-name{font-size:0.95rem;font-weight:600;color:#1a3a5c;}
+.student-name{font-size:0.95rem;font-weight:600;color:var(--pp-text);}
 .student-email{font-size:0.78rem;color:#94a3b8;margin-top:2px;}
 .student-stats{font-size:0.78rem;color:#64748b;margin-top:3px;}
 .student-arrow{font-size:1.1rem;color:#94a3b8;}
@@ -134,24 +134,142 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .tutor-banner button{background:rgba(255,255,255,0.2);border:none;color:white;padding:3px 10px;border-radius:5px;font-size:0.75rem;cursor:pointer;}
 
 
-#screen-login{align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1a3a5c 0%,#0f6e56 100%);}
+
 #screen-login.active{display:flex;}
-.login-card{background:white;border-radius:18px;padding:2.5rem 2rem;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.25);}
-.login-logo{text-align:center;margin-bottom:1.5rem;}
-.login-logo .emoji{font-size:3rem;}
-.login-logo h1{font-size:1.4rem;font-weight:700;color:#1a3a5c;margin-top:0.5rem;}
-.login-logo p{font-size:0.85rem;color:#64748b;margin-top:0.25rem;}
-.login-field{margin-bottom:1rem;}
-.login-field label{display:block;font-size:0.8rem;font-weight:600;color:#475569;margin-bottom:5px;}
-.login-field input{width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:0.95rem;color:#1a3a5c;outline:none;transition:border-color .2s;}
-.login-field input:focus{border-color:#1a3a5c;}
-.login-btn{width:100%;padding:12px;background:#1a3a5c;color:white;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.5rem;transition:background .2s;}
-.login-btn:hover{background:#0f2a48;}
-.login-btn:disabled{opacity:0.6;cursor:not-allowed;}
-.login-error{background:#fee2e2;color:#991b1b;border-radius:8px;padding:10px 14px;font-size:0.85rem;margin-top:0.75rem;display:none;}
-.login-user-info{display:flex;align-items:center;justify-content:space-between;background:#f0f4f9;border-radius:10px;padding:8px 14px;margin-bottom:1rem;}
-.login-user-info span{font-size:0.85rem;color:#475569;}
-.logout-btn{background:none;border:none;color:#64748b;font-size:0.8rem;cursor:pointer;text-decoration:underline;}
+/* ── Login screen ── */
+#screen-login {
+  background: var(--pp-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--pp-space-lg);
+}
+.login-wrapper {
+  width: 100%;
+  max-width: 420px;
+}
+.login-hero {
+  background: var(--pp-primary-gradient-hdr);
+  border-radius: var(--pp-radius-xl) var(--pp-radius-xl) 0 0;
+  padding: var(--pp-space-xl) var(--pp-space-lg) var(--pp-space-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.login-hero svg {
+  width: 120px;
+  height: 120px;
+  display: block;
+}
+.login-hero-title {
+  font-size: var(--pp-font-h1-size);
+  font-weight: var(--pp-font-h1-weight);
+  color: var(--pp-surface);
+  letter-spacing: -.3px;
+}
+.login-hero-sub {
+  font-size: var(--pp-font-caption-size);
+  font-weight: var(--pp-font-caption-weight);
+  color: rgba(255,255,255,0.85);
+}
+.login-card {
+  background: var(--pp-surface);
+  border-radius: 0 0 var(--pp-radius-xl) var(--pp-radius-xl);
+  padding: 28px var(--pp-space-lg) var(--pp-space-xl);
+  box-shadow: var(--pp-shadow-card);
+  width: 100%;
+  max-width: 420px;
+}
+.login-user-bar-inner {
+  background: var(--pp-surface-2);
+  border: 1.5px solid var(--pp-border);
+  border-radius: var(--pp-radius-lg);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--pp-space-md);
+}
+.login-user-bar-inner span {
+  font-size: var(--pp-font-caption-size);
+  color: var(--pp-text-secondary);
+}
+.login-user-bar-inner strong { color: var(--pp-text); }
+.login-switch-btn {
+  background: none;
+  border: 1.5px solid var(--pp-border);
+  color: var(--pp-text-secondary);
+  font-size: var(--pp-font-small-size);
+  padding: 4px 12px;
+  border-radius: var(--pp-radius-pill);
+  cursor: pointer;
+  transition: background var(--pp-transition-fast);
+}
+.login-switch-btn:hover { background: var(--pp-surface-2); }
+.login-field { margin-bottom: var(--pp-space-md); }
+.login-field label {
+  display: block;
+  font-size: var(--pp-font-caption-size);
+  font-weight: var(--pp-font-caption-weight);
+  color: var(--pp-text-secondary);
+  margin-bottom: 6px;
+}
+.login-field input {
+  width: 100%;
+  height: 52px;
+  padding: 0 16px;
+  border: 1.5px solid var(--pp-border);
+  border-radius: var(--pp-radius-lg);
+  font-size: var(--pp-font-body-size);
+  color: var(--pp-text);
+  outline: none;
+  background: var(--pp-surface);
+  transition: border-color var(--pp-transition-fast), box-shadow var(--pp-transition-fast);
+}
+.login-field input::placeholder { color: var(--pp-text-muted); }
+.login-field input:focus {
+  border-color: var(--pp-primary);
+  box-shadow: 0 0 0 3px rgba(255,107,0,0.12);
+}
+.login-btn {
+  width: 100%;
+  height: 52px;
+  border-radius: var(--pp-radius-lg);
+  border: none;
+  background: var(--pp-primary-gradient);
+  color: var(--pp-surface);
+  font-size: var(--pp-font-body-size);
+  font-weight: var(--pp-font-h1-weight);
+  cursor: pointer;
+  margin-top: var(--pp-space-sm);
+  box-shadow: var(--pp-shadow-btn);
+  transition: box-shadow var(--pp-transition-fast), transform var(--pp-transition-fast);
+}
+.login-btn:hover { box-shadow: var(--pp-shadow-btn-hover); transform: translateY(-1px); }
+.login-btn:active { transform: scale(0.98); }
+.login-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.login-btn:focus-visible { outline: 3px solid var(--pp-primary); outline-offset: 3px; }
+.login-error {
+  background: var(--pp-error-bg);
+  color: var(--pp-error-text);
+  border-radius: var(--pp-radius-md);
+  padding: 12px 16px;
+  font-size: var(--pp-font-caption-size);
+  margin-top: var(--pp-space-sm);
+  display: none;
+}
+
+/* Cat animations — scoped to login hero */
+.cat-root { animation: sway 3.5s ease-in-out infinite; transform-origin: 90px 140px; }
+@keyframes sway { 0%,100%{transform:rotate(0deg) translateY(0px);} 25%{transform:rotate(1.5deg) translateY(-2px);} 75%{transform:rotate(-1.5deg) translateY(-2px);} }
+.eyelid-left,.eyelid-right { transform-origin: center 82px; animation: blink 4s ease-in-out infinite; }
+@keyframes blink { 0%,88%,100%{transform:scaleY(0);} 92%,96%{transform:scaleY(1);} }
+.ear-left { animation: ear-twitch 6s ease-in-out infinite; transform-origin: 60px 68px; }
+@keyframes ear-twitch { 0%,80%,100%{transform:rotate(0deg);} 85%{transform:rotate(-6deg);} 90%{transform:rotate(2deg);} 95%{transform:rotate(-3deg);} }
+.mouth { animation: mouth-move 3.5s ease-in-out infinite; transform-origin: 90px 125px; }
+@keyframes mouth-move { 0%,100%{transform:scaleX(1) scaleY(1);} 25%{transform:scaleX(1.1) scaleY(1.3);} 75%{transform:scaleX(0.9) scaleY(0.8);} }
 
 
 /* TOP BAR */
@@ -1986,30 +2104,66 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 
 <!-- SCREEN 0: LOGIN -->
 <div id="screen-login" class="screen active">
-  <div class="login-card">
-    <div class="login-logo">
-      <div class="emoji">📐</div>
-      <h1>I see it</h1>
-      <p>ISEE Maths Practice — Sign in to continue</p>
+  <div class="login-wrapper">
+    <div class="login-hero">
+      <svg class="login-cat-svg" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mochi the cat" style="width:120px;height:120px;display:block;">
+        <rect x="10" y="10" width="160" height="160" rx="36" fill="rgba(255,255,255,0.22)"/>
+
+  <g class="cat-root">
+    <ellipse cx="90" cy="102" rx="54" ry="52" fill="#FF8C00"/>
+    <ellipse cx="90" cy="102" rx="54" ry="52" fill="none" stroke="#3d1f00" stroke-width="3.5"/>
+    <path d="M78 142 Q86 151 90 153 Q94 151 102 142" fill="none" stroke="#c46000" stroke-width="1.4" stroke-linecap="round"/>
+    <path d="M83 145 Q90 155 97 145" fill="none" stroke="#c46000" stroke-width="1.1" stroke-linecap="round"/>
+    <g class="ear-left">
+      <polygon points="48,68 30,28 74,56" fill="#FF8C00" stroke="#3d1f00" stroke-width="3.2" stroke-linejoin="round"/>
+      <polygon points="48,68 36,34 68,58" fill="#FFBA5A"/>
+    </g>
+    <polygon points="132,68 150,28 106,56" fill="#FF8C00" stroke="#3d1f00" stroke-width="3.2" stroke-linejoin="round"/>
+    <polygon points="132,68 144,34 112,58" fill="#FFBA5A"/>
+    <ellipse cx="72" cy="98" rx="15" ry="16" fill="white" stroke="#3d1f00" stroke-width="2.5"/>
+    <ellipse cx="108" cy="98" rx="15" ry="16" fill="white" stroke="#3d1f00" stroke-width="2.5"/>
+    <circle cx="75" cy="100" r="9" fill="#3d1f00"/>
+    <circle cx="79" cy="96" r="3" fill="white"/>
+    <circle cx="111" cy="100" r="9" fill="#3d1f00"/>
+    <circle cx="115" cy="96" r="3" fill="white"/>
+    <rect class="eyelid-left"  x="57" y="82" width="30" height="34" rx="3" fill="#FF8C00"/>
+    <rect class="eyelid-right" x="93" y="82" width="30" height="34" rx="3" fill="#FF8C00"/>
+    <ellipse cx="72" cy="98" rx="15" ry="16" fill="none" stroke="#3d1f00" stroke-width="2.5"/>
+    <ellipse cx="108" cy="98" rx="15" ry="16" fill="none" stroke="#3d1f00" stroke-width="2.5"/>
+    <ellipse cx="90" cy="116" rx="5.5" ry="4" fill="#ff6b6b" stroke="#3d1f00" stroke-width="1.5"/>
+    <path class="mouth" d="M81 122 Q90 130 99 122" fill="none" stroke="#3d1f00" stroke-width="2" stroke-linecap="round"/>
+    <line x1="36" y1="114" x2="78" y2="118" stroke="#3d1f00" stroke-width="1.4" stroke-linecap="round"/>
+    <line x1="36" y1="121" x2="78" y2="121" stroke="#3d1f00" stroke-width="1.4" stroke-linecap="round"/>
+    <line x1="102" y1="118" x2="144" y2="114" stroke="#3d1f00" stroke-width="1.4" stroke-linecap="round"/>
+    <line x1="102" y1="121" x2="144" y2="121" stroke="#3d1f00" stroke-width="1.4" stroke-linecap="round"/>
+    <path d="M74 56 Q78 48 82 56" fill="none" stroke="#c46000" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M84 53 Q88 44 92 53" fill="none" stroke="#c46000" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M100 56 Q104 48 108 56" fill="none" stroke="#c46000" stroke-width="1.8" stroke-linecap="round"/>
+  </g>
+      </svg>
+      <div class="login-hero-title">Primary Practice</div>
+      <div class="login-hero-sub">Sign in to continue</div>
     </div>
-    <div id="login-user-bar" style="display:none;margin-bottom:1rem;">
-      <div style="background:#f0f4f9;border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:0.85rem;color:#475569;">Signed in as <strong id="login-user-email"></strong></span>
-        <button onclick="signOut()" style="background:none;border:1px solid #cbd5e1;color:#64748b;font-size:0.78rem;padding:3px 10px;border-radius:6px;cursor:pointer;">Switch account</button>
+    <div class="login-card">
+      <div id="login-user-bar" style="display:none;">
+        <div class="login-user-bar-inner">
+          <span>Signed in as <strong id="login-user-email"></strong></span>
+          <button class="login-switch-btn" onclick="signOut()">Switch account</button>
+        </div>
       </div>
-    </div>
-    <div id="login-form">
-      <div class="login-field">
-        <label>Email</label>
-        <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email"/>
+      <div id="login-form">
+        <div class="login-field">
+          <label>Email</label>
+          <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email"/>
+        </div>
+        <div class="login-field">
+          <label>Password</label>
+          <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"
+            onkeydown="if(event.key==='Enter') doLogin()"/>
+        </div>
+        <button class="login-btn" id="login-btn" onclick="doLogin()">Sign in →</button>
+        <div class="login-error" id="login-error"></div>
       </div>
-      <div class="login-field">
-        <label>Password</label>
-        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"
-          onkeydown="if(event.key==='Enter') doLogin()"/>
-      </div>
-      <button class="login-btn" id="login-btn" onclick="doLogin()">Sign in →</button>
-      <div class="login-error" id="login-error"></div>
     </div>
   </div>
 </div>
