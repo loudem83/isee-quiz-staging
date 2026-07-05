@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head> 
+<head>
 <meta charset="UTF-8">
 <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
@@ -2806,8 +2806,10 @@ function openCatChat() {
   const childName = window.currentChildName || 'friend';
   const catName   = 'Mochi';
 
-  document.getElementById('catCardName').textContent       = catName;
-  document.getElementById('catChatHeaderName').textContent = catName;
+  const cardNameEl = document.getElementById('catCardName');
+  if (cardNameEl) cardNameEl.textContent = catName;
+  const headerNameEl = document.getElementById('catChatHeaderName');
+  if (headerNameEl) headerNameEl.textContent = catName;
 
   catChatHistory   = [];
   catChatExchanges = 0;
