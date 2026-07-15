@@ -3999,12 +3999,20 @@ function renderDrillCards(expandedStrand) {
       }
     }
 
+    // If no skills, clicking card launches directly — same as maths skill click
+    const hasSkills = skills.length > 0;
+    const cardOnClick = hasSkills
+      ? `toggleDrillCard('${safe}')`
+      : `startDrillStrand('${safe}')`;
+
     const cta = isExpanded
       ? `<button class="drill-start-btn" onclick="startDrillStrand('${safe}');event.stopPropagation();">Start Drill in ${strand} ›</button>`
-      : `<div class="drill-explore-row"><button class="drill-explore-btn" onclick="startDrillStrand('${safe}');event.stopPropagation();">Start ›</button></div>`;
+      : hasSkills
+        ? `<div class="drill-explore-row"><button class="drill-explore-btn" onclick="startDrillStrand('${safe}');event.stopPropagation();">Start ›</button></div>`
+        : `<div class="drill-explore-row"><button class="drill-explore-btn" onclick="startDrillStrand('${safe}');event.stopPropagation();">Start ›</button></div>`;
 
     html += `
-      <div class="drill-topic-card${isExpanded ? ' expanded' : ''}" role="button" tabindex="0" onclick="toggleDrillCard('${safe}')" onkeydown="if(event.key==='Enter'||event.key===' ')toggleDrillCard('${safe}')">
+      <div class="drill-topic-card${isExpanded ? ' expanded' : ''}" role="button" tabindex="0" onclick="${cardOnClick}" onkeydown="if(event.key==='Enter'||event.key===' ')${cardOnClick}">
         <div class="drill-card-top">
           <div class="drill-card-left">
             <div class="pp-topic-icon-circle${strand === 'Whole Numbers' ? ' pp-topic-icon-circle--text' : ''}">${icon}</div>
@@ -4013,7 +4021,7 @@ function renderDrillCards(expandedStrand) {
               <div class="drill-card-count">${count} questions</div>
             </div>
           </div>
-          <div class="drill-chevron">${isExpanded ? '∧' : '›'}</div>
+          <div class="drill-chevron">${hasSkills ? (isExpanded ? '∧' : '›') : '▶'}</div>
         </div>
         ${skillsHtml}
         ${cta}
@@ -4085,6 +4093,8 @@ function startDrillStrand(safeStrand) {
     return tax && tax.strand === strand;
   });
   if (pool.length === 0) { alert('No questions found for this topic.'); return; }
+  // Clear previous answers so questions appear fresh
+  pool.forEach(q => { const k = String(q.n); delete chosen[k]; delete statuses[k]; delete hintedOptions[k]; });
   mode = 'drill';
   curQs = pool;
   cur = 0;
