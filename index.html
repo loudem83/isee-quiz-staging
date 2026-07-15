@@ -3969,12 +3969,14 @@ function renderDrillCards(expandedStrand) {
     const isExpanded = strand === expandedStrand;
     const icon = STRAND_ICONS_SVG[strand] || '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>';
     const safe = encodeURIComponent(strand);
+    const hasSkills = skills.length > 0;
 
+    // Skill rows — use data attributes to avoid quote issues with French text
     let skillsHtml = '';
     if (isExpanded) {
       skillsHtml = skills.map(s => {
         const sk = encodeURIComponent(strand + '|||' + s.skill);
-        return `<button class="drill-skill-row" onclick="startDrillSkill('${sk}');event.stopPropagation();">
+        return `<button class="drill-skill-row" data-sk="${sk}" onclick="startDrillSkill(this.dataset.sk);event.stopPropagation();">
           <span class="drill-skill-name">${s.skill}</span>
           <span class="drill-skill-num">${s.count}</span>
         </button>`;
@@ -3983,38 +3985,31 @@ function renderDrillCards(expandedStrand) {
       const preview = skills.slice(0, PREVIEW);
       skillsHtml = preview.map(s => {
         const sk = encodeURIComponent(strand + '|||' + s.skill);
-        return `<button class="drill-skill-row" onclick="startDrillSkill('${sk}');event.stopPropagation();">
+        return `<button class="drill-skill-row" data-sk="${sk}" onclick="startDrillSkill(this.dataset.sk);event.stopPropagation();">
           <span class="drill-skill-name">${s.skill}</span>
           <span class="drill-skill-num">${s.count}</span>
         </button>`;
       }).join('');
-      // Pad to exactly PREVIEW rows so all cards are the same height
       for (let i = preview.length; i < PREVIEW; i++) {
         skillsHtml += `<div class="drill-skill-row drill-skill-row--empty" aria-hidden="true"><span class="drill-skill-name">&nbsp;</span></div>`;
       }
-      // "+ N more" clickable to expand; spacer if none
       if (skills.length > PREVIEW) {
         const more = skills.length - PREVIEW;
-        skillsHtml += `<button class="drill-more" onclick="toggleDrillCard('${safe}');event.stopPropagation();">+ ${more} more strand${more > 1 ? 's' : ''} — tap to expand</button>`;
+        skillsHtml += `<button class="drill-more" data-strand="${safe}" onclick="toggleDrillCard(this.dataset.strand);event.stopPropagation();">+ ${more} more strand${more > 1 ? 's' : ''} — tap to expand</button>`;
       } else {
         skillsHtml += `<div class="drill-more drill-more--spacer" aria-hidden="true">&nbsp;</div>`;
       }
     }
 
-    // If no skills, clicking card launches directly — same as maths skill click
-    const hasSkills = skills.length > 0;
-    const cardOnClick = hasSkills
-      ? `toggleDrillCard('${safe}')`
-      : `startDrillStrand('${safe}')`;
-
+    // CTA — use data attributes
     const cta = isExpanded
-      ? `<button class="drill-start-btn" onclick="startDrillStrand('${safe}');event.stopPropagation();">Start Drill in ${strand} ›</button>`
-      : hasSkills
-        ? `<div class="drill-explore-row"><button class="drill-explore-btn" onclick="startDrillStrand('${safe}');event.stopPropagation();">Start ›</button></div>`
-        : `<div class="drill-explore-row"><button class="drill-explore-btn" onclick="startDrillStrand('${safe}');event.stopPropagation();">Start ›</button></div>`;
+      ? `<button class="drill-start-btn" data-strand="${safe}" onclick="startDrillStrand(this.dataset.strand);event.stopPropagation();">Start Drill in ${strand} ›</button>`
+      : `<div class="drill-explore-row"><button class="drill-explore-btn" data-strand="${safe}" onclick="startDrillStrand(this.dataset.strand);event.stopPropagation();">Start ›</button></div>`;
 
     html += `
-      <div class="drill-topic-card${isExpanded ? ' expanded' : ''}" role="button" tabindex="0" onclick="${cardOnClick}" onkeydown="if(event.key==='Enter'||event.key===' ')${cardOnClick}">
+      <div class="drill-topic-card${isExpanded ? ' expanded' : ''}" role="button" tabindex="0"
+        data-strand="${safe}" data-hasskills="${hasSkills}"
+        onclick="drillCardClick(this)" onkeydown="if(event.key==='Enter'||event.key===' ')drillCardClick(this)">
         <div class="drill-card-top">
           <div class="drill-card-left">
             <div class="pp-topic-icon-circle${strand === 'Whole Numbers' ? ' pp-topic-icon-circle--text' : ''}">${icon}</div>
@@ -4029,8 +4024,6 @@ function renderDrillCards(expandedStrand) {
         ${cta}
       </div>`;
   });
-
-  html += '</div>';
 
   // Quick Assessment Banner
   html += `
@@ -4065,6 +4058,16 @@ function renderDrillCards(expandedStrand) {
   contentEl.innerHTML = html;
 }
 
+
+function drillCardClick(el) {
+  const safe     = el.dataset.strand;
+  const hasSkills = el.dataset.hasskills === 'true';
+  if (hasSkills) {
+    toggleDrillCard(safe);
+  } else {
+    startDrillStrand(safe);
+  }
+}
 
 function toggleDrillCard(safeStrand) {
   const strand = decodeURIComponent(safeStrand);
