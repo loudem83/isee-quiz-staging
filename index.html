@@ -2684,6 +2684,7 @@ function setCurriculum(c) {
   updateCatAvatar();
   // Reload question bank with new filter
   ALL_QUESTIONS = [];
+  Object.keys(TAXONOMY).forEach(k => delete TAXONOMY[k]);
   Object.keys(chosen).forEach(k => delete chosen[k]);
   Object.keys(statuses).forEach(k => delete statuses[k]);
   fetchQuestionBank();
@@ -3950,6 +3951,7 @@ function loadDrill() {
     const skills = Object.values(skillMap)
       .filter(s => s.strand === strand)
       .sort((a,b) => a.skill.localeCompare(b.skill));
+    console.log(`[Drill] ${strand}: ${skills.length} skills`, skills.map(s => s.skill));
     return { strand, count: strandMap[strand], skills };
   });
 
@@ -5503,8 +5505,8 @@ async function fetchQuestionBank() {
 
     // Populate TAXONOMY from Supabase rows
     rows.forEach(r => {
-      if (r.strand && r.dok) {
-        TAXONOMY[r.question_id] = { strand: r.strand, dok: r.dok, skill: r.skill || null };
+      if (r.strand) {
+        TAXONOMY[r.question_id] = { strand: r.strand, dok: r.dok || null, skill: r.skill || null };
       }
     });
 
