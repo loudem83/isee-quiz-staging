@@ -4009,7 +4009,7 @@ function renderDrillCards(expandedStrand) {
     html += `
       <div class="drill-topic-card${isExpanded ? ' expanded' : ''}" role="button" tabindex="0"
         data-strand="${safe}" data-hasskills="${hasSkills}"
-        onclick="drillCardClick(this)" onkeydown="if(event.key==='Enter'||event.key===' ')drillCardClick(this)">
+        onclick="drillCardClick(this)" onkeydown="drillCardKeydown(event,this)">
         <div class="drill-card-top">
           <div class="drill-card-left">
             <div class="pp-topic-icon-circle${strand === 'Whole Numbers' ? ' pp-topic-icon-circle--text' : ''}">${icon}</div>
@@ -4058,6 +4058,10 @@ function renderDrillCards(expandedStrand) {
   contentEl.innerHTML = html;
 }
 
+
+function drillCardKeydown(e, el) {
+  if (e.key === 'Enter' || e.key === ' ') drillCardClick(el);
+}
 
 function drillCardClick(el) {
   const safe     = el.dataset.strand;
@@ -4482,7 +4486,7 @@ async function updateDash() {
       boostEl.innerHTML = weakSkills.map(s => {
         const col = s.pct < 50 ? '#E24B4A' : s.pct < 80 ? '#BA7517' : '#639922';
         const safeSkillKey = encodeURIComponent((s.strand||'') + '|||' + s.skill);
-        return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-top:0.5px solid #f1f5f9;cursor:pointer;" onclick="startDrillSkill('${safeSkillKey}', true)">
+        return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-top:0.5px solid #f1f5f9;cursor:pointer;" data-sk="${safeSkillKey}" onclick="startDrillSkill(this.dataset.sk, true)">
           <div style="width:8px;height:8px;border-radius:50%;background:${col};flex-shrink:0;"></div>
           <div style="font-size:0.82rem;color:#334155;flex:1;">${s.skill}</div>
           <div style="font-size:0.75rem;font-weight:600;color:${col};">${s.pct}% 1st attempt</div>
