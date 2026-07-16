@@ -1554,6 +1554,54 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 }
 .q-admin-btn:hover { background: rgba(76,29,149,0.14); }
 
+/* ── Word picker question format ── */
+.wp-tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 4px 0 12px;
+}
+.wp-token {
+  padding: 10px 18px;
+  border-radius: var(--pp-radius-lg);
+  border: 2px solid var(--pp-border);
+  background: var(--pp-surface);
+  font-size: var(--pp-font-body-size);
+  font-weight: var(--pp-font-h2-weight);
+  color: var(--pp-text);
+  cursor: pointer;
+  transition: all var(--pp-transition-fast);
+  min-height: 44px;
+}
+.wp-token:hover:not(:disabled) {
+  border-color: var(--pp-primary);
+  background: var(--pp-surface-warm);
+}
+.wp-token.wp-selected {
+  border-color: var(--pp-primary);
+  background: var(--pp-surface-warm);
+  color: var(--pp-primary);
+}
+.wp-token.wp-correct {
+  border-color: var(--pp-success);
+  background: var(--pp-success-bg);
+  color: var(--pp-success-text);
+}
+.wp-token.wp-wrong {
+  border-color: var(--pp-error);
+  background: var(--pp-error-bg);
+  color: var(--pp-error-text);
+  text-decoration: line-through;
+}
+.wp-token.wp-missed {
+  border-color: var(--pp-success);
+  background: var(--pp-surface-2);
+  color: var(--pp-success);
+  opacity: 0.7;
+}
+.wp-token:disabled { cursor: default; }
+.wp-submit-btn { margin-top: 12px; width: 100%; }
+
 /* ════════════ QUIZ SCREEN ════════════ */
 #screen-quiz { background: var(--pp-bg); min-height: 100vh; }
 
@@ -2582,9 +2630,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
     <!-- Edit panel — hidden until ✏️ Edit is clicked -->
     <div id="qa-edit-panel" style="display:none;background:#f8fafc;border:1.5px solid #94a3b8;border-radius:12px;padding:1.1rem;margin-top:0.75rem;">
       <div style="font-size:0.85rem;font-weight:700;color:#334155;margin-bottom:0.9rem;">✏️ Edit Question</div>
+
+      <!-- Question type selector -->
+      <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Question type</label>
+      <select id="qa-edit-type" onchange="qaOnTypeChange()" style="width:100%;margin:4px 0 10px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;">
+        <option value="mcq">Multiple choice (A/B/C/D)</option>
+        <option value="word_picker">Word picker (tap the correct words)</option>
+      </select>
+
       <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Question text</label>
       <textarea id="qa-edit-text" rows="3" style="width:100%;margin:4px 0 10px;padding:8px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.9rem;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+
+      <!-- MCQ fields -->
+      <div id="qa-edit-mcq-fields">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
         <div><label style="font-size:0.78rem;color:#64748b;font-weight:600;">Option A</label><input id="qa-edit-a" type="text" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;"></div>
         <div><label style="font-size:0.78rem;color:#64748b;font-weight:600;">Option B</label><input id="qa-edit-b" type="text" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;"></div>
         <div><label style="font-size:0.78rem;color:#64748b;font-weight:600;">Option C</label><input id="qa-edit-c" type="text" style="width:100%;margin-top:3px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;"></div>
@@ -2594,6 +2653,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
       <select id="qa-edit-correct" style="width:100%;margin:4px 0 10px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;">
         <option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option>
       </select>
+      </div><!-- end qa-edit-mcq-fields -->
+
+      <!-- Word picker fields -->
+      <div id="qa-edit-wp-fields" style="display:none;">
+        <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Tokens (words to display, comma-separated)</label>
+        <input id="qa-edit-tokens" type="text" placeholder="Un, très, méchant, sorcier" style="width:100%;margin:4px 0 10px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;">
+        <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Correct tokens (comma-separated)</label>
+        <input id="qa-edit-correct-tokens" type="text" placeholder="sorcier" style="width:100%;margin:4px 0 10px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;">
+        <div style="font-size:0.75rem;color:#94a3b8;margin-bottom:10px;">Tip: for multiple correct words, separate with commas: <em>sorcier, loup</em></div>
+      </div>
       <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Explanation</label>
       <textarea id="qa-edit-exp" rows="3" style="width:100%;margin:4px 0 10px;padding:8px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.9rem;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
       <div style="border-top:1px solid #e2e8f0;margin:6px 0 10px;padding-top:10px;">
@@ -4291,6 +4360,11 @@ function formatText(text) {
 
 function renderQ() {
   const q = curQs[cur];
+  if (q.type === 'word_picker') { renderWordPicker(q); return; }
+  renderMCQ(q);
+}
+
+function renderMCQ(q) {
   const key = String(q.n);
   const answered = chosen[key] != null;
   const diag = q.diag ? `<div class="q-diagram">${diagrams(q.diag)}</div>` : '';
@@ -4309,8 +4383,6 @@ function renderQ() {
   const fb = answered ? `<div class="feedback ${chosen[key] === q.ans ? 'correct' : 'incorrect'} show">
     <div class="fb-title">${chosen[key] === q.ans ? '✓ Correct!' : '✗ Not quite.'}</div>${q.exp}
   </div>` : '';
-
-  // Hint bar
   const hintsUsed = (hintedOptions[key] || []).length;
   const canHint = !answered && hintsUsed < 2 && userPoints >= HINT_COST;
   const isQA = document.getElementById('screen-qa') && document.getElementById('screen-qa').classList.contains('active');
@@ -4324,20 +4396,68 @@ function renderQ() {
           : `<span class="hint-used" title="Need ${HINT_COST} pts to use a hint">💡 Need ${HINT_COST} pts for hint</span>`
       }
     </div>` : '';
+  _renderQShell(q, `<div class="options">${opts}</div>${fb}${hintBarHtml}`);
+}
 
+function renderWordPicker(q) {
+  const key     = String(q.n);
+  const answered = chosen[key] != null;
+  const tokens  = q.tokens || [];
+  const correct = new Set(q.correct_tokens || []);
+  const selected = new Set(answered ? (chosen[key] || []) : []);
+
+  const tokenBtns = tokens.map(t => {
+    let cls = 'wp-token';
+    if (answered) {
+      if (correct.has(t) && selected.has(t))  cls += ' wp-correct';
+      else if (!correct.has(t) && selected.has(t)) cls += ' wp-wrong';
+      else if (correct.has(t) && !selected.has(t)) cls += ' wp-missed';
+    } else if (selected.has(t)) {
+      cls += ' wp-selected';
+    }
+    return `<button class="${cls}" ${answered ? 'disabled' : ''} data-token="${t.replace(/"/g,'&quot;')}" onclick="pickToken(this)">${t}</button>`;
+  }).join('');
+
+  let fb = '';
+  if (answered) {
+    const isCorrect = statuses[key] === 'correct';
+    const correctList = [...correct].join(', ');
+    fb = `<div class="feedback ${isCorrect ? 'correct' : 'incorrect'} show">
+      <div class="fb-title">${isCorrect ? '✓ Correct!' : `✗ Not quite. La bonne réponse${correct.size > 1 ? ' : ' : ' : '}<strong>${correctList}</strong>`}</div>${q.exp}
+    </div>`;
+  }
+
+  const submitBtn = !answered
+    ? `<button class="nav-btn primary wp-submit-btn" onclick="submitWordPicker('${key}')">Valider ›</button>`
+    : '';
+
+  _renderQShell(q, `<div class="wp-tokens">${tokenBtns}</div>${submitBtn}${fb}`);
+}
+
+function _renderQShell(q, bodyHtml) {
+  const key  = String(q.n);
   const done = curQs.filter(q2 => chosen[String(q2.n)] != null).length;
   const corr = curQs.filter(q2 => statuses[String(q2.n)] === 'correct').length;
+  const secLabel = q.sec === 'MA' ? 'Mathematics Achievement'
+    : q.sec === 'QR' ? 'Quantitative Reasoning'
+    : q.sec === 'GR' ? 'Grammaire'
+    : q.sec === 'VO' ? 'Vocabulaire'
+    : q.sec === 'CO' ? 'Compréhension'
+    : q.sec === 'EX' ? 'Expression'
+    : q.sec;
+
   document.getElementById('q-area').innerHTML = `
     <div class="q-card">
-      <div class="q-meta ${q.sec.toLowerCase()}">${q.n} — ${q.sec === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning'}</div>
+      <div class="q-meta ${q.sec.toLowerCase()}">${q.n} — ${secLabel}</div>
       ${(()=>{ const tax = TAXONOMY[q.n]; return tax ? `<div class="q-taxonomy-row"><span class="q-tax-badge q-tax-badge--strand">${tax.strand}</span><span class="q-tax-badge q-tax-badge--dok">DoK ${tax.dok}</span>${tax.skill ? `<span class="q-tax-badge q-tax-badge--skill">${tax.skill}</span>` : ''}</div>` : ''; })()}
-      <div class="q-text">${formatText(q.text)}</div>${diag}
-      <div class="options">${opts}</div>${fb}
+      <div class="q-text">${formatText(q.text)}</div>
+      ${q.diag ? `<div class="q-diagram">${diagrams(q.diag)}</div>` : ''}
+      ${bodyHtml}
       <div class="q-admin-row">
-        <button onclick="pushToQA('${q.n}')" class="q-admin-btn">✏️ Push to QA</button>
+        <button data-qn="${q.n}" onclick="pushToQA(this.dataset.qn)" class="q-admin-btn">✏️ Push to QA</button>
       </div>
-      ${hintBarHtml}
     </div>`;
+
   document.getElementById('prog-label').textContent = `${done} of ${curQs.length} answered`;
   document.getElementById('score-badge').textContent = `Score: ${corr}/${done}`;
   document.getElementById('bar-fill').style.width = (done / curQs.length * 100) + '%';
@@ -4350,9 +4470,37 @@ function renderQ() {
   renderTabs();
 }
 
-/* ════════════════════════════════════════
-   RESET SECTION
-════════════════════════════════════════ */
+function pickToken(btn) {
+  btn.classList.toggle('wp-selected');
+}
+
+function submitWordPicker(key) {
+  const q = curQs[cur];
+  const correct = new Set(q.correct_tokens || []);
+  const selected = new Set(
+    [...document.querySelectorAll('.wp-token.wp-selected')].map(b => b.dataset.token)
+  );
+  attempts[key] = (attempts[key] || 0) + 1;
+  const isCorrect = correct.size === selected.size && [...correct].every(t => selected.has(t));
+  chosen[key]   = [...selected];
+  statuses[key] = isCorrect ? 'correct' : 'wrong';
+  if (isCorrect) awardPoints(POINTS_PER_CORRECT);
+  saveProgress();
+  renderQ(); updateDash();
+  if (mode === 'workout') workoutReaction(isCorrect);
+  supaInsert({
+    user_id:     userId(),
+    session_id:  SESSION_ID,
+    question_id: key,
+    section:     q.sec,
+    curriculum:  currentCurriculum,
+    correct:     isCorrect,
+    attempts:    attempts[key],
+    answered_at: new Date().toISOString()
+  });
+}
+
+
 function resetSection(sec) {
   const label = sec === 'MA' ? 'Mathematics Achievement' : 'Quantitative Reasoning';
   if (!confirm(`Reset all ${label} answers?\n\nAttempt counts will be kept.`)) return;
@@ -4924,6 +5072,10 @@ function qaNewQuestion() {
   document.getElementById('qa-edit-d').value = '';
   document.getElementById('qa-edit-correct').value = '0';
   document.getElementById('qa-edit-exp').value = '';
+  document.getElementById('qa-edit-type').value = 'mcq';
+  document.getElementById('qa-edit-tokens').value = '';
+  document.getElementById('qa-edit-correct-tokens').value = '';
+  qaOnTypeChange();
   // Populate section dropdown for current curriculum
   const sectionEl = document.getElementById('qa-edit-section');
   if (sectionEl) {
@@ -4981,16 +5133,20 @@ async function qaInsertNewQuestion() {
       .reduce((a,b) => Math.max(a,b), 0);
     const newId = prefix + (maxNum + 1);
 
+    const qType      = document.getElementById('qa-edit-type').value;
+    const tokensRaw  = document.getElementById('qa-edit-tokens')?.value || '';
+    const ctokensRaw = document.getElementById('qa-edit-correct-tokens')?.value || '';
+
     const goLive = isAdmin(); // admin → active immediately; tutors → goes to QA review
     const newQ = {
       question_id:   newId,
       section:       section,
       text:          document.getElementById('qa-edit-text').value.trim(),
-      opt_a:         document.getElementById('qa-edit-a').value.trim(),
-      opt_b:         document.getElementById('qa-edit-b').value.trim(),
-      opt_c:         document.getElementById('qa-edit-c').value.trim(),
-      opt_d:         document.getElementById('qa-edit-d').value.trim(),
-      correct_index: parseInt(document.getElementById('qa-edit-correct').value),
+      opt_a:         qType === 'mcq' ? document.getElementById('qa-edit-a').value.trim() : null,
+      opt_b:         qType === 'mcq' ? document.getElementById('qa-edit-b').value.trim() : null,
+      opt_c:         qType === 'mcq' ? document.getElementById('qa-edit-c').value.trim() : null,
+      opt_d:         qType === 'mcq' ? document.getElementById('qa-edit-d').value.trim() : null,
+      correct_index: qType === 'mcq' ? parseInt(document.getElementById('qa-edit-correct').value) : null,
       explanation:   document.getElementById('qa-edit-exp').value.trim(),
       strand:        document.getElementById('qa-edit-strand').value,
       dok:           parseInt(document.getElementById('qa-edit-dok').value),
@@ -5000,6 +5156,9 @@ async function qaInsertNewQuestion() {
       curriculum:    currentCurriculum,
       created_by:    currentUser ? currentUser.id : null,
       assigned_to:   tutorMode && tutorStudentId ? tutorStudentId : null,
+      type:          qType,
+      tokens:        qType === 'word_picker' ? tokensRaw.split(',').map(t => t.trim()).filter(Boolean) : null,
+      correct_tokens:qType === 'word_picker' ? ctokensRaw.split(',').map(t => t.trim()).filter(Boolean) : null,
     };
 
     const res = await fetch(SUPA_URL + '/rest/v1/' + Q_TABLE, {
@@ -5015,7 +5174,8 @@ async function qaInsertNewQuestion() {
         n: newId, sec: section, text: newQ.text,
         opts: [newQ.opt_a, newQ.opt_b, newQ.opt_c, newQ.opt_d],
         ans: newQ.correct_index, exp: newQ.explanation,
-        assigned_to: newQ.assigned_to, created_by: newQ.created_by
+        assigned_to: newQ.assigned_to, created_by: newQ.created_by,
+        type: newQ.type, tokens: newQ.tokens, correct_tokens: newQ.correct_tokens
       });
       await fetchQuestionBank();
       alert(`✅ Question ${newId} created and live!`);
@@ -5219,6 +5379,12 @@ function qaStartEdit() {
   document.getElementById('qa-edit-d').value       = row.opt_d || '';
   document.getElementById('qa-edit-correct').value = String(row.correct_index ?? 0);
   document.getElementById('qa-edit-exp').value     = row.explanation || '';
+  // Type + token fields
+  const qType = row.type || 'mcq';
+  document.getElementById('qa-edit-type').value = qType;
+  document.getElementById('qa-edit-tokens').value         = (row.tokens || []).join(', ');
+  document.getElementById('qa-edit-correct-tokens').value = (row.correct_tokens || []).join(', ');
+  qaOnTypeChange(); // show/hide correct fields
   // Show edit panel, hide action buttons
   document.getElementById('qa-edit-panel').style.display = 'block';
   document.getElementById('qa-actions').style.display    = 'none';
@@ -5231,6 +5397,12 @@ function qaCancelEdit() {
   document.getElementById('qa-actions').style.display    = 'flex';
 }
 
+function qaOnTypeChange() {
+  const type = document.getElementById('qa-edit-type').value;
+  document.getElementById('qa-edit-mcq-fields').style.display = type === 'mcq' ? '' : 'none';
+  document.getElementById('qa-edit-wp-fields').style.display  = type === 'word_picker' ? '' : 'none';
+}
+
 async function qaSaveEdit() {
   const row = qaQuestions[qaIdx];
   if (!row) return;
@@ -5238,19 +5410,28 @@ async function qaSaveEdit() {
   saveBtn.textContent = '⏳ Saving…';
   saveBtn.disabled = true;
 
+  const qType = document.getElementById('qa-edit-type').value;
+  const tokensRaw  = document.getElementById('qa-edit-tokens')?.value || '';
+  const ctokensRaw = document.getElementById('qa-edit-correct-tokens')?.value || '';
+
   const updates = {
     text:          document.getElementById('qa-edit-text').value.trim(),
-    opt_a:         document.getElementById('qa-edit-a').value.trim(),
-    opt_b:         document.getElementById('qa-edit-b').value.trim(),
-    opt_c:         document.getElementById('qa-edit-c').value.trim(),
-    opt_d:         document.getElementById('qa-edit-d').value.trim(),
-    correct_index: parseInt(document.getElementById('qa-edit-correct').value),
     explanation:   document.getElementById('qa-edit-exp').value.trim(),
     strand:        document.getElementById('qa-edit-strand').value,
     dok:           parseInt(document.getElementById('qa-edit-dok').value),
     skill:         document.getElementById('qa-edit-skill').value,
     created_by:    currentUser ? currentUser.id : null,
     assigned_to:   tutorMode && tutorStudentId ? tutorStudentId : null,
+    type:          qType,
+    // MCQ fields
+    opt_a:         qType === 'mcq' ? document.getElementById('qa-edit-a').value.trim() : null,
+    opt_b:         qType === 'mcq' ? document.getElementById('qa-edit-b').value.trim() : null,
+    opt_c:         qType === 'mcq' ? document.getElementById('qa-edit-c').value.trim() : null,
+    opt_d:         qType === 'mcq' ? document.getElementById('qa-edit-d').value.trim() : null,
+    correct_index: qType === 'mcq' ? parseInt(document.getElementById('qa-edit-correct').value) : null,
+    // Word picker fields
+    tokens:        qType === 'word_picker' ? tokensRaw.split(',').map(t => t.trim()).filter(Boolean) : null,
+    correct_tokens:qType === 'word_picker' ? ctokensRaw.split(',').map(t => t.trim()).filter(Boolean) : null,
   };
 
   try {
@@ -5297,7 +5478,8 @@ async function qaDecide(decision) {
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const newQ = { n: row.question_id, sec: row.section, text: row.text,
           opts: [row.opt_a, row.opt_b, row.opt_c, row.opt_d], ans: row.correct_index, exp: row.explanation || '',
-          assigned_to: row.assigned_to || null, created_by: row.created_by || null };
+          assigned_to: row.assigned_to || null, created_by: row.created_by || null,
+          type: row.type || 'mcq', tokens: row.tokens || null, correct_tokens: row.correct_tokens || null };
         if (row.diag) newQ.diag = row.diag;
         if (row.strand) TAXONOMY[row.question_id] = { strand: row.strand, dok: row.dok, skill: row.skill || null };
         ALL_QUESTIONS.push(newQ);
@@ -5494,14 +5676,17 @@ async function fetchQuestionBank() {
     // Convert Supabase rows → ALL_QUESTIONS shape
     ALL_QUESTIONS = rows.map(r => {
       const q = {
-        n:           r.question_id,
-        sec:         r.section,
-        text:        r.text,
-        opts:        [r.opt_a, r.opt_b, r.opt_c, r.opt_d],
-        ans:         r.correct_index,
-        exp:         r.explanation || '',
-        assigned_to: r.assigned_to || null,
-        created_by:  r.created_by  || null,
+        n:             r.question_id,
+        sec:           r.section,
+        text:          r.text,
+        opts:          [r.opt_a, r.opt_b, r.opt_c, r.opt_d],
+        ans:           r.correct_index,
+        exp:           r.explanation || '',
+        assigned_to:   r.assigned_to || null,
+        created_by:    r.created_by  || null,
+        type:          r.type || 'mcq',
+        tokens:        r.tokens || null,
+        correct_tokens:r.correct_tokens || null,
       };
       if (r.diag) q.diag = r.diag;
       return q;
