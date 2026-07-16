@@ -2347,7 +2347,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 <div id="screen-tutor" class="screen">
   <div class="tutor-header">
     <h1>🎓 Tutor Dashboard</h1>
-    <button onclick="signOut()" style="background:rgba(255,255,255,0.15);border:none;color:white;padding:5px 12px;border-radius:6px;font-size:0.8rem;cursor:pointer;">Sign out</button>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button id="tutor-admin-btn" onclick="showAdmin()" style="display:none;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.4);color:white;padding:5px 14px;border-radius:20px;font-size:0.8rem;cursor:pointer;font-weight:600;">⚙️ Admin</button>
+      <button onclick="signOut()" style="background:rgba(255,255,255,0.15);border:none;color:white;padding:5px 12px;border-radius:6px;font-size:0.8rem;cursor:pointer;">Sign out</button>
+    </div>
   </div>
   <div class="tutor-body">
     <div class="tutor-label">Select a student to view</div>
@@ -3516,6 +3519,11 @@ async function onSignedIn() {
     // Tutor — show student picker, hide QA button on home screen
     const qaBtn = document.getElementById('home-qa-btn');
     if (qaBtn) qaBtn.style.display = 'none';
+    // Admin gets the admin button even if role is tutor
+    const adminBtn = document.getElementById('home-admin-btn');
+    if (adminBtn) adminBtn.style.display = isAdmin() ? '' : 'none';
+    const tutorAdminBtn = document.getElementById('tutor-admin-btn');
+    if (tutorAdminBtn) tutorAdminBtn.style.display = isAdmin() ? '' : 'none';
     showScreen('screen-tutor');
     loadTutorStudents();
     return;
@@ -6277,6 +6285,9 @@ async function fetchQuestionBank() {
     // Small delay so user sees 100% briefly, then hide the banner and show home
     await new Promise(r => setTimeout(r, 400));
     document.getElementById('screen-loading').style.display = 'none';
+    // Ensure admin button is visible for admin users
+    const adminBtn = document.getElementById('home-admin-btn');
+    if (adminBtn) adminBtn.style.display = isAdmin() ? '' : 'none';
     showScreen('screen-home');
     refreshTotalPoints();
     updateCatAvatar();
