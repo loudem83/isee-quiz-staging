@@ -3739,9 +3739,14 @@ async function openQuizHelp(qn) {
   const catName     = 'Mochi';
 
   // Build a silent user message asking for the rule
+  // Include question text so Mochi explains the right concept
+  const questionContext = q.type === 'word_picker'
+    ? `Question: "${q.text}" (word picker format)`
+    : `Question: "${q.text}" Options: ${(q.opts||[]).filter(Boolean).map((o,i)=>['A','B','C','D'][i]+') '+o).join(' | ')}`;
+
   const ruleRequest = isFrench
-    ? `Explique-moi la règle générale pour "${skill || strand}" avec un exemple simple.`
-    : `Can you explain the general rule or strategy for "${skill || strand}" with a simple example?`;
+    ? `Explique-moi la règle générale pour répondre à ce type de question. ${questionContext}`
+    : `Explain the general rule or strategy I need to answer this type of question. ${questionContext}`;
 
   // Reset chat and open overlay
   catChatHistory   = [];
