@@ -2433,43 +2433,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
     </div>
   </div>
 
-  <!-- Cat chat overlay -->
-  <div class="cat-chat-overlay" id="catChatOverlay" onclick="handleOverlayClick(event)">
-    <div class="cat-chat-panel">
-      <div class="cat-chat-header">
-        <svg width="36" height="36" viewBox="0 0 140 145" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
-          <circle cx="70" cy="80" r="52" fill="#f5a623"/>
-          <ellipse cx="70" cy="84" rx="38" ry="36" fill="#f7bc5a"/>
-          <polygon points="26,46 14,12 44,38" fill="#f5a623"/>
-          <polygon points="114,46 126,12 96,38" fill="#f5a623"/>
-          <polygon points="28,44 18,16 42,36" fill="#fac775"/>
-          <polygon points="112,44 122,16 98,36" fill="#fac775"/>
-          <polygon points="30,42 22,20 40,34" fill="#f0997b" opacity="0.45"/>
-          <polygon points="110,42 118,20 100,34" fill="#f0997b" opacity="0.45"/>
-          <circle cx="54" cy="78" r="14" fill="white"/>
-          <circle cx="86" cy="78" r="14" fill="white"/>
-          <circle cx="54" cy="80" r="9" fill="#8B4513"/>
-          <circle cx="86" cy="80" r="9" fill="#8B4513"/>
-          <circle cx="54" cy="80" r="6" fill="#2c2c2a"/>
-          <circle cx="86" cy="80" r="6" fill="#2c2c2a"/>
-          <circle cx="50" cy="75" r="2.5" fill="white"/>
-          <circle cx="82" cy="75" r="2.5" fill="white"/>
-          <polygon points="70,93 67,97 73,97" fill="#e8847a"/>
-          <path d="M64 97 Q67 101 70 99 Q73 101 76 97" stroke="#c0705a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-        </svg>
-        <div>
-          <div class="cat-chat-header-name" id="catChatHeaderName">Mochi</div>
-          <div class="cat-chat-header-sub">Your learning buddy 🐾</div>
-        </div>
-        <button class="cat-chat-close" onclick="closeCatChat()">✕</button>
-      </div>
-      <div class="cat-chat-messages" id="catChatMessages"></div>
-      <div class="cat-chat-input-row">
-        <input class="cat-chat-input" id="catChatInput" placeholder="Say something..." />
-        <button class="cat-chat-send" id="catChatSend" onclick="catChatSend()">Send</button>
-      </div>
-    </div>
-  </div>
+  iv>
 
   <!-- Body -->
   <div class="pp-body">
@@ -6531,5 +6495,46 @@ initAuth();
   <div class="br-sub" id="bravo-sub">Great work!</div>
   <div class="br-stars">⭐ ⭐ ⭐</div>
 </div>
+
+
+<!-- Cat chat overlay (global) -->
+<!-- Cat chat overlay -->
+  <div class="cat-chat-overlay" id="catChatOverlay" onclick="handleOverlayClick(event)">
+    <div class="cat-chat-panel">
+      <div class="cat-chat-header">
+        <svg width="36" height="36" viewBox="0 0 140 145" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+          <circle cx="70" cy="80" r="52" fill="#f5a623"/>
+          <ellipse cx="70" cy="84" rx="38" ry="36" fill="#f7bc5a"/>
+          <polygon points="26,46 14,12 44,38" fill="#f5a623"/>
+          <polygon points="114,46 126,12 96,38" fill="#f5a623"/>
+          <polygon points="28,44 18,16 42,36" fill="#fac775"/>
+          <polygon points="112,44 122,16 98,36" fill="#fac775"/>
+          <polygon points="30,42 22,20 40,34" fill="#f0997b" opacity="0.45"/>
+          <polygon points="110,42 118,20 100,34" fill="#f0997b" opacity="0.45"/>
+          <circle cx="54" cy="78" r="14" fill="white"/>
+          <circle cx="86" cy="78" r="14" fill="white"/>
+          <circle cx="54" cy="80" r="9" fill="#8B4513"/>
+          <circle cx="86" cy="80" r="9" fill="#8B4513"/>
+          <circle cx="54" cy="80" r="6" fill="#2c2c2a"/>
+          <circle cx="86" cy="80" r="6" fill="#2c2c2a"/>
+          <circle cx="50" cy="75" r="2.5" fill="white"/>
+          <circle cx="82" cy="75" r="2.5" fill="white"/>
+          <polygon points="70,93 67,97 73,97" fill="#e8847a"/>
+          <path d="M64 97 Q67 101 70 99 Q73 101 76 97" stroke="#c0705a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <div class="cat-chat-header-name" id="catChatHeaderName">Mochi</div>
+          <div class="cat-chat-header-sub">Your learning buddy 🐾</div>
+        </div>
+        <button class="cat-chat-close" onclick="closeCatChat()">✕</button>
+      </div>
+      <div class="cat-chat-messages" id="catChatMessages"></div>
+      <div class="cat-chat-input-row">
+        <input class="cat-chat-input" id="catChatInput" placeholder="Say something..." />
+        <button class="cat-chat-send" id="catChatSend" onclick="catChatSend()">Send</button>
+      </div>
+    </div>
+  </d
+
 </body>
 </html>
