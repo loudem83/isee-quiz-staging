@@ -2272,7 +2272,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .cat-card-name{font-weight:700;font-size:var(--pp-font-body-size);color:#3d1f00;}
 .cat-card-hint{font-size:var(--pp-font-small-size);color:#c46000;margin-top:2px;}
 /* ── Slide-up chat panel ── */
-.cat-chat-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:flex-end;max-width:100vw;overflow:hidden;}
+.cat-chat-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9999;align-items:flex-end;max-width:100vw;overflow:hidden;}
 .cat-chat-overlay.open{display:flex;}
 .cat-chat-panel{background:var(--pp-surface-warm);border-radius:20px 20px 0 0;width:100%;height:60vh;max-height:60vh;display:flex;flex-direction:column;padding:0 0 16px 0;animation:slideUp var(--pp-transition-fast);box-sizing:border-box;}
 @media(max-width:500px){.cat-chat-panel{height:60vh;max-height:60vh;border-radius:16px 16px 0 0;}}
@@ -3737,13 +3737,17 @@ function removeTypingIndicator(id) {
 let _quizHelpQ = null; // current question context for quiz chat
 
 async function openQuizHelp(qn) {
-  const q   = curQs.find(q2 => String(q2.n) === String(qn));
-  if (!q) return;
-  _quizHelpQ = q;
+  const q = curQs.find(q2 => String(q2.n) === String(qn)) || curQs[cur];
+  if (!q) { console.warn('[QuizHelp] No question found for', qn); return; }
+  console.log('[QuizHelp] Opening for', q.n, TAXONOMY[q.n]);
 
-  const tax         = TAXONOMY[q.n] || {};
-  const strand      = tax.strand || '';
-  const skill       = tax.skill  || strand;
+  const overlay = document.getElementById('catChatOverlay');
+  if (!overlay) { console.warn('[QuizHelp] catChatOverlay not found'); return; }
+
+  _quizHelpQ = q;
+  const tax      = TAXONOMY[q.n] || {};
+  const strand   = tax.strand || '';
+  const skill    = tax.skill  || strand;
   const isFrench    = currentCurriculum === 'french_cm1';
   const childName   = window.currentChildName || 'friend';
   const catName     = 'Mochi';
