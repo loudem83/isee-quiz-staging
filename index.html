@@ -1724,6 +1724,46 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .admin-health-warn { color: var(--pp-amber-text); font-weight: 700; }
 .admin-health-bad  { color: var(--pp-error); font-weight: 700; }
 
+/* ── Quiz contextual help ── */
+.q-help-row {
+  margin-top: var(--pp-space-sm);
+}
+.q-help-btn {
+  background: var(--pp-surface-warm);
+  border: 1.5px solid var(--pp-border-accent);
+  color: var(--pp-amber-text);
+  border-radius: var(--pp-radius-lg);
+  padding: 8px 16px;
+  font-size: var(--pp-font-caption-size);
+  font-weight: var(--pp-font-h2-weight);
+  cursor: pointer;
+  transition: background var(--pp-transition-fast);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.q-help-btn:hover { background: var(--pp-border-accent); }
+.quiz-mochi-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--pp-primary-gradient);
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--pp-shadow-btn);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--pp-transition-fast), box-shadow var(--pp-transition-fast);
+  z-index: 90;
+}
+.quiz-mochi-fab:hover { transform: scale(1.08); box-shadow: var(--pp-shadow-btn-hover); }
+.quiz-mochi-fab:active { transform: scale(0.95); }
+
 /* ════════════ QUIZ SCREEN ════════════ */
 #screen-quiz { background: var(--pp-bg); min-height: 100vh; }
 
@@ -2691,6 +2731,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
       <button class="nav-btn primary" id="btn-next" onclick="go(cur+1)">Next →</button>
     </div>
   </div>
+  <!-- Floating Mochi help button -->
+  <button class="quiz-mochi-fab" id="quiz-mochi-fab" onclick="openQuizHelp(curQs[cur]?.n)" title="Ask Mochi for help">
+    <svg width="28" height="28" viewBox="0 0 380 320" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="190" cy="240" rx="48" ry="55" fill="#FF8C00"/>
+      <ellipse cx="190" cy="255" rx="28" ry="35" fill="#FFBA5A"/>
+      <ellipse cx="190" cy="160" rx="58" ry="55" fill="#FF8C00"/>
+      <polygon points="145,122 125,78 172,110" fill="#FF8C00" stroke="#3d1f00" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="235,122 255,78 208,110" fill="#FF8C00" stroke="#3d1f00" stroke-width="4" stroke-linejoin="round"/>
+      <ellipse cx="170" cy="155" rx="16" ry="17" fill="white" stroke="#3d1f00" stroke-width="2.5"/>
+      <ellipse cx="210" cy="155" rx="16" ry="17" fill="white" stroke="#3d1f00" stroke-width="2.5"/>
+      <circle cx="173" cy="157" r="10" fill="#3d1f00"/>
+      <circle cx="213" cy="157" r="10" fill="#3d1f00"/>
+      <circle cx="177" cy="153" r="3.5" fill="white"/>
+      <circle cx="217" cy="153" r="3.5" fill="white"/>
+      <ellipse cx="190" cy="175" rx="6" ry="4" fill="#ff6b6b" stroke="#3d1f00" stroke-width="1.5"/>
+      <path d="M180 180 Q190 188 200 180" fill="none" stroke="#3d1f00" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </button>
 </div>
 
 <!-- SCREEN 6: WORKOUT -->
@@ -3711,7 +3769,86 @@ function removeTypingIndicator(id) {
   if (el) el.remove();
 }
 
-window.openCatChat        = openCatChat;
+// ── Quiz contextual help ── //
+let _quizHelpQ = null; // current question context for quiz chat
+
+async function openQuizHelp(qn) {
+  const q   = curQs.find(q2 => String(q2.n) === String(qn));
+  if (!q) return;
+  _quizHelpQ = q;
+
+  const tax         = TAXONOMY[q.n] || {};
+  const strand      = tax.strand || '';
+  const skill       = tax.skill  || strand;
+  const isFrench    = currentCurriculum === 'french_cm1';
+  const childName   = window.currentChildName || 'friend';
+  const catName     = 'Mochi';
+
+  // Build a silent user message asking for the rule
+  const ruleRequest = isFrench
+    ? `Explique-moi la règle générale pour "${skill || strand}" avec un exemple simple.`
+    : `Can you explain the general rule or strategy for "${skill || strand}" with a simple example?`;
+
+  // Reset chat and open overlay
+  catChatHistory   = [];
+  catChatExchanges = 0;
+
+  // Set header name
+  const headerNameEl = document.getElementById('catChatHeaderName');
+  if (headerNameEl) headerNameEl.textContent = catName;
+
+  document.getElementById('catChatOverlay').classList.add('open');
+  document.getElementById('catChatMessages').innerHTML = '';
+
+  // Show greeting
+  const greeting = isFrench
+    ? `Purrr ! Bonjour ${childName} ! Je vais t'expliquer la règle pour **${skill || strand}** ! 🐾`
+    : `Purrr! Hi ${childName}! Let me explain how to tackle **${skill || strand}**! 🐾`;
+  appendCatMsg(greeting);
+
+  // Pre-seed history with the rule request (silent — user doesn't see this)
+  catChatHistory.push({ role: 'user', content: ruleRequest });
+
+  // Show typing indicator while fetching rule
+  const typingId = appendTypingIndicator();
+  document.getElementById('catChatSend').disabled = true;
+
+  try {
+    const res = await fetch(CAT_CHAT_EDGE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + authToken,
+      },
+      body: JSON.stringify({
+        messages:      catChatHistory,
+        childName,
+        catName,
+        weakTopic:     skill || strand,
+        currentTopic:  skill || strand,
+        points:        userPoints || 0,
+        recentScore:   window._recentScore || null,
+        curriculum:    currentCurriculum,
+        exchangeCount: catChatExchanges,
+        helpMode:      'rule', // hint to edge fn (future use)
+      }),
+    });
+    const data = await res.json();
+    removeTypingIndicator(typingId);
+    catChatHistory.push({ role: 'assistant', content: data.reply });
+    catChatExchanges++;
+    appendCatMsg(data.reply);
+  } catch(e) {
+    removeTypingIndicator(typingId);
+    appendCatMsg(isFrench ? 'Miaou... essaie encore ! 🐾' : 'Meow... something went wrong! Try again? 🐾');
+  }
+
+  document.getElementById('catChatSend').disabled = false;
+  setTimeout(() => document.getElementById('catChatInput').focus(), 100);
+}
+
+window.openQuizHelp = openQuizHelp;
+
 window.closeCatChat       = closeCatChat;
 window.handleOverlayClick = handleOverlayClick;
 window.catChatSend        = catChatSend;
@@ -5020,6 +5157,9 @@ function _renderQShell(q, bodyHtml) {
       <div class="q-text">${formatText(q.text)}</div>
       ${q.diag ? `<div class="q-diagram">${diagrams(q.diag)}</div>` : ''}
       ${bodyHtml}
+      <div class="q-help-row">
+        <button class="q-help-btn" data-qn="${q.n}" onclick="openQuizHelp(this.dataset.qn)">💡 How do I do this?</button>
+      </div>
       <div class="q-admin-row">
         <button data-qn="${q.n}" onclick="pushToQA(this.dataset.qn)" class="q-admin-btn">✏️ Push to QA</button>
       </div>
