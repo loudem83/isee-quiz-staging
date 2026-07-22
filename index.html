@@ -6514,12 +6514,27 @@ function qaRender() {
   const taxEl = document.getElementById('qa-taxonomy');
   taxEl.style.display = 'none';
 
-  const opts = [row.opt_a, row.opt_b, row.opt_c, row.opt_d].map((o, i) => {
-    const isCorrect = i === row.correct_index;
-    return `<button class="opt${isCorrect ? ' correct-ans' : ''}" disabled style="cursor:default;">
-      <span class="badge">${['A','B','C','D'][i]}</span><span>${o}</span>
-    </button>`;
-  }).join('');
+  // Build question body based on type
+  let questionBody;
+  if (row.type === 'word_picker') {
+    const tokens = row.tokens || [];
+    const correct = new Set(row.correct_tokens || []);
+    const tokenBtns = tokens.map(t =>
+      `<button class="wp-token ${correct.has(t) ? 'wp-correct' : ''}" disabled style="cursor:default;">${t}</button>`
+    ).join('');
+    questionBody = `<div class="wp-tokens">${tokenBtns}</div>
+      <div style="font-size:var(--pp-font-small-size);color:var(--pp-text-secondary);margin-top:8px;">
+        ✓ Correct: <strong>${[...correct].join(', ')}</strong>
+      </div>`;
+  } else {
+    const opts = [row.opt_a, row.opt_b, row.opt_c, row.opt_d].map((o, i) => {
+      const isCorrect = i === row.correct_index;
+      return `<button class="opt${isCorrect ? ' correct-ans' : ''}" disabled style="cursor:default;">
+        <span class="badge">${['A','B','C','D'][i]}</span><span>${o ?? '—'}</span>
+      </button>`;
+    }).join('');
+    questionBody = `<div class="options">${opts}</div>`;
+  }
 
   const expHtml = row.explanation
     ? `<div class="feedback correct show"><div class="fb-title">📖 Explanation</div>${row.explanation}</div>`
@@ -6535,7 +6550,7 @@ function qaRender() {
       </div>
       <div class="q-text">${formatText(row.text)}</div>
       ${row.diag ? `<div class="q-diagram">${diagrams(row.diag)}</div>` : ''}
-      <div class="options">${opts}</div>
+      ${questionBody}
       ${expHtml}
     </div>`;
 
