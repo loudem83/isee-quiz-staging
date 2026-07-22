@@ -5651,9 +5651,9 @@ function _renderQShell(q, bodyHtml) {
       <div class="q-text">${formatText(q.text)}</div>
       ${q.diag ? `<div class="q-diagram">${diagrams(q.diag)}</div>` : ''}
       ${bodyHtml}
-      <div class="q-admin-row">
+      ${isAdmin() ? `<div class="q-admin-row">
         <button data-qn="${q.n}" onclick="pushToQA(this.dataset.qn)" class="q-admin-btn">✏️ Push to QA</button>
-      </div>
+      </div>` : ''}
     </div>`;
 
   document.getElementById('prog-label').textContent = `${done} of ${curQs.length} answered`;
