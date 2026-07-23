@@ -761,7 +761,120 @@ function formatText(text) {
 function renderQ() {
   const q = curQs[cur];
   if (q.type === 'word_picker') { renderWordPicker(q); return; }
+  if (q.type === 'fill_blank')  { renderFillBlank(q);  return; }
   renderMCQ(q);
+}
+
+// ── Fill-in-the-blank state ──
+let _fbAnswers     = []; // student's current answers per blank
+let _fbActiveBlank = 0;  // which blank receives the next token tap
+
+function renderFillBlank(q) {
+  const key      = String(q.n);
+  const answered = chosen[key] != null;
+  const parts    = (q.text || '').split('___');
+  const blanks   = parts.length - 1;
+  const tokens   = q.tokens  || [];
+  const correct  = q.answers || []; // ordered correct answers
+
+  // On re-render after answer, read from chosen; else use live _fbAnswers
+  const filled = answered ? (chosen[key] || []) : _fbAnswers;
+
+  // Reset state on fresh render of a new question
+  if (!answered && _fbAnswers.length !== blanks) {
+    _fbAnswers     = Array(blanks).fill(null);
+    _fbActiveBlank = 0;
+  }
+
+  // Build inline sentence with blank slots
+  const sentenceHtml = parts.map((part, i) => {
+    let blankHtml = '';
+    if (i < blanks) {
+      const val       = filled[i] || null;
+      const isActive  = !answered && i === _fbActiveBlank;
+      let   cls       = 'fb-blank';
+      if (isActive)  cls += ' active';
+      if (val)       cls += ' filled';
+      if (answered) {
+        const isCorrect = val === correct[i];
+        cls += isCorrect ? ' correct' : ' wrong';
+      }
+      const inner = val
+        ? `<span class="fb-chip">${val}</span>`
+        : `<span class="fb-placeholder">${isActive ? '✎' : '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</span>`;
+      const clearAttr = (!answered && val) ? `onclick="fbClearBlank(${i})"` : '';
+      blankHtml = `<span class="${cls}" data-idx="${i}" ${clearAttr} title="${!answered && val ? 'Tap to clear' : ''}">${inner}</span>`;
+    }
+    return `<span class="fb-word">${part}</span>${blankHtml}`;
+  }).join('');
+
+  // Token word bank
+  const tokenBtns = tokens.map(t =>
+    `<button class="fb-token${answered ? ' used' : ''}" ${answered ? 'disabled' : ''} data-token="${t.replace(/"/g,'&quot;')}" onclick="fbTapToken(this)">${t}</button>`
+  ).join('');
+
+  // Valider button — only show when all blanks filled and not yet answered
+  const allFilled  = !answered && filled.every(v => v !== null);
+  const submitBtn  = allFilled
+    ? `<button class="nav-btn primary" style="margin-top:12px;" onclick="submitFillBlank('${key}')">Valider ›</button>`
+    : '';
+
+  // Feedback after answering
+  let fb = '';
+  if (answered) {
+    const isCorrect = statuses[key] === 'correct';
+    fb = `<div class="feedback ${isCorrect ? 'correct' : 'incorrect'} show">
+      <div class="fb-title">${isCorrect ? '✓ Correct !' : `✗ Pas tout à fait. Réponses : <strong>${correct.join(', ')}</strong>`}</div>${q.exp}
+    </div>`;
+  }
+
+  _renderQShell(q, `
+    <div class="fb-sentence">${sentenceHtml}</div>
+    <div class="fb-word-bank">${tokenBtns}</div>
+    ${submitBtn}
+    ${fb}
+  `);
+}
+
+function fbTapToken(btn) {
+  if (_fbAnswers[_fbActiveBlank] !== undefined && _fbAnswers[_fbActiveBlank] === null) {
+    _fbAnswers[_fbActiveBlank] = btn.dataset.token;
+    // Advance to next empty blank
+    const next = _fbAnswers.findIndex((v, i) => i > _fbActiveBlank && v === null);
+    _fbActiveBlank = next >= 0 ? next : _fbAnswers.findIndex(v => v === null);
+    if (_fbActiveBlank < 0) _fbActiveBlank = _fbAnswers.length; // all filled
+    renderFillBlank(curQs[cur]);
+  }
+}
+
+function fbClearBlank(idx) {
+  _fbAnswers[idx]  = null;
+  _fbActiveBlank   = idx;
+  renderFillBlank(curQs[cur]);
+}
+
+function submitFillBlank(key) {
+  const q       = curQs[cur];
+  const correct = q.answers || [];
+  const given   = _fbAnswers;
+  attempts[key] = (attempts[key] || 0) + 1;
+  const isCorrect = correct.length === given.length && correct.every((c, i) => c === given[i]);
+  chosen[key]   = [...given];
+  statuses[key] = isCorrect ? 'correct' : 'wrong';
+  if (isCorrect) awardPoints(POINTS_PER_CORRECT);
+  saveProgress();
+  renderQ(); updateDash();
+  if (mode === 'workout') workoutReaction(isCorrect);
+  supaInsert({
+    user_id:     userId(),
+    session_id:  SESSION_ID,
+    question_id: key,
+    section:     q.sec,
+    curriculum:  currentCurriculum,
+    correct:     isCorrect,
+    attempts:    attempts[key],
+    answered_at: new Date().toISOString()
+  });
 }
 
 function renderMCQ(q) {

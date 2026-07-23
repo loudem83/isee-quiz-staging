@@ -419,6 +419,8 @@ function qaNewQuestion() {
   document.getElementById('qa-edit-type').value = 'mcq';
   document.getElementById('qa-edit-tokens').value = '';
   document.getElementById('qa-edit-correct-tokens').value = '';
+  document.getElementById('qa-edit-fb-tokens').value = '';
+  document.getElementById('qa-edit-fb-answers').value = '';
   qaOnTypeChange();
   // Populate section dropdown for current curriculum
   const sectionEl = document.getElementById('qa-edit-section');
@@ -481,6 +483,8 @@ async function qaInsertNewQuestion() {
     const tokensRaw  = document.getElementById('qa-edit-tokens')?.value || '';
     const ctokensRaw = document.getElementById('qa-edit-correct-tokens')?.value || '';
 
+    const fbTokensRaw2  = document.getElementById('qa-edit-fb-tokens')?.value || '';
+    const fbAnswersRaw2 = document.getElementById('qa-edit-fb-answers')?.value || '';
     const goLive = isAdmin(); // admin → active immediately; tutors → goes to QA review
     const newQ = {
       question_id:   newId,
@@ -501,8 +505,11 @@ async function qaInsertNewQuestion() {
       created_by:    currentUser ? currentUser.id : null,
       assigned_to:   tutorMode && tutorStudentId ? tutorStudentId : null,
       type:          qType,
-      tokens:        qType === 'word_picker' ? tokensRaw.split(',').map(t => t.trim()).filter(Boolean) : null,
+      tokens:        qType === 'word_picker' ? tokensRaw.split(',').map(t => t.trim()).filter(Boolean)
+                   : qType === 'fill_blank'  ? fbTokensRaw2.split(',').map(t => t.trim()).filter(Boolean)
+                   : null,
       correct_tokens:qType === 'word_picker' ? ctokensRaw.split(',').map(t => t.trim()).filter(Boolean) : null,
+      answers:       qType === 'fill_blank'  ? fbAnswersRaw2.split(',').map(t => t.trim()).filter(Boolean) : null,
     };
 
     const res = await fetch(SUPA_URL + '/rest/v1/' + Q_TABLE, {
@@ -519,7 +526,7 @@ async function qaInsertNewQuestion() {
         opts: [newQ.opt_a, newQ.opt_b, newQ.opt_c, newQ.opt_d],
         ans: newQ.correct_index, exp: newQ.explanation,
         assigned_to: newQ.assigned_to, created_by: newQ.created_by,
-        type: newQ.type, tokens: newQ.tokens, correct_tokens: newQ.correct_tokens
+        type: newQ.type, tokens: newQ.tokens, correct_tokens: newQ.correct_tokens, answers: newQ.answers
       });
       await fetchQuestionBank();
       alert(`✅ Question ${newId} created and live!`);
@@ -656,7 +663,17 @@ function qaRender() {
 
   // Build question body based on type
   let questionBody;
-  if (row.type === 'word_picker') {
+  if (row.type === 'fill_blank') {
+    const tokens  = row.tokens || [];
+    const answers = row.answers || [];
+    const parts   = (row.text || '').split('___');
+    const sentence = parts.map((part, i) => {
+      const ans = answers[i] ? `<span style="display:inline-block;padding:2px 10px;background:var(--pp-success-bg);color:var(--pp-success-text);border-radius:6px;font-weight:600;margin:0 2px;">${answers[i]}</span>` : '';
+      return `<span>${part}</span>${ans}`;
+    }).join('');
+    questionBody = `<div style="font-size:var(--pp-font-body-size);line-height:2;margin-bottom:12px;">${sentence}</div>
+      <div style="font-size:var(--pp-font-small-size);color:var(--pp-text-secondary);margin-top:8px;">Word bank: ${tokens.map(t => `<span style="display:inline-block;padding:2px 8px;border:1.5px solid var(--pp-border);border-radius:6px;margin:2px;font-size:var(--pp-font-caption-size);">${t}</span>`).join('')}</div>`;
+  } else if (row.type === 'word_picker') {
     const tokens = row.tokens || [];
     const correct = new Set(row.correct_tokens || []);
     const tokenBtns = tokens.map(t =>
@@ -741,8 +758,10 @@ function qaStartEdit() {
   // Type + token fields
   const qType = row.type || 'mcq';
   document.getElementById('qa-edit-type').value = qType;
-  document.getElementById('qa-edit-tokens').value         = (row.tokens || []).join(', ');
+  document.getElementById('qa-edit-tokens').value         = (row.tokens && qType !== 'fill_blank') ? row.tokens.join(', ') : '';
   document.getElementById('qa-edit-correct-tokens').value = (row.correct_tokens || []).join(', ');
+  document.getElementById('qa-edit-fb-tokens').value      = (row.tokens && qType === 'fill_blank') ? row.tokens.join(', ') : '';
+  document.getElementById('qa-edit-fb-answers').value     = (row.answers || []).join(', ');
   qaOnTypeChange(); // show/hide correct fields
   // Show edit panel, hide action buttons
   document.getElementById('qa-edit-panel').style.display = 'block';
@@ -758,8 +777,9 @@ function qaCancelEdit() {
 
 function qaOnTypeChange() {
   const type = document.getElementById('qa-edit-type').value;
-  document.getElementById('qa-edit-mcq-fields').style.display = type === 'mcq' ? '' : 'none';
-  document.getElementById('qa-edit-wp-fields').style.display  = type === 'word_picker' ? '' : 'none';
+  document.getElementById('qa-edit-mcq-fields').style.display  = type === 'mcq'        ? '' : 'none';
+  document.getElementById('qa-edit-wp-fields').style.display   = type === 'word_picker' ? '' : 'none';
+  document.getElementById('qa-edit-fb-fields').style.display   = type === 'fill_blank'  ? '' : 'none';
 }
 
 async function qaSaveEdit() {
@@ -769,9 +789,11 @@ async function qaSaveEdit() {
   saveBtn.textContent = '⏳ Saving…';
   saveBtn.disabled = true;
 
-  const qType = document.getElementById('qa-edit-type').value;
-  const tokensRaw  = document.getElementById('qa-edit-tokens')?.value || '';
-  const ctokensRaw = document.getElementById('qa-edit-correct-tokens')?.value || '';
+  const qType        = document.getElementById('qa-edit-type').value;
+  const tokensRaw    = document.getElementById('qa-edit-tokens')?.value || '';
+  const ctokensRaw   = document.getElementById('qa-edit-correct-tokens')?.value || '';
+  const fbTokensRaw  = document.getElementById('qa-edit-fb-tokens')?.value || '';
+  const fbAnswersRaw = document.getElementById('qa-edit-fb-answers')?.value || '';
 
   const updates = {
     text:          document.getElementById('qa-edit-text').value.trim(),
@@ -789,8 +811,11 @@ async function qaSaveEdit() {
     opt_d:         qType === 'mcq' ? document.getElementById('qa-edit-d').value.trim() : null,
     correct_index: qType === 'mcq' ? parseInt(document.getElementById('qa-edit-correct').value) : null,
     // Word picker fields
-    tokens:        qType === 'word_picker' ? tokensRaw.split(',').map(t => t.trim()).filter(Boolean) : null,
+    tokens:        qType === 'word_picker' ? tokensRaw.split(',').map(t => t.trim()).filter(Boolean)
+                 : qType === 'fill_blank'  ? fbTokensRaw.split(',').map(t => t.trim()).filter(Boolean)
+                 : null,
     correct_tokens:qType === 'word_picker' ? ctokensRaw.split(',').map(t => t.trim()).filter(Boolean) : null,
+    answers:       qType === 'fill_blank'  ? fbAnswersRaw.split(',').map(t => t.trim()).filter(Boolean) : null,
   };
 
   try {
@@ -1046,6 +1071,7 @@ async function fetchQuestionBank() {
         type:          r.type || 'mcq',
         tokens:        r.tokens || null,
         correct_tokens:r.correct_tokens || null,
+        answers:       r.answers || null,
       };
       if (r.diag) q.diag = r.diag;
       return q;

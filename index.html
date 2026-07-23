@@ -553,6 +553,7 @@
       <select id="qa-edit-type" onchange="qaOnTypeChange()" style="width:100%;margin:4px 0 10px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;">
         <option value="mcq">Multiple choice (A/B/C/D)</option>
         <option value="word_picker">Word picker (tap the correct words)</option>
+        <option value="fill_blank">Fill in the blank (inline)</option>
       </select>
 
       <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Question text</label>
@@ -579,6 +580,15 @@
         <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Correct tokens (comma-separated)</label>
         <input id="qa-edit-correct-tokens" type="text" placeholder="sorcier" style="width:100%;margin:4px 0 10px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;">
         <div style="font-size:0.75rem;color:#94a3b8;margin-bottom:10px;">Tip: for multiple correct words, separate with commas: <em>sorcier, loup</em></div>
+      </div>
+
+      <!-- Fill in the blank fields -->
+      <div id="qa-edit-fb-fields" style="display:none;">
+        <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Word bank (tokens, comma-separated)</label>
+        <input id="qa-edit-fb-tokens" type="text" placeholder="a, à, son, sont" style="width:100%;margin:4px 0 10px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;">
+        <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Answers in order (comma-separated)</label>
+        <input id="qa-edit-fb-answers" type="text" placeholder="sont, à, a, son, à" style="width:100%;margin:4px 0 10px;padding:7px 8px;border:1.5px solid #cbd5e1;border-radius:7px;font-size:0.88rem;box-sizing:border-box;">
+        <div style="font-size:0.75rem;color:#94a3b8;margin-bottom:10px;">Use <strong>___</strong> in the question text for each blank. List answers in the same order as the blanks. Tokens can be reused (e.g. à appearing twice in answers).</div>
       </div>
       <label style="font-size:0.8rem;color:#64748b;font-weight:600;">Explanation</label>
       <textarea id="qa-edit-exp" rows="3" style="width:100%;margin:4px 0 10px;padding:8px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.9rem;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
