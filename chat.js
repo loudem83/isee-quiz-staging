@@ -217,18 +217,3 @@ async function openQuizHelp(qn) {
   document.getElementById('catChatSend').disabled = false;
   setTimeout(() => document.getElementById('catChatInput').focus(), 100);
 }
-
-window.openQuizHelp = openQuizHelp;
-
-window.closeCatChat       = closeCatChat;
-window.handleOverlayClick = handleOverlayClick;
-window.catChatSend        = catChatSend;
-
-// Wire up Enter key
-document.addEventListener('DOMContentLoaded', function() {
-  const input = document.getElementById('catChatInput');
-  if (input) input.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') catChatSend();
-  });
-});
-window.qaNewQuestion      = qaNewQuestion;

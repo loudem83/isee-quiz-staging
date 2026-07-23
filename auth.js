@@ -141,28 +141,6 @@ async function onSignedIn() {
 
 // Expose auth functions to global scope for inline handlers
 
-window.showAdmin          = showAdmin;
-window.switchAdminTab     = switchAdminTab;
-window.adminRenderUsage   = adminRenderUsage;
-window.launchQAReview     = launchQAReview;
-window.launchNewQuestion  = launchNewQuestion;
-window.adminForceReload   = adminForceReload;
-window.adminClearProgress = adminClearProgress;
-window.adminClearLocalStorage = adminClearLocalStorage;
-window.doLogin            = doLogin;
-window.signOut            = signOut;
-window.exitTutorSession   = exitTutorSession;
-window.enterTutorSession  = enterTutorSession;
-window.launchTutorQA      = launchTutorQA;
-window.startTutorWorkout  = startTutorWorkout;
-window.setCurriculum      = setCurriculum;
-window.updateCatAvatar    = updateCatAvatar;
-window.updateGreeting     = updateGreeting;
-window.updateStreak       = updateStreak;
-window.toggleDrillCard    = toggleDrillCard;
-window.filterDrillCards   = filterDrillCards;
-window.startAssessment    = startAssessment;
-window.qaOnStrandChange   = qaOnStrandChange;
 
 /* ════════════════════════════════════════
    CAT CHAT

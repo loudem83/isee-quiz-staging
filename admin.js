@@ -1023,9 +1023,6 @@ function qaOnStrandChange() {
 }
 
 // Expose globally
-window.qaOnStrandChange   = qaOnStrandChange;
-window.qaOnSectionChange  = qaOnSectionChange;
-window.qaPopulateStrands  = qaPopulateStrands;
 
 /* ════════════════════════════════════════════
    TAXONOMY — Update when new questions are added
@@ -1182,5 +1179,3 @@ async function renderHeatGrid() {
   }
 }
 
-// Initialise on load — auth first, then questions
-initAuth();
