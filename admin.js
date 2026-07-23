@@ -863,7 +863,8 @@ async function qaDecide(decision) {
         const newQ = { n: row.question_id, sec: row.section, text: row.text,
           opts: [row.opt_a, row.opt_b, row.opt_c, row.opt_d], ans: row.correct_index, exp: row.explanation || '',
           assigned_to: row.assigned_to || null, created_by: row.created_by || null,
-          type: row.type || 'mcq', tokens: row.tokens || null, correct_tokens: row.correct_tokens || null };
+          type: row.type || 'mcq', tokens: row.tokens || null, correct_tokens: row.correct_tokens || null,
+          answers: row.answers || null };
         if (row.diag) newQ.diag = row.diag;
         if (row.strand) TAXONOMY[row.question_id] = { strand: row.strand, dok: row.dok, skill: row.skill || null };
         ALL_QUESTIONS.push(newQ);

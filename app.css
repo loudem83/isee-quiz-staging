@@ -132,27 +132,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .login-hero {
   background: var(--pp-primary-gradient-hdr);
   border-radius: var(--pp-radius-xl) var(--pp-radius-xl) 0 0;
-  padding: var(--pp-space-xl) var(--pp-space-lg) var(--pp-space-lg);
+  overflow: hidden;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 0;
 }
-.login-hero svg {
-  width: 120px;
-  height: 120px;
+.login-hero-img-wrap {
+  width: 100%;
+  line-height: 0;
+}
+.login-hero-img {
+  width: 100%;
   display: block;
+  object-fit: cover;
+  max-height: 240px;
 }
 .login-hero-title {
   font-size: var(--pp-font-h1-size);
   font-weight: var(--pp-font-h1-weight);
   color: var(--pp-surface);
   letter-spacing: -.3px;
+  padding: var(--pp-space-md) var(--pp-space-lg) 4px;
+  text-align: center;
 }
 .login-hero-sub {
   font-size: var(--pp-font-caption-size);
   font-weight: var(--pp-font-caption-weight);
   color: rgba(255,255,255,0.85);
+  padding: 0 var(--pp-space-lg) var(--pp-space-lg);
+  text-align: center;
 }
 .login-card {
   background: var(--pp-surface);
